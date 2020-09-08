@@ -1,0 +1,3946 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<base href="https://www.theswamp.org/index.php?topic=41529.0">
+	<style data-savepage-href="https://www.theswamp.org/Themes/default/css/index.css?fin20" type="text/css">/* Styles for the general looks for the Curve theme.
+------------------------------------------------------- */
+
+/* Normal, standard links. */
+a:link, a:visited
+{
+	color: #346;
+	text-decoration: none;
+}
+a:hover
+{
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* Links that open in a new window. */
+a.new_win:link, a.new_win:visited
+{
+	color: #346;
+	text-decoration: none;
+}
+a.new_win:hover
+{
+	text-decoration: underline;
+}
+
+/* Tables should show empty cells. */
+table
+{
+	empty-cells: show;
+}
+
+/* Set a fontsize that will look the same in all browsers. */
+body
+{
+	background: #E9EEF2 /*savepage-url=../images/theme/backdrop.png*/ var(--savepage-url-2) repeat-x;
+	font: 78%/130% "Verdana", "Arial", "Helvetica", sans-serif;
+	margin: 0 auto;
+	padding: 15px 0;
+}
+
+/* Help popups require a different styling of the body element. */
+body#help_popup
+{
+	padding: 1em;
+}
+
+/* use dark grey for the text, leaving #000 for headers etc */
+body, td, th, tr
+{
+	color: #444;
+}
+
+/* This division wraps the entire forum when a forum width is set. */
+div#wrapper
+{
+	margin: 0 auto;
+	min-width: 764px;
+	max-width: 2300px;
+}
+
+/* lets give all forms zero padding/margins */
+form
+{
+	padding: 0;
+	margin: 0;
+}
+
+/* We can style the different types of input buttons to be uniform throughout different browsers and their color themes.
+	.button_submit - covers input[type=submit], input[type=button], button[type=submit] and button[type=button] in all browsers
+	.button_reset  - covers input[type=reset] and button[type=reset] throughout all browsers
+	.input_check	- covers input[type=checkbox] throughout all browsers
+	.input_radio	- covers input[type=radio] throughout all browsers
+	.input_text	 - covers input[type=text] throughout all browsers
+	.input_file	 - covers input[type=file] throughout all browsers
+*/
+
+input, button, select, textarea
+{
+	font: 95%/115% verdana, Helvetica, sans-serif;
+	color: #000;
+	background: #fff;
+	border: 1px solid #7f9db9;
+	padding: 2px;
+}
+
+/* Select elements look horrible with the extra padding, so leave them unpadded. */
+select
+{
+	padding: 0;
+}
+
+/* Add some padding to the options instead. */
+select option
+{
+	padding: 1px;
+}
+
+/* The font size of textareas should be just a little bit larger. */
+textarea
+{
+	font: 100%/130% verdana, Helvetica, sans-serif;
+}
+
+/* Buttons should be styled a bit differently, in order to make them look more button'ish. */
+.button_submit, .button_reset
+{
+	background: #cde7ff /*savepage-url=../images/theme/submit_bg.png*/ var(--savepage-url-7) no-repeat;
+	border: 1px solid #aaa;
+	cursor: pointer;
+	font-weight: normal;
+}
+input:hover, textarea:hover, button:hover, select:hover
+{
+	border: 1px solid #454545;
+}
+.button_submit:hover, .button_reset:hover
+{
+	border: 1px solid #aaa;
+	background: /*savepage-url=../images/theme/submit_bg.png*/ var(--savepage-url-7) no-repeat 0 -140px #cde7ff;
+}
+input:focus, textarea:focus, button:focus, select:focus
+{
+	border: 1px solid #454545;
+}
+
+/* All input elements that are checkboxes or radio buttons shouldn't have a border around them. */
+input.input_check, input.input_radio
+{
+	border: none;
+	background: none;
+}
+h3.catbg input.input_check
+{
+	margin: 9px 7px 0 7px;
+}
+
+/* Give disabled text input elements a different background color. */
+input[disabled].input_text
+{
+	background-color: #eee;
+}
+
+/* Standard horizontal rule.. ([hr], etc.) */
+hr, .hrcolor
+{
+	height: 1px;
+	border: 0;
+	color: #ccc;
+	background-color: #ccc;
+}
+
+/* By default set the color on these tags as #000. */
+h1, h2, h3, h4, h5, h6
+{
+	color: #000;
+	font-size: 1em;
+	margin: 0;
+	padding: 0;
+}
+
+/* Fieldsets are used to group elements. */
+fieldset
+{
+	border: 1px solid #c4c4c4;
+	padding: 1em;
+	margin: 0 0 0.5em 0;
+}
+fieldset legend
+{
+	font-weight: bold;
+	color: #444;
+}
+/* No image should have a border when linked. */
+a img
+{
+	border: 0;
+}
+
+/* Define strong as bold, and em as italics */
+strong
+{
+	font-weight: bold;
+}
+
+em
+{
+	font-style: italic;
+}
+/* Alternative for u tag */
+.underline
+{
+	text-decoration: underline;
+}
+
+/* Common classes to easy styling.
+------------------------------------------------------- */
+
+.floatright
+{
+	float: right;
+}
+.floatleft
+{
+	float: left;
+}
+
+.flow_auto
+{
+	overflow: auto;
+}
+.flow_hidden
+{
+	overflow: hidden;
+}
+.flow_hidden .windowbg, .flow_hidden .windowbg2
+{
+	margin-top: 2px;
+}
+.clear
+{
+	clear: both;
+}
+.clear_left
+{
+	clear: left;
+}
+.clear_right
+{
+	clear: right;
+}
+
+/* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
+.smalltext, tr.smalltext th
+{
+	font-size: 0.85em;
+	font-family: verdana, sans-serif;
+}
+.middletext
+{
+	font-size: 0.9em;
+	line-height: 1em;
+	font-family: verdana, sans-serif;
+}
+.normaltext
+{
+	font-size: 1em;
+	line-height: 1.2em;
+}
+.largetext
+{
+	font-size: 1.4em;
+}
+.centertext
+{
+	margin: 0 auto;
+	text-align: center;
+}
+.righttext
+{
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+.lefttext
+{
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+.double_height
+{
+	line-height: 2em;
+}
+/* some common padding styles */
+.padding
+{
+	padding: 0.7em;
+}
+.main_section, .lower_padding
+{
+	padding-bottom: 0.5em;
+}
+/* a quick reset list class. */
+ul.reset, ul.reset li
+{
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+/* Some BBC related styles.
+------------------------------------------------------- */
+
+/* A quote, perhaps from another post. */
+blockquote.bbc_standard_quote, blockquote.bbc_alternate_quote
+{
+	font-size: x-small;
+	color: #000;
+	line-height: 1.4em;
+	background: /*savepage-url=../images/theme/quote.png*/ var(--savepage-url-13) 0.1em 0.1em no-repeat;
+	border-top: 2px solid #99A;
+	border-bottom: 2px solid #99A;
+	padding: 1.1em 1.4em;
+	margin: 0.1em 0 0.3em 0;
+	overflow: auto;
+}
+
+/* Alterate blockquote stylings */
+blockquote.bbc_standard_quote
+{
+	background-color: #d7daec;
+}
+blockquote.bbc_alternate_quote
+{
+	background-color: #e7eafc;
+}
+
+/* A code block - maybe PHP ;). */
+code.bbc_code
+{
+	display: block;
+	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+	font-size: small;
+	background: #eef;
+	border-top: 2px solid #999;
+	border-bottom: 2px solid #999;
+	line-height: 1.5em;
+	padding: 3px 1em;
+	overflow: auto;
+	white-space: nowrap;
+	/* Show a scrollbar after about 24 lines. */
+	max-height: 24em;
+}
+
+/* The "Quote:" and "Code:" header parts... */
+.codeheader, .quoteheader
+{
+	color: #666;
+	font-size: x-small;
+	font-weight: bold;
+	padding: 0 0.3em;
+}
+
+/* For links to change the code stuff... */
+.codeoperation
+{
+	font-weight: normal;
+}
+
+/* Styling for BBC tags */
+.bbc_link:link, .bbc_link:visited
+{
+	border-bottom: 1px solid #A8B6CF;
+}
+.bbc_link:hover
+{
+	text-decoration: none;
+	border-bottom: 1px solid #346;
+}
+.bbc_size
+{
+	line-height: 1.4em;
+}
+.bbc_color a
+{
+	color: inherit;
+}
+.bbc_img
+{
+	border: 0;
+}
+.bbc_table
+{
+	font: inherit;
+	color: inherit;
+}
+.bbc_table td
+{
+	font: inherit;
+	color: inherit;
+	vertical-align: top;
+}
+.bbc_u
+{
+	text-decoration: underline;
+}
+.bbc_list
+{
+	text-align: left;
+}
+.bbc_tt
+{
+	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
+}
+
+/* Generally, those [?] icons.  This makes your cursor a help icon. */
+.help
+{
+	cursor: help;
+}
+
+/* /me uses this a lot. (emote, try typing /me in a post.) */
+.meaction
+{
+	color: red;
+}
+
+/* Highlighted text - such as search results. */
+.highlight
+{
+	font-weight: bold;
+	color: #ff7200 !important;
+	font-size: 1.1em;
+}
+
+/* A more discreet highlight color, for selected membergroups etc. */
+.highlight2
+{
+	background-color: #D1E1EF;
+	color: #000 !important;
+}
+
+/* Generic, mostly color-related, classes.
+------------------------------------------------------- */
+
+.titlebg, .titlebg2, tr.titlebg th, tr.titlebg td, tr.titlebg2 td
+{
+	color: #222;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 1.1em;
+	font-weight: bold;
+	background: #e3e9ef /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat -10px -380px;
+}
+.catbg, .catbg2, tr.catbg td, tr.catbg2 td, tr.catbg th, tr.catbg2 th
+{
+	color: #fff;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 1.1em;
+	font-weight: bold;
+	background: #a7b9cd /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat -10px -280px;
+}
+
+/* adjust the table versions of headers */
+tr.titlebg th, tr.titlebg2 th, td.titlebg, td.titlebg2, tr.catbg th, tr.catbg2 th, td.catbg, td.catbg2
+{
+	padding: 0 6px;
+}
+tr.titlebg th a:link, tr.titlebg th a:visited, tr.titlebg2 td a:link, tr.titlebg2 td a:visited
+{
+	color: #222;
+}
+tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:visited
+{
+	color: #fff;
+}
+.catbg select
+{
+	height: 1.5em;
+	font-size: 0.85em;
+}
+
+/* Alternating backgrounds for posts, and several other sections of the forum. */
+.windowbg, #preview_body
+{
+	color: #000;
+	background-color: #e7eaef;
+}
+.windowbg2
+{
+	color: #000;
+	background-color: #f0f4f7;
+}
+.windowbg3
+{
+	color: #000;
+	background-color: #cacdd3;
+}
+
+/* the page navigation area */
+.pagesection
+{
+	font-size: 0.9em;
+	padding: 0.2em;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+div.pagesection div.floatright input
+{
+	margin-top: 3px;
+}
+
+.pagelinks
+{
+	padding: 0.6em 0 0.4em 0;
+}
+
+/* Colors for background of posts requiring approval */
+.approvebg
+{
+	color: #000;
+	background-color: #ffeaea;
+}
+.approvebg2
+{
+	color: #000;
+	background-color: #fff2f2;
+}
+
+/* Color for background of *topics* requiring approval */
+.approvetbg
+{
+	color: #000;
+	background-color: #e4a17c;
+}
+.approvetbg2
+{
+	color: #000;
+	background-color: #f3bd9f;
+}
+
+/* Sticky topics get a different background */
+.stickybg
+{
+	background: #e8d8cf;
+}
+.stickybg2
+{
+	background: #f2e3d9;
+}
+
+/* Locked posts get a different shade, too! */
+.lockedbg
+{
+	background: #d4dce2;
+	font-style: italic;
+}
+.lockedbg2
+{
+	background: #d8e1e7;
+	font-style: italic;
+}
+
+/* Posts and personal messages displayed throughout the forum. */
+.post, .personalmessage
+{
+	overflow: auto;
+	line-height: 1.4em;
+	padding: 0.1em 0;
+}
+
+/* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
+.signature, .attachments
+{
+	width: 98%;
+	overflow: auto;
+	clear: right;
+	padding: 1em 0 3px 0;
+	border-top: 1px solid #aaa;
+	line-height: 1.4em;
+	font-size: 0.85em;
+}
+.custom_fields_above_signature
+{
+	width: 98%;
+	clear: right;
+	padding: 1em 0 3px 0;
+	border-top: 1px solid #aaa;
+	line-height: 1.4em;
+	font-size: 0.85em;
+}
+
+/* Sometimes there will be an error when you post */
+.error
+{
+	color: red;
+}
+
+/* Messages that somehow need to attract the attention. */
+.alert
+{
+	color: red;
+}
+
+/* Calendar colors for birthdays, events and holidays */
+.birthday
+{
+	color: #920ac4;
+}
+
+.event
+{
+	color: #078907;
+}
+
+.holiday
+{
+	color: #000080;
+}
+
+/* Colors for warnings */
+.warn_mute
+{
+	color: red;
+}
+
+.warn_moderate
+{
+	color: #ffa500;
+}
+
+.warn_watch, .success
+{
+	color: green;
+}
+
+a.moderation_link, a.moderation_link:visited
+{
+	color: red;
+	font-weight: bold;
+}
+
+.openid_login
+{
+	background: white /*savepage-url=../images/openid.gif*/ url() no-repeat;
+	padding-left: 18px;
+}
+
+/* a descriptive style */
+.description, .description_board, .plainbox
+{
+	padding: 0.5em 1em;
+	font-size: 0.9em;
+	line-height: 1.4em;
+	border: 1px solid #bbb;
+	background: #f5f5f0;
+	margin: 0.2em 1px 1em 1px;
+}
+.description_board
+{
+	margin: 1em 1px 0 1px;
+}
+
+/* an informative style */
+.information
+{
+	padding: 0.5em 1em;
+	font-size: 0.9em;
+	line-height: 1.3em;
+	border: 1px solid #bbb;
+	background: #f0f6f0;
+	margin: 0.2em 1px 1em 1px;
+}
+.information p
+{
+	padding: 1em;
+	margin: 0;
+}
+p.para2
+{
+	padding: 1em 0 3.5em 0;
+	margin: 0;
+}
+/* AJAX notification bar
+------------------------------------------------------- */
+#ajax_in_progress
+{
+	background: /*savepage-url=../images/theme/loadingbar.png*/ url() repeat-x;
+	color: #f96f00;
+	text-align: center;
+	font-size: 16pt;
+	padding: 8px;
+	width: 100%;
+	height: 66px;
+	line-height: 25px;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#ajax_in_progress a
+{
+	color: orange;
+	text-decoration: underline;
+	font-size: smaller;
+	float: right;
+	margin-right: 20px;
+}
+
+/* Lists with settings use these a lot.
+------------------------------------------------------- */
+dl.settings
+{
+	clear: right;
+	overflow: auto;
+	margin: 0 0 10px 0;
+	padding: 0;
+}
+dl.settings dt
+{
+	width: 40%;
+	float: left;
+	margin: 0 0 10px 0;
+	padding: 0;
+	clear: both;
+}
+dl.settings dt.settings_title
+{
+	width: 100%;
+	float: none;
+	margin: 0 0 10px 0;
+	padding: 5px 0 0 0;
+	font-weight: bold;
+	clear: both;
+}
+dl.settings dt.windowbg
+{
+	width: 98%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0 0 5px 0;
+	clear: both;
+}
+dl.settings dd
+{
+	width: 56%;
+	float: right;
+	overflow: auto;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+dl.settings img
+{
+	margin: 0 10px 0 0;
+}
+/* help icons */
+dl.settings dt a img
+{
+	position: relative;
+	top: 2px;
+}
+
+/* Styles for rounded headers.
+------------------------------------------------------- */
+h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg
+{
+	overflow: hidden;
+	height: 31px;
+	line-height: 31px;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a
+{
+	color: #fff;
+}
+h3.catbg2 a, h3.catbg2
+{
+	color: #feb;
+}
+h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover
+{
+	color: #fd9;
+	text-decoration: none;
+}
+h3.catbg2 a:hover
+{
+	color: #fff;
+	text-decoration: none;
+}
+h3.titlebg a, h3.titlebg, h4.titlebg, h4.titlebg a
+{
+	color: #222;
+}
+h3.titlebg a:hover, h4.titlebg a:hover
+{
+	color: #53616f;
+	text-decoration: none;
+}
+h3.catbg img.icon, h4.titlebg img.icon
+{
+	vertical-align: middle;
+	margin: -2px 5px 0 0;
+}
+h4.catbg a.toggle img
+{
+	vertical-align: middle;
+	margin: -2px 5px 0 5px;
+}
+h4.catbg, h4.catbg2 , h3.catbg , h3.catbg2 , .table_list tbody.header td.catbg
+{
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -160px;
+	padding-right: 9px;
+}
+h4.titlebg, h3.titlebg
+{
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -200px;
+	padding-right: 9px;
+}
+h4.titlebg img.icon
+{
+	float: left;
+	margin: 5px 8px 0 0;
+}
+div.cat_bar
+{
+	background: #99abbf /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 0 -160px;
+	padding-left: 9px;
+	height: 31px;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+div.title_bar
+{
+	background: #e3e9ef /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 0 -200px;
+	padding-left: 9px;
+	height: 31px;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+
+/* rounded bars needs a different background here */
+
+div.roundframe div.cat_bar
+{
+	background: #99abbf /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 0 -240px;
+	margin-bottom: 0;
+}
+div.roundframe div.cat_bar h3.catbg
+{
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -240px;
+}
+div.title_barIC
+{
+	background: #dadfe6 /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 0 -120px;
+	padding-left: 9px;
+	height: 31px;
+	overflow: hidden;
+	margin-bottom: 1px;
+}
+div.title_barIC h4.titlebg
+{
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -120px;
+}
+#upshrinkHeaderIC p.pminfo
+{
+	margin: 0;
+	padding: 0.5em;
+}
+img#upshrink_ic, img#newsupshrink
+{
+	float: right;
+	margin: 10px 5px 0 0;
+}
+table.table_list a.unreadlink, table.table_list a.collapse
+{
+	float: right;
+}
+table.table_list a.collapse
+{
+	margin: 10px 5px 0 1em;
+	height: 31px;
+	line-height: 31px;
+}
+
+/* The half-round header bars for some tables. */
+.table_grid tr.catbg, .table_grid tr.titlebg
+{
+	font-size: 0.95em;
+	border-bottom: 1px solid #fff;
+}
+.table_grid tr.catbg th, .table_grid tr.titlebg th
+{
+	height: 28px;
+	line-height: 28px;
+}
+tr.catbg th.first_th
+{
+	background: #a7b9cd /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 0 -280px;
+}
+tr.catbg th.last_th
+{
+	background: #a7b9cd /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -280px;
+}
+tr.titlebg th.first_th
+{
+	background: #e3e9ef /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 0 -380px;
+}
+tr.titlebg th.last_th
+{
+	background: #e3e9ef /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -380px;
+}
+.table_grid th.last_th input
+{
+	margin: 0 2px;
+}
+.table_grid th.lefttext
+{
+	padding: 0 0.7em;
+}
+
+/* a general table class */
+table.table_grid
+{
+	border-collapse: collapse;
+	margin-top: 0.1em;
+}
+table.table_grid td
+{
+	padding: 3px;
+	border-bottom: 1px solid #fff;
+	border-right: 1px solid #fff;
+}
+
+/* GenericList */
+.additional_row
+{
+	padding: 0.5em 0 0.5em 0;
+}
+table.table_grid thead tr.catbg th
+{
+	white-space: nowrap;
+}
+
+/* table_grid styles for Profile > Show Permissions. */
+#permissions table.table_grid  td
+{
+	padding: 0.4em 0.8em;
+	cursor: default;
+} 
+
+/* Common styles used to add corners to divisions.
+------------------------------------------------------- */
+.windowbg span.topslice
+{
+	display: block;
+	padding-left: 20px;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 -30px no-repeat;
+}
+.windowbg span.topslice span
+{
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% -30px no-repeat;
+	height: 11px;
+}
+.windowbg span.botslice
+{
+	display: block;
+	padding-left: 20px;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 -40px no-repeat;
+	font-size: 5px;
+	line-height: 5px;
+	margin-bottom: 0.2em;
+}
+.windowbg span.botslice span
+{
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% -40px no-repeat;
+	height: 11px;
+}
+
+.windowbg2 span.topslice
+{
+	display: block;
+	padding-left: 20px;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 -60px no-repeat;
+}
+.windowbg2 span.topslice span
+{
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% -60px no-repeat;
+	height: 11px;
+}
+.windowbg2 span.botslice
+{
+	display: block;
+	padding-left: 20px;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 -71px no-repeat;
+	font-size: 5px;
+	line-height: 5px;
+	margin-bottom: 0.2em;
+}
+.windowbg2 span.botslice span
+{
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% -71px no-repeat;
+	height: 11px;
+}
+.approvebg span.topslice
+{
+	display: block;
+	padding-left: 20px;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 0 no-repeat;
+}
+.approvebg span.topslice span
+{
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% 0 no-repeat;
+	height: 11px;
+}
+.approvebg span.botslice
+{
+	display: block;
+	padding-left: 20px;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 -11px no-repeat;
+	margin-bottom: 0.2em;
+}
+.approvebg span.botslice span
+{
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% -11px no-repeat;
+	height: 11px;
+}
+.postbg
+{
+	border-left: 1px solid #7f7f7f;
+	border-right: 1px solid #7f7f7f;
+}
+
+/* Used for sections that need somewhat larger corners.
+----------------------------------------------------------- */
+.roundframe
+{
+	padding: 0 10px;
+	background: #f5f5f5;
+	border-left: 1px solid #c5c5c5;
+	border-right: 1px solid #c5c5c5;
+}
+.roundframe dl, .roundframe dt, .roundframe p
+{
+	margin: 0;
+}
+.roundframe p
+{
+	padding: 0.5em;
+}
+span.upperframe
+{
+	padding: 0;
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 -90px no-repeat;
+	padding-left: 20px;
+}
+span.upperframe span
+{
+	padding: 0;
+	height: 12px;
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% -90px no-repeat;
+}
+span.lowerframe
+{
+	padding: 0;
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 0 -102px no-repeat;
+	padding-left: 20px;
+}
+span.lowerframe span
+{
+	padding: 0;
+	height: 12px;
+	display: block;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) 100% -102px no-repeat;
+}
+
+/* The main content area.
+------------------------------------------------------- */
+.content
+{
+	padding: 0.5em 1.2em;
+	margin: 0;
+	border: none;
+}
+.content p
+{
+	margin: 0 0 0.5em 0;
+}
+
+/* Styles used by the auto suggest control.
+------------------------------------------------------- */
+.auto_suggest_div
+{
+	border: 1px solid #000;
+	position: absolute;
+	visibility: hidden;
+}
+.auto_suggest_item
+{
+	background-color: #ddd;
+}
+.auto_suggest_item_hover
+{
+	background-color: #888;
+	cursor: pointer;
+	color: #eee;
+}
+
+/* Styles for the standard dropdown menus.
+------------------------------------------------------- */
+#main_menu
+{
+	padding: 0 0.5em;
+	float: left;
+	margin: 0;
+	width: 98%;
+}
+
+.dropmenu, .dropmenu ul
+{
+	list-style: none;
+	line-height: 1em;
+	padding: 0;
+	margin: 0;
+}
+.dropmenu
+{
+	padding: 0 0.5em;
+}
+.dropmenu a
+{
+	display: block;
+	color: #000;
+	text-decoration: none;
+}
+.dropmenu a span
+{
+	display: block;
+	padding: 0 0 0 5px;
+	font-size: 0.9em;
+}
+/* the background's first level only */
+.dropmenu li a.firstlevel
+{
+	margin-right: 8px;
+}
+.dropmenu li a.firstlevel span.firstlevel
+{
+	display: block;
+	position: relative;
+	left: -5px;
+	padding-left: 5px;
+	height: 22px;
+	line-height: 19px;
+	white-space: pre;
+}
+.dropmenu li
+{
+	float: left;
+	padding: 0;
+	margin: 0;
+	position: relative;
+}
+.dropmenu li ul
+{
+	z-index: 90;
+	display: none;
+	position: absolute;
+	width: 19.2em;
+	font-weight: normal;
+	border-bottom: 1px solid #999;
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) 0 -130px no-repeat;
+	padding: 7px 0 0 0;
+}
+.dropmenu li li
+{
+	width: 19em;
+	margin: 0;
+	border-left: 1px solid #999;
+	border-right: 1px solid #999;
+}
+.dropmenu li li a span
+{
+	display: block;
+	padding: 8px;
+}
+.dropmenu li ul ul
+{
+	margin: -1.8em 0 0 13em;
+}
+
+/* the active button */
+.dropmenu li a.active
+{
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 100% 0;
+	color: #fff;
+	font-weight: bold;
+}
+.dropmenu li a.active span.firstlevel
+{
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 0 0;
+}
+/* the hover effects */
+.dropmenu li a.firstlevel:hover, .dropmenu li:hover a.firstlevel
+{
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 100% -30px;
+	color: #fff;
+	cursor: pointer;
+	text-decoration: none;
+}
+.dropmenu li a.firstlevel:hover span.firstlevel, .dropmenu li:hover a.firstlevel span.firstlevel
+{
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 0 -30px;
+}
+/* the hover effects on level2 and 3 */
+.dropmenu li li a:hover, .dropmenu li li:hover>a
+{
+	background: #d4dbe4;
+	color: #000;
+	text-decoration: none;
+}
+.dropmenu li:hover ul ul, .dropmenu li:hover ul ul ul
+{
+	top: -999em;
+}
+.dropmenu li li:hover ul
+{
+	top: auto;
+}
+.dropmenu li:hover ul
+{
+	display: block;
+}
+.dropmenu li li.additional_items
+{
+	background-color: #fff;
+}
+
+/* The dropdown menu toggle image */
+#menu_toggle
+{
+	float: right;
+	margin-right: 10px;
+	padding-top: 3px;
+}
+#menu_toggle span
+{
+	position: relative;
+	right: 5000px;
+}
+
+/* Styles for the standard button lists.
+------------------------------------------------------- */
+
+.buttonlist ul
+{
+	z-index: 100;
+	padding: 5px;
+	margin: 0 0.2em 5px 0;
+}
+.buttonlist ul li
+{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	float: left;
+}
+.buttonlist ul li a
+{
+	display: block;
+	font-size: 0.8em;
+	color: #000;
+	background: #e8e8e8 /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 0 -60px;
+	padding: 0 0 0 8px;
+	margin-left: 12px;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+.buttonlist ul li a:hover
+{
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 0 0;
+	color: #fff;
+	text-decoration: none;
+}
+.buttonlist ul li a span
+{
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 100% -60px;
+	display: block;
+	height: 19px;
+	line-height: 19px;
+	padding: 0 8px 0 0;
+}
+.buttonlist ul li a:hover span
+{
+	background: #fff /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 100% 0;
+}
+/* the active one */
+.buttonlist ul li a.active
+{
+	background: #5a6c85 /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 0 -90px;
+	color: #fff;
+	font-weight: bold;
+}
+.buttonlist ul li a.active span
+{
+	background: /*savepage-url=../images/theme/menu_gfx.png*/ var(--savepage-url-8) no-repeat 100% -90px;
+}
+.buttonlist ul li a.active
+{
+	font-weight: bold;
+}
+.buttonlist ul li a.active:hover
+{
+	color: #ddf;
+}
+.align_top ul li a, .align_bottom ul li a
+{
+	margin: 0 12px 0 0;
+}
+
+/* the navigation list */
+ul#navigation
+{
+	margin: 0;
+	font-size: 0.9em;
+	padding: 1em 0.4em;
+}
+ul#navigation li
+{
+	float: none;
+	font-size: 0.95em;
+	display: inline;
+}
+
+#adm_submenus
+{
+	padding-left: 2em;
+	overflow: hidden;
+}
+
+/* Styles for the general looks for the Curve theme.
+------------------------------------------------------- */
+
+/* the framing graphics */
+#header
+{
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) #fefefe no-repeat 0 -480px;
+	padding-left: 20px;
+}
+#header div.frame
+{
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -480px;
+	display: block;
+	padding: 5px 20px 1em 0;
+}
+/* the content section */
+#content_section
+{
+	background: #FFFFFF /*savepage-url=../images/theme/frame_repeat.png*/ var(--savepage-url-9) repeat-y top left;
+	padding-left: 20px;
+}
+#content_section div.frame
+{
+	background: /*savepage-url=../images/theme/frame_repeat.png*/ var(--savepage-url-9) repeat-y top right;
+	display: block;
+	padding: 0 20px 0 0;
+}
+#main_content_section
+{
+	width: 100%;
+	min-height: 200px;
+}
+
+/* the main title, always stay at 45 pixels in height! */
+h1.forumtitle
+{
+	line-height: 45px;
+	font-size: 1.8em;
+	font-family: Geneva, verdana, sans-serif;
+	margin: 0;
+	padding: 0;
+	float: left;
+}
+/* float these items to the right */
+#siteslogan, img#smflogo
+{
+	margin: 0;
+	padding: 0;
+	float: right;
+	line-height: 3em;
+}
+h3, h4
+{
+	padding-bottom: 3px;
+}
+/* the upshrink image needs some tweaking */
+img#upshrink
+{
+	float: right;
+	margin: 1em;
+}
+/* ..so does the SMF logo */
+img#smflogo
+{
+	margin-left: 1em;
+}
+/* the upper_section, float the two each way */
+#upper_section
+{
+	padding: 5px;
+	margin-bottom: 1.5em;
+}
+#upper_section ul li.greeting
+{
+	font-size: 1.3em;
+	font-weight: bold;
+	line-height: 1.5em;
+}
+#upper_section div.news
+{
+	width: 50%;
+	float: right;
+	text-align: right;
+}
+#guest_form
+{
+	overflow: hidden;
+}
+#guest_form .info
+{
+	padding: 4px 0 ;
+	line-height: 1.3em;
+}
+div#upper_section div.user
+{
+	width: 50%;
+	float: left;
+	overflow: auto;
+}
+div#upper_section div.user p
+{
+	float: left;
+	margin: 0 1em 1em 0;
+	padding: 0;
+}
+div#upper_section div.user ul
+{
+	margin: 0;
+	padding-left: 10px;
+}
+div#upper_section div.user ul li
+{
+	margin-bottom: 2px;
+}
+div#upper_section div.news p
+{
+	display: inline;
+}
+div#upper_section div.news form
+{
+	padding-bottom: 10px;
+}
+/* clearing the floats */
+#top_section
+{
+	min-height: 65px;
+	overflow: hidden;
+	margin-bottom: 3px;
+}
+#upper_section
+{
+	overflow: hidden;
+}
+
+/* The navigation list (i.e. linktree) */
+.navigate_section
+{
+	padding: 0.5em;
+	margin: 0 0 0 0;
+}
+.navigate_section ul
+{
+	display: block;
+	margin: 0;
+	font-size: 0.9em;
+	padding: 1em 0 0.5em 0;
+	border-top: 1px solid #ccc;
+	overflow: hidden;
+	list-style: none;
+	clear: both;
+	width: 100%;
+}
+.navigate_section ul li
+{
+	float: left;
+	padding: 0 0.5em 0 0;
+	font-size: 0.95em;
+}
+.navigate_section ul li a
+{
+	white-space: pre;
+}
+
+/* The footer wih copyright links etc. */
+#footer_section
+{
+	text-align: center;
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 0 -820px;
+	padding-left: 20px;
+}
+#footer_section span.smalltext
+{
+	font-size: 100%;
+}
+#footer_section div.frame
+{
+	background: /*savepage-url=../images/theme/main_block.png*/ var(--savepage-url-3) no-repeat 100% -820px;
+	display: block;
+	padding: 60px 0 0 0;
+}
+#footer_section ul li, #footer_section p
+{
+	font-size: 0.8em;
+}
+#footer_section ul li
+{
+	display: inline;
+	padding-right: 5px;
+}
+#footer_section ul li.copyright
+{
+	display: block;
+}
+select.qaction, input.qaction
+{
+	font-size: 0.85em;
+	padding: 0;
+}
+#mlist table tbody td.windowbg2
+{
+	text-align: center;
+}
+
+/* Styles for a typical table.
+------------------------------------------------------- */
+table.table_list
+{
+	width: 100%;
+}
+table.table_list p
+{
+	padding: 0;
+	margin: 0;
+}
+table.table_list td, table.table_list th
+{
+	padding: 5px;
+}
+table.table_list tbody.header td
+{
+	padding: 0;
+}
+table.table_list tbody.content td.stats
+{
+	font-size: 90%;
+	width: 15%;
+	text-align: center;
+}
+table.table_list tbody.content td.lastpost
+{
+	line-height: 1.3em;
+	font-size: 85%;
+	width: 24%;
+}
+table.table_list tbody.content td.icon
+{
+	text-align: center;
+	width: 6%;
+}
+
+/* Styles for the board index.
+------------------------------------------------- */
+
+/* the board title! */
+.table_list tbody.content td.info a.subject
+{
+	font-weight: bold;
+	font-size: 110%;
+	color: #d97b33;
+}
+.table_list tbody.content td.children
+{
+	color: #555;
+	font-size: 85%;
+}
+p.moderators
+{
+	font-size: 0.8em;
+	font-family: verdana, sans-serif;
+}
+/* hide the table header/footer parts - but its here for those needing to style it */
+#boardindex_table .table_list thead, #boardindex_table .table_list tfoot
+{
+	display: none;
+}
+
+/* the posting icons */
+#posting_icons
+{
+	padding: 0 1em 0.5em 1em;
+	margin: 0 0 1em 0;
+	line-height: 1em;
+}
+#posting_icons ul
+{
+	font-size: 0.8em;
+}
+#posting_icons img
+{
+	vertical-align: middle;
+	margin: 0 0 0 4ex;
+}
+#postbuttons_upper ul li a span
+{
+	line-height: 19px;
+	padding: 0 0 0 6px;
+}
+.nextlinks
+{
+	text-align: right;
+	margin-top: -1px;
+}
+.nextlinks_bottom
+{
+	clear: right;
+	text-align: right;
+}
+.mark_read
+{
+	padding: 0 0.5em;
+}
+
+/* the newsfader */
+#newsfader
+{
+	margin: 0 2px;
+}
+#smfFadeScroller
+{
+	text-align: center;
+	padding: 0 2em;
+	overflow: auto;
+	margin: 1em 0;
+	color: #575757; /* shouldn't be shorthand style due to a JS bug in IE! */
+}
+
+/* Styles for the info center on the board index.
+---------------------------------------------------- */
+
+#upshrinkHeaderIC
+{
+	margin-top: 4px;
+}
+dl#ic_recentposts
+{
+	margin: 0 0 0.5em 0;
+	padding: 0.5em;
+	line-height: 1.3em;
+}
+dl#ic_recentposts dt
+{
+	float: left;
+}
+dl#ic_recentposts dd
+{
+	text-align: right;
+}
+#upshrinkHeaderIC p
+{
+	margin: 0 0 0.5em 0;
+	padding: 0.5em;
+}
+#upshrinkHeaderIC p.last
+{
+	margin: 0;
+	padding: 0.5em;
+	border-top: 2px dotted #bbb;
+}
+#upshrinkHeaderIC p.inline
+{
+	border: none;
+	margin: 0;
+	padding: 0.2em 0.5em 0.2em 0.5em;
+}
+#upshrinkHeaderIC p.stats
+{
+	font-size: 1.1em;
+	padding-top: 8px;
+}
+form#ic_login
+{
+	padding: 0.5em;
+	height: 2em;
+}
+form#ic_login ul li
+{
+	margin: 0;
+	padding: 0;
+	float: left;
+	width: 20%;
+	text-align: center;
+}
+form#ic_login ul li label
+{
+	display: block;
+}
+
+/* the small stats */
+#index_common_stats
+{
+	display: block;
+	margin: 0 0 0.5em 0;
+	text-align: right;
+	font-size: 0.9em;
+	position: relative;
+	top: -20px;
+	line-height: 1px;
+}
+
+img.new_posts
+{
+	padding: 0 0.1em;
+}
+/* Styles for the message (topic) index.
+---------------------------------------------------- */
+div.table_frame .table_list
+{
+	border-collapse: collapse;
+	margin: 2px 0;
+}
+.table_frame .table_list td.icon, .table_frame .table_list td.info, .table_frame .table_list td.stats
+{
+	border-right: 2px solid white;
+}
+#messageindex
+{
+	clear: both;
+}
+/* the page navigation area */
+.childboards
+{
+	margin-bottom: 0.2em;
+}
+#childboards h3
+{
+	padding-bottom: 0;
+}
+#childboards .table_list thead
+{
+	display: none;
+}
+#childboards .table_list
+{
+	margin-bottom: 1em;
+}
+.lastpost img
+{
+	float: right;
+	padding: 4px;
+}
+
+/* Styles for the display template (topic view).
+---------------------------------------------------- */
+
+#postbuttons div.buttons
+{
+	padding: 0.5em;
+	width: 40%;
+	float: right;
+}
+#postbuttons div.middletext
+{
+	width: 60%;
+}
+#postbuttons span
+{
+	display: block;
+	text-align: right;
+}
+#postbuttons span.lower
+{
+	clear: right;
+}
+#postbuttons .buttonlist
+{
+	float: right;
+}
+#postbuttons #pagelinks
+{
+	padding-top: 1em;
+}
+#moderationbuttons
+{
+	overflow: hidden;
+}
+/* Events */
+.linked_events
+{
+	padding: 1em 0;
+}
+.edit_event
+{
+	margin: 0 1em;
+	vertical-align: middle;
+}
+/* Poll question */
+#poll
+{
+	overflow: hidden;
+}
+#poll .content
+{
+	padding: 0 1em;
+}
+h4#pollquestion
+{
+	padding: 0 0 0.5em 2em;
+}
+
+/* Poll vote options */
+#poll_options ul.options
+{
+	border-top: 1px solid #9999aa;
+	padding: 1em 2.5em 0 2em;
+	margin: 0 0 1em 0;
+}
+#poll_options div.submitbutton
+{
+	border-bottom: 1px solid #9999aa;
+	clear: both;
+	padding: 0 0 1em 2em;
+	margin: 0 0 1em 0;
+}
+
+/* Poll results */
+#poll_options dl.options
+{
+	border: solid #9999aa;
+	border-width: 1px 0;
+	padding: 1em 2.5em 1em 2em;
+	margin: 0 1em 1em 0;
+	line-height: 1.1em !important;
+}
+
+#poll_options dl.options dt
+{
+	padding: 0.3em 0;
+	width: 30%;
+	float: left;
+	margin: 0;
+	clear: left;
+}
+
+#poll_options dl.options .voted
+{
+	font-weight: bold;
+}
+
+#poll_options dl.options dd
+{
+	margin: 0 0 0 2em;
+	padding: 0.1em 0 0 0;
+	width: 60%;
+	max-width: 450px;
+	float: left;
+}
+
+#poll_options dl.options .percentage
+{
+	display: block;
+	float: right;
+	padding: 0.2em 0 0.3em 0;
+}
+
+/* Poll notices */
+#poll_options p
+{
+	margin: 0 1.5em 0.2em 1.5em;
+	padding: 0 0.5em 0.5em 0.5em;
+}
+
+div#pollmoderation
+{
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+}
+
+/* onto the posts */
+#forumposts
+{
+	clear: both;
+}
+#forumposts .cat_bar
+{
+	margin: 0 0 2px 0;
+}
+/* author and topic information */
+#forumposts h3 span#author
+{
+	margin: 0 7.7em 0 0;
+}
+#forumposts h3 img
+{
+	float: left;
+	margin: 4px 0.5em 0 0;
+}
+#forumposts h3.catbg
+{
+	margin-bottom: 3px;
+}
+p#whoisviewing
+{
+	margin: 0;
+	padding: 0.5em;
+}
+/* poster and postarea + moderation area underneath */
+.post_wrapper
+{
+	float:left;
+	width:100%;
+}
+.poster
+{
+	float: left;
+	width: 15em;
+}
+.postarea, .moderatorbar
+{
+	margin: 0 0 0 16em;
+}
+.postarea div.flow_hidden
+{
+	width: 100%;
+}
+
+.moderatorbar
+{
+	clear: right;
+}
+/* poster details and list of items */
+.poster h4, .poster ul
+{
+	padding: 0;
+	margin: 0 1em 0 1.5em;
+}
+.poster h4
+{
+	margin: 0.2em 0 0.4em 1.1em;
+	font-size: 120%;
+}
+.poster h4, .poster h4 a
+{
+	color: #c06002;
+}
+.poster ul ul
+{
+	margin: 0.3em 1em 0 0;
+	padding: 0;
+}
+.poster ul ul li
+{
+	display: inline;
+}
+.poster li.stars, .poster li.avatar, .poster li.blurb, li.postcount, li.im_icons ul
+{
+	margin-top: 0.5em;
+}
+.poster li.avatar
+{
+	overflow: hidden;
+}
+.poster li.warning
+{
+	line-height: 1.2em;
+	padding-top: 1em;
+}
+.poster li.warning a img
+{
+	vertical-align: bottom;
+	padding: 0 0.2em;
+}
+.messageicon
+{
+	float: left;
+	margin: 0 0.5em 0 0;
+}
+.messageicon img
+{
+	padding: 6px 3px;
+}
+.keyinfo
+{
+	float: left;
+	width: 50%;
+}
+.modifybutton
+{
+	clear: right;
+	float: right;
+	margin: 6px 20px 10px 0;
+	text-align: right;
+	font: bold 0.85em arial, sans-serif;
+	color: #334466;	
+}
+
+/* The quick buttons */
+div.quickbuttons_wrap
+{
+	padding: 0.2em 0;
+	width: 100%;
+	float: left;
+}
+
+ul.quickbuttons
+{
+	margin: 0.9em 11px 0 0;
+	clear: right;
+	float: right;
+	text-align: right;
+	font: bold 0.85em arial, sans-serif;
+}
+ul.quickbuttons li
+{
+	float: left;
+	display: inline;
+	margin: 0 0 0 11px;
+}
+ul.quickbuttons li a
+{
+	padding: 0 0 0 20px;
+	display: block;
+	height: 20px;
+	line-height: 18px;
+	float: left;
+}
+ul.quickbuttons a:hover
+{
+	color: #a70;
+}
+ul.quickbuttons li.quote_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 0;
+}
+ul.quickbuttons li.remove_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -30px;
+}
+ul.quickbuttons li.modify_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -60px;
+}
+ul.quickbuttons li.approve_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -90px;
+}
+ul.quickbuttons li.restore_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -120px;
+}
+ul.quickbuttons li.split_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -150px;
+}
+ul.quickbuttons li.reply_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -180px;
+}
+ul.quickbuttons li.reply_all_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -180px;
+}
+ul.quickbuttons li.notify_button
+{
+	background: /*savepage-url=../images/theme/quickbuttons.png*/ url() no-repeat 0 -210px;
+}
+ul.quickbuttons li.inline_mod_check
+{
+	margin: 0 0 0 5px;
+}
+
+.post
+{
+	margin-top: 0.5em;
+	clear: right;
+}
+.inner
+{
+	padding: 1em 1em 2px 0;
+	margin: 0 1em 0 0;
+	border-top: 1px solid #99a;
+}
+img.smiley
+{
+	vertical-align: bottom;
+}
+#forumposts .modified
+{
+	float: left;
+}
+#forumposts .reportlinks
+{
+	margin-right: 1.5em;
+	text-align: right;
+	clear: right;
+}
+#forumposts .signature, .post .signature
+{
+	margin: 1em 0 0 0;
+}
+#forumposts span.botslice
+{
+	clear: both;
+}
+.attachments hr
+{
+	clear: both;
+	margin: 1em 0 1em 0;
+}
+.attachments
+{
+	padding: 1em 0 2em 0;
+}
+.attachments div
+{
+	padding: 0 0.5em;
+}
+
+/* Styles for the quick reply area.
+---------------------------------------------------- */
+
+#quickreplybox
+{
+	padding-bottom: 1px;
+}
+#quickReplyOptions .roundframe
+{
+	padding: 0 10%;
+}
+#quickReplyOptions form textarea
+{
+	height: 100px;
+	width: 635px;
+	max-width: 100%;
+	min-width: 100%;
+	margin: 0.25em 0 1em 0;
+}
+/* The jump to box */
+#display_jump_to
+{
+	clear: both;
+	padding: 5px;
+	margin-top: 6px;
+	text-align: right;
+}
+
+/* Separator of posts. More useful in the print stylesheet. */
+#forumposts .post_separator
+{
+	display: none;
+}
+
+/* Styles for edit post section
+---------------------------------------------------- */
+form#postmodify .roundframe
+{
+	padding: 0 12%;
+}
+#post_header, .postbox
+{
+	padding: 0.5em;
+	overflow: hidden;
+}
+#post_header dt, .postbox dt
+{
+	float: left;
+	padding: 0;
+	width: 15%;
+	margin: .5em 0 0 0;
+	font-weight: bold;
+}
+#post_header dd, .postbox dd
+{
+	float: left;
+	padding: 0;
+	width: 83%;
+	margin: .3em 0;
+}
+#post_header img
+{
+	vertical-align: middle;
+}
+ul.post_options
+{
+	margin: 0 0 0 1em;
+	padding: 0;
+	list-style: none;
+	overflow: hidden;
+}
+ul.post_options li
+{
+	margin: 0.2em 0;
+	width: 49%;
+	float: left;
+}
+#postAdditionalOptionsHeader
+{
+	margin-top: 1em;
+}
+#postMoreOptions
+{
+	border-bottom: 1px solid #cacdd3;
+	padding: 0.5em;
+}
+#postAttachment, #postAttachment2
+{
+	overflow: hidden;
+	margin: .5em 0;
+	padding: 0;
+	border-bottom: 1px solid #cacdd3;
+	padding: 0.5em;
+}
+#postAttachment dd, #postAttachment2 dd
+{
+	margin: .3em 0 .3em 1em;
+}
+#postAttachment dt, #postAttachment2 dt
+{
+	font-weight: bold;
+}
+#postAttachment3
+{
+	margin-left: 1em;
+}
+#post_confirm_strip, #shortcuts
+{
+	padding: 1em 0 0 0;
+}
+.post_verification
+{
+	margin-top: .5em;
+}
+.post_verification #verification_control
+{
+	margin: .3em 0 .3em 1em;
+}
+/* The BBC buttons */
+#bbcBox_message
+{
+	margin: 0.75em 0.5em;
+}
+#bbcBox_message div
+{
+	margin: 0.2em 0;
+	vertical-align: top;
+}
+#bbcBox_message div img
+{
+	margin: 0 1px 0 0;
+	vertical-align: top;
+}
+#bbcBox_message select
+{
+	margin: 0 2px;
+}
+/* The smiley strip */
+#smileyBox_message
+{
+	margin: 0.5em;
+}
+
+/* Styles for edit event section
+---------------------------------------------------- */
+#post_event .roundframe
+{
+	padding: 0 12%;
+}
+#post_event fieldset
+{
+	padding: 0.5em;
+	clear: both;
+}
+#post_event #event_main input
+{
+	margin: 0 0 1em 0;
+	float: left;
+}
+#post_event #event_main div.smalltext
+{
+	width: 33em;
+	float: right;
+}
+#post_event div.event_options
+{
+	float: right;
+}
+#post_event ul.event_main, ul.event_options
+{
+	padding: 0;
+	overflow: hidden;
+}
+#post_event ul.event_main li
+{
+	list-style-type: none;
+	margin: 0.2em 0;
+	width: 49%;
+	float: left;
+}
+#post_event ul.event_options
+{
+	margin: 0;
+	padding: 0 0 .7em .7em;
+}
+#post_event ul.event_options li
+{
+	list-style-type: none;
+	margin: 0;
+	float: left;
+}
+#post_event #event_main select, #post_event ul.event_options li select, #post_event ul.event_options li .input_check
+{
+	margin: 0 1em 0 0;
+}
+
+/* Styles for edit poll section.
+---------------------------------------------------- */
+
+#edit_poll
+{
+	overflow: hidden;
+}
+#edit_poll fieldset
+{
+	padding: 0.5em;
+	clear: both;
+	overflow: hidden;
+}
+#edit_poll fieldset input
+{
+	margin-left: 8.1em;
+}
+#edit_poll ul.poll_main li
+{
+	padding-left: 1em;
+}
+#edit_poll ul.poll_main input
+{
+	margin-left: 1em;
+}
+#edit_poll ul.poll_main, dl.poll_options
+{
+	overflow: hidden;
+	padding: 0 0 .7em .7em;
+	list-style: none;
+}
+#edit_poll ul.poll_main li
+{
+	margin: 0.2em 0;
+}
+#edit_poll dl.poll_options dt
+{
+	width: 33%;
+	padding: 0 0 0 1em;
+}
+#edit_poll dl.poll_options dd
+{
+	width: 65%;
+}
+#edit_poll dl.poll_options dd input
+{
+	margin-left: 0; 
+}
+
+/* Styles for the recent messages section.
+---------------------------------------------------- */
+
+#readbuttons_top .pagelinks, #readbuttons .pagelinks
+{
+	padding-bottom: 1em;
+	width: 60%;
+}
+#readbuttons .pagelinks
+{
+	padding-top: 1em;
+}
+#recent
+{
+	clear: both;
+}
+
+/* Styles for the move topic section.
+---------------------------------------------------- */
+
+#move_topic dl
+{
+	margin-bottom: 0;
+}
+#move_topic dl.settings dt
+{
+	width: 40%;
+}
+#move_topic dl.settings dd
+{
+	width: 59%;
+}
+.move_topic
+{
+	width: 710px;
+	margin: auto;
+	text-align: left;
+}
+div.move_topic fieldset
+{
+	padding: 0.5em;
+}
+
+/* Styles for the send topic section.
+---------------------------------------------------- */
+
+fieldset.send_topic
+{
+	border: none;
+	padding: 0.5em;
+}
+dl.send_topic
+{
+	margin-bottom: 0;
+}
+dl.send_mail dt
+{
+	width: 35%;
+}
+dl.send_mail dd
+{
+	width: 64%;
+}
+
+/* Styles for the report topic section.
+---------------------------------------------------- */
+
+#report_topic dl
+{
+	margin-bottom: 0;
+}
+#report_topic dl.settings dt
+{
+	width: 20%;
+}
+#report_topic dl.settings dd
+{
+	width: 79%;
+}
+
+/* Styles for the split topic section.
+---------------------------------------------------- */
+
+div#selected, div#not_selected
+{
+	width: 49%;
+}
+ul.split_messages li.windowbg, ul.split_messages li.windowbg2
+{
+	margin: 1px;
+}
+ul.split_messages li a.split_icon
+{
+	padding: 0 0.5em;
+}
+ul.split_messages div.post
+{
+	padding: 1em 0 0 0;
+	border-top: 1px solid #fff;
+}
+
+/* Styles for the merge topic section.
+---------------------------------------------------- */
+ul.merge_topics li
+{
+	list-style-type: none;
+}
+dl.merge_topic dt
+{
+	width: 25%;
+}
+dl.merge_topic dd
+{
+	width: 74%;
+}
+fieldset.merge_options
+{
+	clear: both;
+}
+.custom_subject
+{
+	margin: 0.5em 0;
+}
+
+/* Styles for the login areas.
+------------------------------------------------------- */
+.login
+{
+	width: 540px;
+	margin: 0 auto;
+}
+.login dl
+{
+	overflow: auto;
+	clear: right;
+}
+.login dt, .login dd
+{
+	margin: 0 0 0.4em 0;
+	width: 44%;
+	padding: 0.1em;
+}
+.login dt
+{
+	float: left;
+	clear: both;
+	text-align: right;
+	font-weight: bold;
+}
+.login dd
+{
+	width: 54%;
+	float: right;
+	text-align: left;
+}
+.login p
+{
+	text-align: center;
+}
+
+/* Styles for the registration section.
+------------------------------------------------------- */
+.register_error
+{
+	border: 1px dashed red;
+	padding: 5px;
+	margin: 0 1ex 1ex 1ex;
+}
+.register_error span
+{
+	text-decoration: underline;
+}
+
+/* Additional profile fields */
+dl.register_form
+{
+	margin: 0;
+	clear: right;
+}
+
+dl.register_form dt
+{
+	font-weight: normal;
+	float: left;
+	clear: both;
+	width: 50%;
+	margin: 0.5em 0 0 0;
+}
+
+dl.register_form dt strong
+{
+	font-weight: bold;
+}
+
+dl.register_form dt span
+{
+	display: block;
+}
+
+dl.register_form dd
+{
+	float: left;
+	width: 49%;
+	margin: 0.5em 0 0 0;
+}
+
+#confirm_buttons
+{
+	text-align: center;
+	padding: 1em 0;
+}
+
+.coppa_contact
+{
+	padding: 4px;
+	width: 32ex;
+	background-color: #fff;
+	color: #000;
+	margin-left: 5ex;
+	border: 1px solid #000;
+}
+
+.valid_input
+{
+	background-color: #f5fff0;
+}
+.invalid_input
+{
+	background-color: #fff0f0;
+}
+
+/* Styles for maintenance mode.
+------------------------------------------------------- */
+#maintenance_mode
+{
+	width: 75%;
+	min-width: 520px;
+	text-align: left;
+}
+#maintenance_mode img.floatleft
+{
+	margin-right: 1em;
+}
+
+/* common for all admin sections */
+h3.titlebg img
+{
+	vertical-align: middle;
+	margin-right: 0.5em;
+	margin-top: -1px;
+}
+tr.titlebg td
+{
+	padding-left: 0.7em;
+}
+#admin_menu
+{
+	min-height: 2em;
+	padding-left: 0;
+}
+#admin_content
+{
+	clear: left;
+	padding-top: 0.5em;
+}
+/* Custom profile fields like to play with us some times. */
+#admin_content .custom_field
+{
+	margin-bottom: 15px;
+}
+#admin_login .centertext
+{
+	padding: 1em;
+}
+#admin_login .centertext .error
+{
+	padding: 0 0 1em 0;
+}
+
+/* Styles for sidebar menus.
+------------------------------------------------------- */
+.left_admmenu, .left_admmenu ul, .left_admmenu li
+{
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+#left_admsection
+{
+	width: 160px;
+	float: left;
+	padding-right: 10px;
+}
+.adm_section h4.titlebg
+{
+	font-size: 95%;
+	margin-bottom: 5px;
+}
+#main_container
+{
+	position: relative;
+}
+.left_admmenu li
+{
+	padding: 0 0 0 0.5em;
+}
+.left_admmenu
+{
+	margin-bottom: 0.5em;
+}
+#main_admsection
+{
+	position: relative;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+}
+
+tr.windowbg td, tr.windowbg2 td, tr.approvebg td, tr.highlight2 td
+{
+	padding: 0.3em 0.7em;
+}
+#credits p
+{
+	padding: 0;
+	font-style: italic;
+	margin: 0;
+}
+
+/* Styles for generic tables.
+------------------------------------------------------- */
+.topic_table table
+{
+	width: 100%;
+}
+.topic_table .icon1, .topic_table .icon2, .topic_table .stats
+{
+	text-align: center;
+}
+#topic_icons
+{
+	margin: 1em 0 0 0;
+}
+#topic_icons .description
+{
+	margin: 0;
+}
+.topic_table table thead
+{
+	border-bottom: 1px solid #fff;
+}
+/* the subject column */
+.topic_table td
+{
+	font-size: 1em;
+}
+.topic_table td.subject p, .topic_table td.stats
+{
+	font-size: 0.85em;
+	padding: 0;
+	margin: 0;
+}
+.topic_table td.lastpost
+{
+	font-size: 0.85em;
+	line-height: 1.3em;
+	padding: 4px;
+}
+.topic_table td.stickybg2
+{
+	background-image: /*savepage-url=../images/icons/quick_sticky.gif*/ url();
+	background-repeat: no-repeat;
+	background-position: 98% 4px;
+}
+.topic_table td.lockedbg2
+{
+	background-image: /*savepage-url=../images/icons/quick_lock.gif*/ url();
+	background-repeat: no-repeat;
+	background-position: 98% 4px;
+}
+.topic_table td.locked_sticky2
+{
+	background-image: /*savepage-url=../images/icons/quick_sticky_lock.gif*/ url();
+	background-repeat: no-repeat;
+	background-position: 98% 4px;
+}
+.topic_table td.lastpost
+{
+	background-image: none;
+}
+
+/* Styles for (fatal) errors.
+------------------------------------------------- */
+
+#fatal_error
+{
+	width: 80%;
+	margin: auto;
+}
+
+.errorbox
+{
+	padding: 1em;
+	border: 1px solid #cc3344;
+	color: #000;
+	background-color: #ffe4e9;
+	margin-bottom: 1em;
+}
+.errorbox h3
+{
+	padding: 0;
+	margin: 0;
+	font-size: 1.1em;
+	text-decoration: underline;
+}
+.errorbox p
+{
+	margin: 1em 0 0 0;
+}
+.errorbox p.alert
+{
+	padding: 0;
+	margin: 0;
+	float: left;
+	width: 1em;
+	font-size: 1.5em;
+}
+
+/* Styles for the profile section.
+------------------------------------------------- */
+
+dl
+{
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+
+/* The basic user info on the left */
+#basicinfo
+{
+	width: 20%;
+	float: left;
+}
+#basicinfo .windowbg .content
+{
+	padding-left: 20px;
+}
+#detailedinfo
+{
+	width: 79.5%;
+	float: right;
+}
+#basicinfo h4
+{
+	font-size: 135%;
+	font-weight: 100;
+	line-height: 105%;
+	white-space: pre-wrap;
+	overflow: hidden;
+}
+#basicinfo h4 span.position
+{
+	font-size: 80%;
+	font-weight: 100;
+	display: block;
+}
+#basicinfo img.avatar
+{
+	display: block;
+	margin: 10px 0 0 0;
+}
+#basicinfo ul
+{
+	list-style-type: none;
+	margin: 10px 0 0 0;
+}
+#basicinfo ul li
+{
+	display: block;
+	float: left;
+	margin-right: 5px;
+	height: 20px;
+}
+#basicinfo span#userstatus
+{
+	display: block;
+	clear: both;
+}
+#basicinfo span#userstatus img
+{
+	vertical-align: middle;
+}
+#detailedinfo div.content dl, #tracking div.content dl
+{
+	clear: right;
+	overflow: auto;
+	margin: 0 0 18px 0;
+	padding: 0 0 15px 0;
+	border-bottom: 1px #ccc solid;
+}
+#detailedinfo div.content dt, #tracking div.content dt
+{
+	width: 35%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#detailedinfo div.content dd, #tracking div.content dd
+{
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+#detailedinfo div.content dl.noborder
+{
+	border-bottom: 0;
+}
+#detailedinfo div.content dt.clear
+{
+	width: 100%;
+}
+.signature, .custom_fields_above_signature
+{
+	border-top: 1px #ccc solid;
+}
+.signature h5
+{
+	font-size: 0.85em;
+	margin-bottom: 10px;
+}
+#personal_picture
+{
+	display: block;
+	margin-bottom: 0.3em;
+}
+#avatar_server_stored div
+{
+	float: left;
+}
+#avatar_upload
+{
+	overflow: auto;
+}
+#main_admsection #basicinfo, #main_admsection #detailedinfo
+{
+	width: 100%;
+}
+#main_admsection #basicinfo h4
+{
+	float: left;
+	width: 35%;
+}
+#main_admsection #basicinfo img.avatar
+{
+	float: right;
+	vertical-align: top;
+}
+#main_admsection #basicinfo ul
+{
+	clear: left;
+}
+#main_admsection #basicinfo span#userstatus
+{
+	clear: left;
+}
+#main_admsection #basicinfo p#infolinks
+{
+	display: none;
+	clear: both;
+}
+#main_admsection #basicinfo .botslice
+{
+	clear: both;
+}
+
+/* Simple feedback messages */
+div#profile_error, div#profile_success
+{
+	margin: 0 0 1em 0;
+	padding: 1em 2em;
+	border: 1px solid;
+}
+div#profile_error
+{
+	border-color: red;
+	color: red;
+	background: #fee;
+}
+
+div#profile_error span
+{
+	text-decoration: underline;
+}
+
+div#profile_success
+{
+	border-color: green;
+	color: green;
+	background: #efe;
+}
+
+/* Profile statistics */
+#generalstats div.content dt
+{
+	width: 50%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#generalstats div.content dd
+{
+	width: 50%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+
+/* Activity by time */
+#activitytime
+{
+	margin: 6px 0;
+}
+.activity_stats
+{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.activity_stats li
+{
+	margin: 0;
+	padding: 0;
+	width: 4.16%;
+	float: left;
+}
+.activity_stats li span
+{
+	display: block;
+	border: solid #000;
+	border-width: 1px 1px 0 0;
+	text-align: center;
+}
+.activity_stats li.last span
+{
+	border-right: none;
+}
+.activity_stats li div.bar
+{
+	margin: 0 auto;
+	width: 15px;
+}
+.activity_stats li div.bar div
+{
+	background: #6294CE;
+}
+.activity_stats li div.bar span
+{
+	position: absolute;
+	top: -1000em;
+	left: -1000em;
+}
+
+/* Most popular boards by posts and activity */
+#popularposts
+{
+	width: 49.5%;
+	float: left;
+}
+#popularactivity
+{
+	width: 49.5%;
+	float: right;
+}
+
+#popularposts div.content dt, #popularactivity div.content dt
+{
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+	font-weight: bold;
+	clear: both;
+}
+#popularposts div.content dd, #popularactivity div.content dd
+{
+	width: 35%;
+	float: left;
+	margin: 0 0 3px 0;
+	padding: 0;
+}
+
+.profile_pie
+{
+	background-image: /*savepage-url=../images/stats_pie.png*/ url();
+	float: left;
+	height: 20px;
+	width: 20px;
+	margin: 0 1em 0 0;
+	padding: 0;
+	text-indent: -1000em;
+}
+
+/* View posts */
+.topic .time
+{
+	float: right;
+}
+
+.counter
+{
+	margin: 0 0 0 0;
+	padding: 0.2em 0.5em 0.1em 0.2em;
+	font-size: 2.2em;
+	font-weight: bold;
+	color: #3f3f3f;
+	float: left;
+}
+.list_posts
+{
+	border-top: 2px solid #b3b3bf;
+	padding-top: 12px;
+	margin-top: 6px;
+	overflow: auto;
+}
+
+.core_posts
+{
+	margin-bottom: 3px;
+}
+
+.topic h4
+{
+	margin: 3px 0;
+}
+
+.topic .post
+{
+	margin: 0 1em;
+	min-height: 80px;
+	height: auto !important;
+	height: 80px;
+}
+
+.topic .mod_icons
+{
+	text-align: right;
+	margin-right: 1em;
+}
+
+#tracking div.content dl
+{
+	border-bottom: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#creator dl
+{
+	margin: 0;
+}
+#creator dt
+{
+	width: 40%;
+	float: left;
+	clear: both;
+	margin: 0 0 10px 0;
+}
+#creator dd
+{
+	float: right;
+	width: 55%;
+	margin: 0 0 10px 2px;
+	overflow: auto;
+}
+
+.ignoreboards
+{
+	margin: 0 2%;
+	padding: 0;
+	width: 45%;
+}
+.ignoreboards a
+{
+	font-weight: bold;
+	border-bottom: 1px solid #c4c4c4;
+	padding: 0.1em 0;
+}
+.ignoreboards a:hover
+{
+	text-decoration: none;
+	border-bottom: 1px solid #334466;
+}
+.ignoreboards ul
+{
+	margin: 0;
+	padding: 0;
+}
+.ignoreboards li
+{
+	list-style: none;
+	float: left;
+	clear: both;
+}
+.ignoreboards li.category
+{
+	margin: 0.7em 0 0 0;
+	width: 100%;
+}
+.ignoreboards li ul
+{
+	margin: 0.2em 0 0 0;
+}
+.ignoreboards li.category ul li.board
+{
+	width: 93%;
+}
+
+#theme_settings
+{
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+
+#theme_settings li
+{
+	list-style: none;
+	margin: 10px 0;
+	padding: 0;
+}
+/* Paid Subscriptions */
+#paid_subscription
+{
+	width: 100%;
+}
+#paid_subscription dl.settings
+{
+	margin-bottom: 0;
+}
+#paid_subscription dl.settings dd, #paid_subscription dl.settings dt
+{
+	margin-bottom: 4px;
+}
+/* Pick theme */
+#pick_theme
+{
+	width: 100%;
+	float: left;
+}
+/*Issue a warning*/
+#warn_body{
+	width: 80%;
+	font-size: 0.9em;
+}
+
+/* Styles for the statistics center.
+------------------------------------------------- */
+#statistics
+{
+	padding: 0.5em 0;
+}
+#statistics div.title_bar
+{
+	margin: 4px 0 -2px 0;
+}
+#statistics h3.catbg
+{
+	text-align: center;
+}
+#statistics div.content
+{
+	min-height: 210px;
+}
+#statistics div.top_row
+{
+	min-height: 150px;
+}
+#stats_left, #top_posters, #top_topics_replies, #top_topics_starter
+{
+	float: left;
+	width: 49.5%;
+}
+#stats_right, #top_boards, #top_topics_views, #most_online
+{
+	float: right;
+	width: 49.5%;
+}
+dl.stats
+{
+	clear: both;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+dl.stats dt
+{
+	width: 49%;
+	float: left;
+	margin: 0 0 4px 0;
+	line-height: 16px;
+	padding: 0;
+	clear: both;
+	font-size: 1em;
+}
+dl.stats dd
+{
+	text-align: right;
+	width: 50%;
+	font-size: 1em;
+	float: right;
+	margin: 0 0 4px 0;
+	line-height: 16px;
+	padding: 0;
+}
+.statsbar div.bar
+{
+	float: left;
+	background: /*savepage-url=../images/bar_stats.png*/ url() no-repeat;
+	display: block;
+	margin: 0 4px;
+	height: 16px;
+}
+.statsbar div.bar div
+{
+	position: relative;
+	right: -4px;
+	padding: 0 4px 0 0;
+	background: /*savepage-url=../images/bar_stats.png*/ url() no-repeat 100%;
+	height: 16px;
+}
+tr.windowbg2 th.stats_month
+{
+	width: 25%;
+	padding: 0 2em;
+	text-align: left;
+}
+tr.windowbg2 td.stats_day
+{
+	padding: 0 3.5em;
+	text-align: left;
+}
+
+/* Styles for the personal messages section.
+------------------------------------------------- */
+
+#personal_messages h3 span#author, #personal_messages h3 span#topic_title
+{
+	float: left;
+}
+#personal_messages h3 span#author
+{
+	margin: 0 0 0 0.5em;
+}
+#personal_messages h3 span#topic_title
+{
+	margin: 0 0 0 9em;
+}
+#personal_messages div.labels
+{
+	padding: 0 1em 0 0;
+}
+#personal_messages .capacity_bar
+{
+	background: #f0f4f7;
+	display: block;
+	margin: 0.5em 0 0 1em;
+	height: 1em;
+	border: 1px solid #adadad;
+	width: 10em;
+}
+#personal_messages .capacity_bar span
+{
+	border-right: 1px solid #adadad;
+	display: block;
+	height: 1em;
+}
+#personal_messages .capacity_bar span.empty
+{
+	background: #a6d69d;
+}
+#personal_messages .capacity_bar span.filled
+{
+	background: #eea800;
+}
+#personal_messages .capacity_bar span.full
+{
+	background: #f10909;
+}
+#personal_messages .reportlinks
+{
+	padding: 0.5em 1.3em;
+}
+#searchLabelsExpand li
+{
+	padding: 0.3em 0.5em;
+}
+#manrules div.righttext
+{
+	padding: 0.3em 0.1em;
+}
+dl.addrules dt.floatleft
+{
+	width: 15em;
+	color: #333;
+	padding: 0 1.25em 0.5em 1.25em;
+}
+#addrule fieldset
+{
+	clear: both;
+}
+
+/* Styles for the calendar section.
+------------------------------------------------- */
+.calendar_table
+{
+	margin-bottom: 0.7em;
+}
+
+/* Used to indicate the current day in the grid. */
+.calendar_today
+{
+	background-color: #fff;
+}
+
+#month_grid
+{
+	width: 200px;
+	text-align: center;
+	float: left;
+}
+#month_grid div.cat_bar
+{
+	height: 25px;
+}
+#month_grid h3.catbg
+{
+	height: 25px;
+	line-height: 27px;
+}
+#month_grid table
+{
+	width: 200px;
+}
+#main_grid table
+{
+	width: 100%;
+	padding-bottom: 4px;
+}
+#main_grid table h3.catbg
+{
+	text-align: center;
+	height: 29px;
+	border-top: 2px solid #fff;
+	border-bottom: none;
+}
+#main_grid table.weeklist td.windowbg
+{
+	text-align: center;
+	height: 49px;
+	width: 25px;
+	font-size: large;
+	padding: 0 7px;
+	border-bottom: 2px solid #fff;
+}
+#main_grid table.weeklist td.weekdays
+{
+	height: 49px;
+	width: 100%;
+	padding: 4px;
+	text-align: left;
+	vertical-align: middle;
+	border-bottom: 2px solid #fff;
+}
+#main_grid h3.weekly
+{
+	text-align: center;
+	padding-left: 0;
+	font-size: large;
+	height: 29px;
+}
+#main_grid h3 span.floatleft, #main_grid h3 span.floatright
+{
+	display: block;
+	font-weight: bold;
+}
+#main_grid table th.days
+{
+	width: 14%;
+	padding: 4px 0;
+}
+#main_grid table.weeklist h4.titlebg
+{
+	margin: 0 0 0 0;
+	height: 23px;
+	line-height: 27px;
+}
+#main_grid table td.weeks
+{
+	vertical-align: middle;
+	text-align: center;
+	font-weight: bold;
+	font-size: large;
+}
+#main_grid table td.days
+{
+	vertical-align: top;
+	text-align: center;
+}
+
+a.modify_event
+{
+	color: red;
+}
+
+span.hidelink
+{
+	font-style: italic;
+}
+
+#calendar_navigation
+{
+	text-align: center;
+}
+
+/* Styles for the memberlist section.
+------------------------------------------------- */
+#mlist_search
+{
+	margin: auto;
+	width: 500px;
+}
+
+/* Styles for the basic search section.
+------------------------------------------------- */
+#searchform, #simple_search p
+{
+	padding: 0.5em;
+	margin: 0;
+}
+#simple_search, #simple_search p, #advanced_search
+{
+	text-align: center !important;
+	margin: 0;
+}
+#search_error
+{
+	font-style: italic;
+	padding: 0.3em 1em;
+}
+#search_term_input
+{
+	font-size: 115%;
+	margin: 0 0 1em;
+}
+
+/* Styles for the advanced search section.
+------------------------------------------------- */
+#searchform fieldset
+{
+	text-align: left;
+	padding: 0;
+	border: none;
+}
+#advanced_search dl#search_options
+{
+	margin: 0 auto;
+	width: 600px;
+	padding-top: 1em;
+	overflow: hidden;
+}
+#advanced_search dt
+{
+	clear: both;
+	float: left;
+	padding: 0.2em;
+	text-align: right;
+	width: 20%;
+}
+#advanced_search dd
+{
+	width: 75%;
+	float: left;
+	padding: 0.2em;
+	margin: 0 0 0 0.5em;
+	text-align: left;
+}
+#searchform p.clear
+{
+	clear: both;
+}
+
+/* Styles for the search results page.
+------------------------------------------------- */
+.topic_table td blockquote, .topic_table td .quoteheader
+{
+	margin: 0.5em;
+}
+.search_results_posts
+{
+	overflow: hidden;
+}
+.search_results_posts .buttons
+{
+	padding: 5px 1em 0 0;
+}
+
+/* Styles for the help section.
+------------------------------------------------- */
+
+#help_container
+{
+	margin: 4px 0 0 0;
+	padding: 0 0 8px 0;
+}
+#helpmain
+{
+	padding: 0 1em;
+}
+#helpmain p
+{
+	margin: 0 0 1.5em 0;
+	line-height: 1.5em;
+}
+#helpmain ul
+{
+	line-height: 1.5em;
+}
+
+/* Styles for print media.
+------------------------------------------------------- */
+@media print
+{
+	#headerarea
+	{
+		display: none;
+	}
+
+	.tborder
+	{
+		border: none;
+	}
+}
+.geshi {
+	color: #000000;
+	background: #ffffff;
+	font-family: monospace;
+	font-size: 13px;
+	line-height: 18px;
+	border: 1px solid #aaaaaa;
+	margin: 1px auto 1px auto;
+	width: 99%;
+	white-space:normal;
+	white-space: pre;
+	white-space: pre-wrap;
+	white-space: -moz-pre-wrap;
+	white-space: -pre-wrap;
+	white-space: -o-pre-wrap;
+	word-wrap: break-word;
+	overflow: auto;
+	max-height: 850px;
+}</style>
+	<script type="text/javascript" data-savepage-src="https://www.theswamp.org/Themes/default/scripts/script.js?fin20"></script>
+	<script type="text/javascript" data-savepage-src="https://www.theswamp.org/Themes/default/scripts/theme.js?fin20"></script>
+	<script type="text/javascript"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<meta name="description" content="Read and Write PIA Files">
+	<title>Read and Write PIA Files</title>
+	<link rel="canonical" href="https://www.theswamp.org/index.php?topic=41529.0">
+	<link rel="help" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=help">
+	<link rel="search" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=search">
+	<link rel="contents" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&">
+	<link rel="prev" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0;prev_next=prev">
+	<link rel="next" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0;prev_next=next">
+	<link rel="index" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&board=27.0">
+		<script type="text/javascript" data-savepage-src="https://www.theswamp.org/Themes/default/scripts/captcha.js"></script>
+
+<link rel="icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICPgACQn4AAoK+AALC/gADQ34AA4O+AAPD/gAEBD4ABER+AATE/gAFxf4ABoa+AAeHvkAHx/5ACQk+QAnJ/kAKSn5AC0t+QAvL/kANTX5ADg4+QA6OvkASUn6AExM+gBNTfoATk76AFBQ+gBeXvoAZGT7AGVl+wBtbfsAb2/7AHNz+wB6evsAfHz7AH19+wCCgvsAg4P7AIeH/ACIiPwAiYn8AJqa/ACbm/wAoKD8AKur/QC0tP0Atrb9AMDA/QDBwf0AwsL9AMfH/QDIyP0Azs7+ANLS/gDZ2f4A2tr+AOHh/gDr6/4A7+//APHx/wDz8/8A+vr/APv7/wD8/P8A/v7/AP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABDREQCAAAAAAAAAAADCMxPEFBQT8yGgAAAAAAABxBQUFBQUFBQUAbAAAAAAAcQTosIh4oOUFBOAEAAAAAFh0GAAAAABpBQUEOAAAAAAAAAAAAAAAcQUFBEgAAAAAAAAADFSAtPkFBPQkAAAAAAAgnOUFBQUFBQSkAAAAAAAIvQUFBQUFBOyYEAAAAAAAYQUFBPC4kFwcAAAAAAAAAIUFBNwoAAAAAAAAAAAAAACBBQTMAAAAAABMPAAAAAAAUQUFBMCYlKzZBGQAAAAAAACtBQUFBQUFBQRkAAAAAAAACHzU/QUE8NCoPAAAAAAAAAAAABQsJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=">
+<style id="savepage-cssvariables">
+  :root {
+    --savepage-url-2: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAHdCAIAAABJwGSwAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAEESURBVHja7JvLEYQwDENtDT1tLTRC/dtCDoHY8suZmSBbkj8M+bufWDiKtbP7uSsyK7/fMo5MOeA4x4PI4vn14GlxvVWPM/Fry3vVzlvAe/wAncOXt/xFk/BW54vL3IMum/LP5N5L6OiTezWMp6petxTEBf9z0eU5HPLg8xoM/Bm8TfDKpc5Y1Gl4T3/Voa7u1hv864njXB8mF9+16Cen6den/gr/Q78Deb/b/+SBY5iO6BPh/cS5kb0K/ZrXHsTGn+nDjOce8obe2JfQd86dk9mXePNF6IM6yLyALtEl9e3NOBf3F/QGXvrJvvM58yU6mqc3m/8Mi88z0/yF76vf5O0vwAAR+weYomhJwgAAAABJRU5ErkJggg==);
+    --savepage-url-3: url(data:image/png;base64,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);
+    --savepage-url-7: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAEGCAMAAACkUpeqAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAlQTFRF////3O7/zef/9waF8wAAAXRJREFUeNrs0TERAAAIBCC1f2gHzxQPFagi0JBGunSkIx3pSEc60pGOdKQjHelIRzrSkY506UhHOtKRjnSkIx3pSEc60pGOdKQjHenSkY50pCMd6UhHOtKRjnSkIx3pSEc60qUjHelIRzrSkY50pCMd6UhHOtKRjnSkS0c60pGOdKQjHelIRzrSkY50pCMd6UhHunSkIx3pSEc60pGOdKQjHelIRzrSkY506UhHOtKRjnSkIx3pSEc60pGOdKQjnU8HAAAAAAAAAAAI0aSRLh3pSEc60pGOdKQjHelIRzrSkY50pCNdOtKRjnSkIx3pSEc60pGOdKQjHelIR7p0pCMd6UhHOtKRjnSkIx3pSEc60pGOdOlIRzrSkY50pCMd6UhHOtKRjnSkIx3p0pGOdKQjHelIRzrSkY50pCMd6UhHOtKRLh3pSEc60pGOdKQjHelIRzrSkY50pCNdOtKRjnSkIx3pSEc60pGOdKQjHelI56wAAwD0AsOw9AHz0QAAAABJRU5ErkJggg==);
+    --savepage-url-8: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqoAAAGuCAMAAABvItTTAAAAA3NCSVQICAjb4U/gAAABIFBMVEX///////78///+/v79/f37/P77+/v6+vr6+/32+v35+vz5+fn1+fz0+Pvz9/ry9vn09PTx9Pnw8/jv8vfu8fbt8PXv7+/r8Pbq7/Xu7u7t7e3p7vTn7PLq6urm6/Hp6enl6vDo6Oj/5sTk6e//5cHj6O7i5+3h5uzk5OTg5evc5ezc5eri4uLd4/Hb3+vc3+Tb3+jZ3+vY3OLb29vW2+HZ2dn+zonR0dHNzc3Gxsb+tlG+vr68vLy6urqxusb9sEK3t7f9rz+xsbH9oR+rq6v9oBz9nBP9mxCkpKT9lweioqL9lgSgoKCenp6MmaqDkKOBj6KFhYV/f39rfJJqepB0dHRkdYxic4tsbGxcboZabIVoaGhhYWFfX19dXV3///9qWxLPAAAAYHRSTlP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////wBzbeRDAAAACXBIWXMAAAsSAAALEgHS3X78AAAAGHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3NPsx9OAAAGAElEQVR4nO3dyXJVVQCG0R1sULHBDsUexL6JxoiKRVARRASCBgMqkvd/C5OglDQJZ5TDV7XWeA/+wVd3cveuMzY2jp04/Qs8wE6fOLaxMTaOz70D7u/4xjj289wjYIKj4/u5J8AUp8bZuSfAFGfH3AtgGqkSIVUipEqEVImQKhFSJUKqREiVCP9W0fCTOwA0nHKzioaj7quScHxjbL0CODP3DtjNmZuvACBBqkRIlQipEiFVIqRKhFSJkCoRUiVCqkRIlYjNVJcvrf0JD7C1S8tbqa7MvQPub2VjLP8x9wiYYGlcnnsCTLE61ueeAFOsj7kXwDRSJUKqREiVCKkSIVUipEqEVImQKhH+raLhqjsANKy6WUXDkvuqJKzcfAVwZe4dsJsrN18BQIJUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEWOMA4dePwIPskMHNkMdB+eeAfd3cPM3de4NMMX+8crcE2CKw+PNuSfAJGPuATCNVImQKhFSJUKqREiVCKkSIVUipEqEVIlwB4CGw25W0bDffVUSDg6vAAjYfgUw94sZmEaqREiVCKkSIVUipEqEVImQKhFSJUKqREiViDHG8qW1ub/2BrtZu7S8dVvFN1YJWBm+XE3D0rg89wSYYnWszz0Bplgfcy+AaaRKhFSJkCoRUiVCqkRIlQipEiFVIvxbRcNVdwBoWHWzioYl91VJWBnbrwCuzL0DdnNl+xXA3C9mYBqpEiFVIqRKhFSJkCoRUiVCqkRIlQipEiFVIqRKhFSJkCoRUiVCqkRIlQipEiFVIqRKhFSJuEeq758///HeD4H/3LvAu1P9+u+TJ69/sweD4J52KPCuVL/766uFhS+v/bAno+AuOxV4Z6o//n5kYXFx4fBv5/ZoGNxmxwLvSPXcrwc3z22efPTixT0bB7fsXODtqV648Oj2uc2TC99e38OBsG2XAseN/zu58O+5rZNfXLsBe2uXAse+2y3esg9msGOBYxESxmeQMD6FhPEJJIzPIWF8CAnjI0gYH0CCVIkY70HCeBcSpErEeAcSxtuQIFUixluQMN6ABKkSMV6DhPEqJIyXIUGqRIyXIGG8CAlSJWK8AAnjeUiQKhHjOUgYz0KCVIkYz0CCVIkYT0PCeAoSxpOQIFUixuOQIFUixhOQIFUipEqEVImQKhHjMUiQKhFSJUKqREiVCKkSMR6BBKkSIVUipEqEVIkYD0OCVImQKhFSJUKqRIyHIEGqREiVCKkSIVUipErEWIAEqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRIhVSKkSoRUiZAqEVIlQqpESJUIqRLxD41ljmYmbEszAAAAAElFTkSuQmCC);
+    --savepage-url-9: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAACPwAAAAIAQMAAABdpeFuAAAABlBMVEW3t7f///+AVB43AAAAJklEQVR4Xu3QAREAAAQEMM1V/SY0EMBtEVY9B/I1SJAgQYIECSILoBfygZu3rSIAAAAASUVORK5CYII=);
+    --savepage-url-13: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQBAMAAADkNkIoAAAAMFBMVEX///+Qk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6OQk6MiuERTAAAAD3RSTlMAESIzRFVmd4iZqrvM3e5GKvWZAAAAa0lEQVR4XoXKMQ2EQBSE4SlgKxJWAP2KoEECDu4kQAKhocACEtCAgFNwGqAhtAjYMOTtoyX8meIrBk+5GqYJiujtj19hQrbkKkzJjjyUpyMHPcwxd0jGA0uJ0N/iUymzCWaD1hfIx9tW9t4FIg0flgsN6xEAAAAASUVORK5CYII=);
+  }
+</style>
+<script id="savepage-shadowloader" type="application/javascript">
+  "use strict"
+  window.addEventListener("DOMContentLoaded",
+  function(event)
+  {
+    savepage_ShadowLoader(5);
+  },false);
+  function savepage_ShadowLoader(c){createShadowDOMs(0,document.documentElement);function createShadowDOMs(a,b){var i;if(b.localName=="iframe"||b.localName=="frame"){if(a<c){try{if(b.contentDocument.documentElement!=null){createShadowDOMs(a+1,b.contentDocument.documentElement)}}catch(e){}}}else{if(b.children.length>=1&&b.children[0].localName=="template"&&b.children[0].hasAttribute("data-savepage-shadowroot")){b.attachShadow({mode:"open"}).appendChild(b.children[0].content);b.removeChild(b.children[0]);for(i=0;i<b.shadowRoot.children.length;i++)if(b.shadowRoot.children[i]!=null)createShadowDOMs(a,b.shadowRoot.children[i])}for(i=0;i<b.children.length;i++)if(b.children[i]!=null)createShadowDOMs(a,b.children[i])}}}
+</script>
+<script id="savepage-pageinfo-bar-insert" type="application/javascript">
+  "use strict"
+  window.addEventListener('load',function(event) {
+    var parser = new DOMParser();
+    var pageinfodoc = parser.parseFromString('<html> <style id="savepage-pageinfo-bar-style" type="text/css">#savepage-pageinfo-bar-content,#savepage-pageinfo-bar-content *{all:initial!important}#savepage-pageinfo-bar-content,#savepage-pageinfo-bar-content *{font-family:"Segoe UI","Helvetica Neue",Ubuntu,Arial!important;font-size:12px!important;color:black!important;cursor:default!important;-moz-user-select:none!important;-webkit-user-select:none!important}#savepage-pageinfo-bar-content{display:flex!important;position:fixed!important;left:0!important;top:0!important;width:100%!important;height:25px!important;border-bottom:1px solid #E0E0E0!important;background:#F8F8F8!important;overflow:hidden!important;z-index:2147483645!important}#savepage-pageinfo-bar-spacer-1{flex:0 1 auto!important;background:#F8F8F8!important}#savepage-pageinfo-bar-link{flex:0 1 auto!important;padding:4px 0!important;background:#F8F8F8!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}#savepage-pageinfo-bar-link:hover{text-decoration:underline!important}#savepage-pageinfo-bar-spacer-2{flex:1 1 auto!important;background:#F8F8F8!important}#savepage-pageinfo-bar-datetime{flex:0 1000000 auto!important;min-width:0!important;padding:4px 0!important;background:#F8F8F8!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}#savepage-pageinfo-bar-spacer-3{flex:0 1 auto!important;background:#F8F8F8!important}#savepage-pageinfo-bar-button{flex:0 0 25px!important;background-color:#F8F8F8!important;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA8SURBVChTYwCC/0DsAGJgASBxkDycga4QQxxdAEMBDCBLYFUAAyQpIGgVCGAoxBCAAhRxrEZDAVCc4T8AbzkX8F/+uCwAAAAASUVORK5CYII=)!important;background-repeat:no-repeat!important;background-position:center center!important}#savepage-pageinfo-bar-button:hover{background-color:#E8E8E8!important}#savepage-pageinfo-bar-button:active{background-color:#D8D8D8!important}</style> <div id="savepage-pageinfo-bar-content"> <div id="savepage-pageinfo-bar-spacer-1">&nbsp;&nbsp;&nbsp;</div> <a id="savepage-pageinfo-bar-link" href="https://www.theswamp.org/index.php?topic=41529.0" target="_blank">https://www.theswamp.org/index.php?topic=41529.0</a> <div id="savepage-pageinfo-bar-spacer-2">&nbsp;&nbsp;&nbsp;</div> <div id="savepage-pageinfo-bar-datetime">16 Aug 2020&nbsp;&nbsp;&nbsp;12:56:53</div> <div id="savepage-pageinfo-bar-spacer-3">&nbsp;&nbsp;&nbsp;</div> <div id="savepage-pageinfo-bar-button"></div> </div> </html>','text/html');
+    var container = document.createElement('div');
+    container.setAttribute('id','savepage-pageinfo-bar-container');
+    document.documentElement.appendChild(container);
+    container.appendChild(pageinfodoc.getElementById('savepage-pageinfo-bar-style'));
+    container.appendChild(pageinfodoc.getElementById('savepage-pageinfo-bar-content'));
+    document.getElementById('savepage-pageinfo-bar-button').addEventListener('click',function(event) {
+      var container = document.getElementById('savepage-pageinfo-bar-container');
+      document.documentElement.removeChild(container);
+    },false);
+  },false);
+</script>
+<meta name="savepage-url" content="https://www.theswamp.org/index.php?topic=41529.0">
+<meta name="savepage-title" content="Read and Write PIA Files">
+<meta name="savepage-from" content="https://www.theswamp.org/index.php?topic=41529.0">
+<meta name="savepage-date" content="Sun Aug 16 2020 12:56:53 GMT-0700 (Pacific Daylight Time)">
+<meta name="savepage-state" content="Basic Items; Retained cross-origin frames; Merged CSS images; Removed unsaved URLs; Allowed passive mixed content; Max frame depth = 5; Max resource size = 50MB; Max resource time = 10s;">
+<meta name="savepage-version" content="18.0">
+<meta name="savepage-comments" content="">
+  </head>
+<body>
+<div id="wrapper" style="width: 90%">
+	<div id="header"><div class="frame">
+		<div id="top_section">
+			<h1 class="forumtitle">
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&"><img data-savepage-src="//www.theswamp.org/screens/mp/theswamp_logo11.png" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAS0AAAAmCAMAAACmjT2rAAAALHRFWHRDcmVhdGlvbiBUaW1lAEZyaSAyNiBBdWcgMjAwNSAyMTo0NzozMyAtMDcwMAYQdb4AAAAHdElNRQfVCBsDOwl+Z1WmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAABGdBTUEAALGPC/xhBQAAAwBQTFRFAAAAAQEBAgAABgAABQUFBwcHCAAACQABCgAADAAADgAACAgIAQIaBAgeEAAAEgAAFAAAGAAAGgAAHgAAEhISExMTFBQUGRkZHR0dHh4eAhAtIAAAJAAAJgAAKAAAKgAALAAAMAAAMgAANAAAOAAAPAAAJiYmKSkpKysrLy8vMDAwMjIyMzMzNDQ0NTU1Nzc3ODg4OTk5Ojo6Ozs7PDw8Pj4+Pz8/QAAAQgAARAAARgAATAAATgAAUAAAUgAAVAAAVgAAWAAAXAAAYAAAZAAAZgAAagAAbAAAcAAAdAAAdgAAegAAfAAAfgAAQEBAQUFBQ0NDRERERkZGR0dHSEhITU1NT09PUlJSU1NTVVVVV1dXWFhYWVlZW1tbXFxcXV1dX19fYWFhYmJiZWVlZmZmZ2dna2trbGxsbW1tb29vcnJyc3NzdXV1d3d3eHh4fHx8fX19gAAAggAAhAAAhgAAigAAjAAAjgAAkgAAlAAAmAAAmgAAnAAAngAAogAApAAAqAAAqgAArAAAsAAAsgAAtgAAugAAvgAAyAAA0gAA1gAA2gAA3gAA4AAA4gAA5AAA6gAA7AAA7gAA8AAA8gAA9AAA9gAA+AAA+gAA/AAA/wEB/wMD/wcH/wkJ/wsL/w0N/w8P/xER/xMT/xUV/xcX/xkZ/x8f/yMj/yUl/ycn/ykp/y0t/y8v/zEx/zMz/zU1/zc3/zk5/zs7/z8//0ND/0VF/0tL/09P/1FR/1VV/1lZ/2Fh/2Nj/3d3/319gICAgYGBg4ODhYWFiYmJjIyMjY2Njo6OkpKSlpaWmJiYmZmZmpqanJycnZ2doaGhoqKio6OjpKSkpqamp6enqKioqampq6ursbGxsrKytLS0tbW1t7e3ubm5vb29vr6+/4GB/4OD/4mJ/4uL/42N/4+P/5GR/5eXwMDAwcHBy8vLzMzMzc3Nzs7Oz8/P0NDQ0tLS1NTU1dXV2dnZ2tra3d3d3t7e4eHh5ubm5+fn6urq6+vr8PDw9vb2+vr6/Pz8////JeqIEgAAAQB0Uk5T////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AFP3ByUAAAaMSURBVHja3ZoJWBVVFMcPWpZSitJOQpJFxbRZgGWLlpq9bDHS3NoLLVvRSCiKylITK9vMFivbTCjaS4siqbSjZfuC2p6Zpi2Utnpj7npm3gzvPWPmqff7HnNn5t47c37zP+eeOwOwMIrVVND+Y4VyucAKBH4FQUkXtjETC56WpISo9dW0bVkbUgI3Ql0p4PG1piQszawlgElMmwwtRHR5IvHJ/3/zmxYtX1IxtGXbL3/eVTctUFVRURvSQR8C3ZwcZqq3HscxXji0dMxCriXjk2rrTwsMIo+qNk5ZLCEZrB7DyCamuSCXQq4q25PxQqNlMQrG8qj74ZJmKkujq8Y8RvSm8aVEDaNaE4kShUn4VI+kQyi0PP0vateHFn+64s69qp60iN0CG+1gnNPQctIQNTMQIRoqLZo9YJTWfGkpd/GoavscockYqU6SvsyLFjhHY9TVxelwaLkVhZQRxsRlLPGpKnyMBvIU9w6NXB6eSMjS0dXVHIINkpbfTOjCJRMMD1xknvOqUjdxxC1iKOngOJDi54QATnm660HSaiZ9oOx8cIVQ4srTQvNELhxn9uAT8DEpuDYYWiQkYUx1JUtcsWmFk28J8wUGmlypjRfBDZGWK4EIjBbKUM4cnBQlRqdHFfHDx5VwCUxbat6LyiXcEQxRtknkrQS4tj6mQCwLITH7A6ElGGC0w6HlyrWkulii4moxWokZFgQtbjh5V2OTQ80EPRnGRYsroSkp4pmRvH1eE3/Ext5Ku3gzYLqFPMZEAzWMHpW0CosW2pw4LAGCY9InucP5xfkYrggCgzJX8zNWGw5MwZTdCF75V7AlzfXYwdGKspCDsn/Kx+zqiJP3tQrnv7niX3FcnU1sXtSyobctcWhy0mbaDBzRCYBCkhJk4Bi0pWlRb0KVVHF6wgeZgGgfzc3J2cYu222/4+D8c35iZrJElhAvLQZjK3OYDeanAUrlOOOXgxaYUWNGufWhhXSZp4+ZOIXMRKd9clJBla122sGy6v9kQl2ij/FBlfX7uiNob2FUTyToqLADLkc1Z5jLaZkCG1/YSpyWypGQByg7gNumo06hRNogOOTusTnndGw6pHVqD7DF1nvmjmo0TsqEvJgWZjzemMyS4PXVFMcQ6RtjZEQXUlnd9jtwd4AO0CNy2K1Xj6mefkPJuIpdIMeav24dM7KU8kI9uD8t2Hho0Y836BWhRX5lFobHDasbCOnd+0+4a+a0SVeklT9//8Tqx6cc1WqzE+v/UJMjR+TOVpu512TDio+W7Sxk0ndlTHbQEb6JOmxZ5zc0FkH25eMjZcWlT95x7ZEzIlBcdVvl7IldUnPzP1rzD9MvmdGFq2W/zIZOi85/HkmSyNntkM34ApC3mde46gy4ZtrkaZMqv+n65cs3Qrva6kdvmhGp7fQ0pOZZhav/ZvoTv3vQ5MHAWE8qFi3Ls6AKzmQf0SSjA1ev+jy14miYXjUZyo+ZPbsTdIaar0bPgozShwqgqNuIIfNXGFxRvpgUYvT5rxctd0aEdN6jfsgbi+twjf3w2+JX4dCXCsp6V3+xrPoZgLTsg6B26pSOj1VFIjB46MLv31r4mTcume6HziqeD3extMWzTQFFpEhiKHRBU+9cLB7BrDr264/bXjYa2l/f+5Wvv/u2KYdok7kr3P3C+NvnlB88vteWp428+P1PFn1MlgLR8g2VFTqskfOVh8Kap4UONXkoi+/q1bJYH+Lghl+WL2jbPavigXvurZmz7E475epY0O7wF2eOfWLyzleWwEVrB3269ndcgAoXYnJ5WXotxu9DRt84aPGEhz5yMwMy12TIHOSYpRLV099esvLCjMwxpR0iZWXplY/wDDW9ddrU+zqW3NzliLI2B7D85Wsafl48isn0yvPFfWi4yFTuDAhR6nLQUu3ortvb1Mt28+5dXko+DbTyz/rwg6WvQa8Js67Kzhw3ZWaZWvr07TNp9MPZXXvAMHbB2Q37/1V3Zp64J5cjhEorxpcpJzBwdlOxyQ1LOZsOh0q0qBbVfKnHXff4U+Ytefd16JfVs991JSUlFWMVrdK+t9Q8W3xIW3hv4Tvnzc0vGj5k6IBmbzUMWiqKRMvb4wuLpkVDtnqhjkKMpJdTqdzxUKx1mFxaW1beSSPrly6C3Tr36XxJ//JezxUrWk/1bN3qwUuzMmDlG3PPPXXQgMIBhScMV/OH5/95hQMLVbCKvr7rPsAKqOyty16q6CMJDxaQpBIu/wFXluxIOu8f1gAAAABJRU5ErkJggg==" alt="TheSwamp"></a>
+			</h1>
+			<img id="upshrink" data-savepage-src="https://www.theswamp.org/Themes/default/images/upshrink.png" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAMAAAC6V+0/AAABF1BMVEX///+/0fq/0fr08PTy7/S/0fq/0frB0vq/0frH1vnY3/e/0frR2/j08PTA0vr08PS/0fq/0frw7vTG1fnP2/i/0frl5/a/0fq/0frw7vS/0frg5PbE1Pnw7vS/0frx7vS/0frv7fXw7vTD1PrJ1/m/0fru7fXj5vb08PTf4/by7/Tp6vX08PTa4ffX3/e/0frj5vbr6/Xs7PXQ2/jL2Pnq6vX08PTv7fW/0frf5Pbk5/bs6/Xq6vXu7PW/0fq/0frL2Pno6fXu7PXF1Pm/0frl5/bu7PXp6vW/0fq/0frK1/nz7/Te4/bi5vbo6fXr6/W/0fri5fa/0frh5fbV3ve/0frT3PjP2vjd4/fh5fa/0frI1vn08PTzAJAwAAAAXHRSTlMAAAH+7AQFUR5YdANm+VD8CwLaV2RAnBoP3iuKVd8R4hbV2VRbOc2T/YbosPp5cx+Vu8BmXrT70TqImcCzyBINXajLVSOeyq8MB1z1hJKruSGRBo5vP2pjgYwJWd9Xt5kAAAC6SURBVHhetc7FjoRAAITh6UZdRoBxd113d3ev93+OJU2HcN/sf6nkO1XmzxFWrdQNvGhTSBv6uLfV9tJo2Poe0BxWpASpcTJtIapa1mQaI1Vyt3VAcASITx0l1vC1Lw5gjY5FYOLPAobzxZIALK+srq0D4sYmw8ftHWA3v39weCTAKhYYnp6d4yJ/ScjVtX/jcFTv7h9Ml0Q9ay/Z7BtD13z/CAlLUj+/VH7J/iY8Kfcj8/OUJEnM/qFfykkZOu/603IAAAAASUVORK5CYII=" alt="*" title="Shrink or expand the header." style="cursor: pointer;">
+			<img id="smflogo" data-savepage-src="https://www.theswamp.org/Themes/default/images/smflogo.png" src="data:image/png;base64,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" alt="Simple Machines Forum" title="Simple Machines Forum">
+		</div>
+		<div id="upper_section" class="middletext">
+			<div class="user">
+				<script type="text/javascript" data-savepage-src="https://www.theswamp.org/Themes/default/scripts/sha1.js"></script>
+				<form id="guest_form" action="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=login2" method="post" accept-charset="ISO-8859-1" onsubmit="hashLoginPassword(this, '1dc159f132e59bb77094729a2923419b');" data-bitwarden-watching="1">
+					<div class="info">Welcome, <strong>Guest</strong>. Please <a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=login">login</a> or <a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=register">register</a>.</div>
+					<input type="text" name="user" size="10" class="input_text" value="">
+					<input type="password" name="passwrd" size="10" class="input_password" value="">
+					<select name="cookielength">
+						<option value="60">1 Hour</option>
+						<option value="1440">1 Day</option>
+						<option value="10080">1 Week</option>
+						<option value="43200">1 Month</option>
+						<option value="-1" selected="">Forever</option>
+					</select>
+					<input type="submit" value="Login" class="button_submit"><br>
+					<div class="info">Login with username, password and session length</div>
+					<input type="hidden" name="hash_passwrd" value=""><input type="hidden" name="df83d08" value="1dc159f132e59bb77094729a2923419b">
+				</form>
+			</div>
+			<div class="news normaltext">
+				<form id="search_form" action="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=search2" method="post" accept-charset="ISO-8859-1">
+					<input type="text" name="search" value="" class="input_text"> 
+					<input type="submit" name="submit" value="Search" class="button_submit">
+					<input type="hidden" name="advanced" value="0">
+					<input type="hidden" name="topic" value="41529"></form>
+				<h2>News: </h2>
+				<p></p>
+			</div>
+		</div>
+		<br class="clear">
+		<script type="text/javascript"></script>
+		<div id="main_menu">
+			<ul class="dropmenu" id="menu_nav">
+				<li id="button_home">
+					<a class="active firstlevel" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&">
+						<span class="last firstlevel">Home</span>
+					</a>
+				</li>
+				<li id="button_help">
+					<a class="firstlevel" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=help">
+						<span class="firstlevel">Help</span>
+					</a>
+				</li>
+				<li id="button_login">
+					<a class="firstlevel" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=login">
+						<span class="firstlevel">Login</span>
+					</a>
+				</li>
+				<li id="button_register">
+					<a class="firstlevel" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=register">
+						<span class="last firstlevel">Register</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<br class="clear">
+	</div></div>
+	<div id="content_section"><div class="frame">
+		<div id="main_content_section">
+	<div class="navigate_section">
+		<ul>
+			<li>
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&"><span>TheSwamp</span></a> »
+			</li>
+			<li>
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&#c3"><span>Code Red</span></a> »
+			</li>
+			<li>
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&board=27.0"><span>.NET</span></a> »
+			</li>
+			<li class="last">Topic: 
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0"><span>Read and Write PIA Files</span></a>
+			</li>
+		</ul>
+	</div>
+			<a id="top"></a>
+			<a id="msg466319"></a>
+			<div class="pagesection">
+				<div class="nextlinks"><a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0;prev_next=prev#new">« previous</a> <a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0;prev_next=next#new">next »</a></div>
+		<div class="buttonlist floatright">
+			<ul>
+				<li><a class="button_strip_print" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=printpage;topic=41529.0" rel="new_win nofollow"><span class="last">Print</span></a></li>
+			</ul>
+		</div>
+				<div class="pagelinks floatleft">Pages: [<strong>1</strong>]  |    <a href="#lastPost"><strong>Go Down</strong></a></div>
+			</div>
+			<div id="forumposts">
+				<div class="cat_bar">
+					<h3 class="catbg">
+						<img data-savepage-src="https://www.theswamp.org/Themes/default/images/topic/normal_post.gif" src="data:image/gif;base64,R0lGODlhFAAUANU3AFVVWuLh/tHQ7dPS77++27e209/e+7m41cnI5ayryLGwzePi/7Oyz9nY9c7N6r282cPC38fG48TD4MzL6MHA3crJ5qqpxrCwycLB3rW0zd3c+ZqZtp+eu9rZ9svK56Wkwa+uy9DP7Nva96emw+Df/KSjwNbV8qGgvbm50t7d+ru617a10qmoxa2syby72J6dutXU8d7e3tjX9Nzb+OTk/1dVWv///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAADcALAAAAAAUABQAAAaHwJtwSCwaj8ikcnmrOZ9PZc02tVmvNWQVQOt6qceqDbDwdsFGJ2BtCJjRxVrskkE1NO5zNm2DIBwDMjMkZXBEUy4UERMCJiJthkNTDAcEEh4hMB0pkUJTCQoFD36ADZ1NNh8WICsqioynUxwlLC2UlhWxNhsvJyOgohi6V8RYWlDIe0zLzENBADs=" alt="" align="bottom">
+						<span id="author">Author</span>
+						Topic: Read and Write PIA Files  (Read 4608 times)
+					</h3>
+				</div>
+				<p id="whoisviewing" class="smalltext">0 Members and 1 Guest are viewing this topic.
+				</p>
+				<form action="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=quickmod2;topic=41529.0" method="post" accept-charset="ISO-8859-1" name="quickModForm" id="quickModForm" style="margin: 0;" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave('1dc159f132e59bb77094729a2923419b', 'df83d08') : false">
+
+				<div class="windowbg">
+					<span class="topslice"><span></span></span>
+					<div class="post_wrapper">
+						<div class="poster">
+							<h4>
+								<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=profile;u=6656" title="View the profile of kaefer">kaefer</a>
+							</h4>
+							<ul class="reset smalltext" id="msg_466319_extra_info">
+								<li class="postgroup">Swamp Rat</li>
+								<li class="stars"></li>
+								<li class="postcount">Posts: 572</li>
+								<li class="profile">
+									<ul>
+									</ul>
+								</li>
+							</ul>
+						</div>
+						<div class="postarea">
+							<div class="flow_hidden">
+								<div class="keyinfo">
+									<div class="messageicon">
+										<img data-savepage-src="https://www.theswamp.org/Themes/default/images/post/xx.gif" src="data:image/gif;base64,R0lGODlhFAAUAMQUAKex1Jqjxba5u8bKzb7FyYGIjOPr79Tb3293fVJdgba9waCt0aaxw7K/4q65y/r9/1hXV8vY/FxiZvT7/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABQALAAAAAAUABQAAAWLICWOZGmWkiRC0GlKwyBBANC6onRMkxxFgAROx+P5gDfU7vEoHm3KycPRdEp+UFEBIXXwqFbsrWBAVMFS4xVJIU8QBirTWzysGxAyQsFgTuhFAmsBeXsGfoA8gj+EOQRFiROLEQFCIxKPVYGDSZePRZKDli+foYydpKELlKgnEoIUEI04JCortLgnIQA7" alt="">
+									</div>
+									<h5 id="subject_466319">
+										<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.msg466319#msg466319" rel="nofollow">Read and Write PIA Files</a>
+									</h5>
+									<div class="smalltext">« <strong> on:</strong> April 19, 2012, 08:00:47 AM »</div>
+									<div id="msg_466319_quick_mod"></div>
+								</div>
+							</div>
+							<div class="post">
+								<div class="inner" id="msg_466319">The same procedure as every couple of years : After IT migrated to new servers, all PC3-saved printer paths are invalid. Either that or there are other reasons to read and write the special format in which AutoCAD's plotter support files are saved.<br><br>First, <a href="http://www.noliturbare.com/more/faq#Q1" class="bbc_link" target="_blank">here's</a> a short description of the PIA (whatever that may stand for) file format.<br>Secondly, since Zlib streams aren't part of the runtime, I needed to download the <a href="http://dotnetzip.codeplex.com/" class="bbc_link" target="_blank">dotnetzip</a> library, in order to reference zlib-v1.9\Ionic.Zlib.dll.<br><br><br><div class="codeheader">Code - F#: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><div class="fsharp geshi" style="font-family:monospace;"><ol><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;"><span style="color: #06c; font-weight: bold;">type</span> System.<span style="color: #060;">IO</span>.<span style="color: #060;">Stream</span> <span style="color: #06c; font-weight: bold;">with</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">    <span style="color: #06c; font-weight: bold;">member</span> me.<span style="color: #060;">WriteString</span> <span style="color: #6c6;">(</span>s : <span style="color: #06c; font-weight: bold;">string</span><span style="color: #6c6;">)</span> <span style="color: #a52a2a;">=</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        <span style="color: #06c; font-weight: bold;">let</span> buf <span style="color: #a52a2a;">=</span> s.<span style="color: #060;">ToCharArray</span><span style="color: #6c6;">(</span><span style="color: #6c6;">)</span> <span style="color: #a52a2a;">|&gt;</span> <a href="http://research.microsoft.com/en-us/um/cambridge/projects/fsharp/manual/namespaces.html"><span style="color: #06c; font-weight: bold;">Array</span></a>.<span style="color: #060;">map</span> <span style="color: #06c; font-weight: bold;">byte</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        me.<span style="color: #060;">Write</span><span style="color: #6c6;">(</span>buf, <span style="color: #c6c;">0</span>, buf.<span style="color: #060;">Length</span><span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;"> </div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;"><span style="color: #06c; font-weight: bold;">module</span> Zlib <span style="color: #a52a2a;">=</span> </div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">    <span style="color: #06c; font-weight: bold;">open</span> System.<span style="color: #060;">IO</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">    <span style="color: #06c; font-weight: bold;">open</span> Ionic.<span style="color: #060;">Zlib</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;"> </div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">    <span style="color: #06c; font-weight: bold;">let</span> read fileName <span style="color: #a52a2a;">=</span> </div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        <span style="color: #06c; font-weight: bold;">use</span> fs <span style="color: #a52a2a;">=</span> File.<span style="color: #060;">Open</span><span style="color: #6c6;">(</span>fileName, FileMode.<span style="color: #060;">Open</span>, FileAccess.<span style="color: #060;">Read</span><span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        fs.<span style="color: #060;">Seek</span><span style="color: #6c6;">(</span>60L, SeekOrigin.<span style="color: #060;">Begin</span><span style="color: #6c6;">)</span> <span style="color: #a52a2a;">|&gt;</span> <span style="color: #06c; font-weight: bold;">ignore</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        <span style="color: #06c; font-weight: bold;">use</span> zs <span style="color: #a52a2a;">=</span> <span style="color: #06c; font-weight: bold;">new</span> ZlibStream<span style="color: #6c6;">(</span>fs, CompressionMode.<span style="color: #060;">Decompress</span><span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        <span style="color: #06c; font-weight: bold;">use</span> sr <span style="color: #a52a2a;">=</span> <span style="color: #06c; font-weight: bold;">new</span> StreamReader<span style="color: #6c6;">(</span>zs<span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        <span style="color: #06c; font-weight: bold;">let</span> s <span style="color: #a52a2a;">=</span> sr.<span style="color: #060;">ReadToEnd</span><span style="color: #6c6;">(</span><span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        sr.<span style="color: #060;">Close</span><span style="color: #6c6;">(</span><span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        s</div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;"> </div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">    <span style="color: #06c; font-weight: bold;">let</span> write fileName s <span style="color: #a52a2a;">=</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        <span style="color: #06c; font-weight: bold;">use</span> fs <span style="color: #a52a2a;">=</span> File.<span style="color: #060;">Open</span><span style="color: #6c6;">(</span>fileName, FileMode.<span style="color: #060;">Create</span>, FileAccess.<span style="color: #060;">ReadWrite</span><span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        <span style="color: #06c; font-weight: bold;">use</span> zs <span style="color: #a52a2a;">=</span> </div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">            <span style="color: #06c; font-weight: bold;">new</span> ZlibStream<span style="color: #6c6;">(</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">                fs, CompressionMode.<span style="color: #060;">Compress</span>, </div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">                CompressionLevel.<span style="color: #060;">BestCompression</span>, <span style="color: #06c; font-weight: bold;">false</span> <span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        fs.<span style="color: #060;">WriteString</span><span style="color: #6c6;">(</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">            <span style="color: #3cb371;">"PIAFILEVERSION_2.0,CTBVER1,compress<span style="color: #008080; font-weight: bold;">\r</span><span style="color: #008080; font-weight: bold;">\n</span>pmzlibcodec"</span> <span style="color: #a52a2a;">+</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">            <span style="color: #3cb371;">"<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\0</span>00<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\2</span>55<span style="color: #008080; font-weight: bold;">\0</span>00"</span> <span style="color: #6c6;">)</span></div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        zs.<span style="color: #060;">WriteString</span> s</div></li><li style="$geshi->set_line_style('background: white;', true);"><div style="font: normal normal 1em/1.2em monospace; margin:0; padding:0; background:none; vertical-align:top;">        zs.<span style="color: #060;">Close</span><span style="color: #6c6;">(</span><span style="color: #6c6;">)</span></div></li></ol></div><br>The read function will give you a string which is, to quote, "more or less 'human readable'".</div>
+							</div>
+						</div>
+						<div class="moderatorbar">
+							<div class="smalltext modified" id="modified_466319">
+							</div>
+							<div class="smalltext reportlinks">
+								<img data-savepage-src="https://www.theswamp.org/Themes/default/images/ip.gif" src="data:image/gif;base64,R0lGODlhEAAQAKIEADMzMwAAAP8zADMKAP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAQABAAQAMxSLrcDlAMFZyCQNq96gIExl0hlgWoR4qNOlJpCb5yWD/Qp+FzuLsiEAuYs7heR5oiAQA7" alt="">
+								Logged
+							</div>
+						</div>
+					</div>
+					<span class="botslice"><span></span></span>
+				</div>
+				<hr class="post_separator">
+				<a id="msg466545"></a>
+				<div class="windowbg2">
+					<span class="topslice"><span></span></span>
+					<div class="post_wrapper">
+						<div class="poster">
+							<h4>
+								exmachina
+							</h4>
+							<ul class="reset smalltext" id="msg_466545_extra_info">
+								<li class="membergroup">Guest</li>
+							</ul>
+						</div>
+						<div class="postarea">
+							<div class="flow_hidden">
+								<div class="keyinfo">
+									<div class="messageicon">
+										<img data-savepage-src="https://www.theswamp.org/Themes/default/images/post/xx.gif" src="data:image/gif;base64,R0lGODlhFAAUAMQUAKex1Jqjxba5u8bKzb7FyYGIjOPr79Tb3293fVJdgba9waCt0aaxw7K/4q65y/r9/1hXV8vY/FxiZvT7/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABQALAAAAAAUABQAAAWLICWOZGmWkiRC0GlKwyBBANC6onRMkxxFgAROx+P5gDfU7vEoHm3KycPRdEp+UFEBIXXwqFbsrWBAVMFS4xVJIU8QBirTWzysGxAyQsFgTuhFAmsBeXsGfoA8gj+EOQRFiROLEQFCIxKPVYGDSZePRZKDli+foYydpKELlKgnEoIUEI04JCortLgnIQA7" alt="">
+									</div>
+									<h5 id="subject_466545">
+										<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.msg466545#msg466545" rel="nofollow">Re: Read and Write PIA Files</a>
+									</h5>
+									<div class="smalltext">« <strong>Reply #1 on:</strong> April 21, 2012, 05:33:18 PM »</div>
+									<div id="msg_466545_quick_mod"></div>
+								</div>
+							</div>
+							<div class="post">
+								<div class="inner" id="msg_466545"><div class="quoteheader"><div class="topslice_quote"><a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.msg466319#msg466319">Quote from: kaefer on April 19, 2012, 08:00:47 AM</a></div></div><blockquote class="bbc_standard_quote">...<br>First, <a href="http://www.noliturbare.com/more/faq#Q1" class="bbc_link" target="_blank">here's</a> a short description of the PIA <br>...<br></blockquote><div class="quotefooter"><div class="botslice_quote"></div></div><br>About "<a href="http://www.noliturbare.com/more/faq#Q1" class="bbc_link" target="_blank">here's</a>" (<a href="http://www.noliturbare.com/more/faq#Q1" class="bbc_link" target="_blank">http://www.noliturbare.com/more/faq#Q1</a>):<br>is a good starting point, but contains several errors/lack of information<br>The header size is 60 No 59<br>bytes 49-&gt;52 = ZlibCodec.Adler32<br>bytes 53-&gt;56 = compressed stream size<br>bytes 57-&gt;60 = decompressed stream size<br><br>Look @ this:<br><a href="http://www.theswamp.org/index.php?topic=37625.0" class="bbc_link" target="_blank">http://www.theswamp.org/index.php?topic=37625.0</a><br><br></div>
+							</div>
+						</div>
+						<div class="moderatorbar">
+							<div class="smalltext modified" id="modified_466545">
+								« <em>Last Edit: April 21, 2012, 05:50:36 PM by whoknows</em> »
+							</div>
+							<div class="smalltext reportlinks">
+								<img data-savepage-src="https://www.theswamp.org/Themes/default/images/ip.gif" src="data:image/gif;base64,R0lGODlhEAAQAKIEADMzMwAAAP8zADMKAP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAQABAAQAMxSLrcDlAMFZyCQNq96gIExl0hlgWoR4qNOlJpCb5yWD/Qp+FzuLsiEAuYs7heR5oiAQA7" alt="">
+								Logged
+							</div>
+						</div>
+					</div>
+					<span class="botslice"><span></span></span>
+				</div>
+				<hr class="post_separator">
+				</form>
+			</div>
+			<a id="lastPost"></a>
+			<div class="pagesection">
+				
+		<div class="buttonlist floatright">
+			<ul>
+				<li><a class="button_strip_print" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=printpage;topic=41529.0" rel="new_win nofollow"><span class="last">Print</span></a></li>
+			</ul>
+		</div>
+				<div class="pagelinks floatleft">Pages: [<strong>1</strong>]  |    <a href="#top"><strong>Go Up</strong></a></div>
+				<div class="nextlinks_bottom"><a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0;prev_next=prev#new">« previous</a> <a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0;prev_next=next#new">next »</a></div>
+			</div>
+	<div class="navigate_section">
+		<ul>
+			<li>
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&"><span>TheSwamp</span></a> »
+			</li>
+			<li>
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&#c3"><span>Code Red</span></a> »
+			</li>
+			<li>
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&board=27.0"><span>.NET</span></a> »
+			</li>
+			<li class="last">Topic: 
+				<a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&topic=41529.0"><span>Read and Write PIA Files</span></a>
+			</li>
+		</ul>
+	</div>
+			<div id="moderationbuttons"></div>
+			<div class="plainbox" id="display_jump_to"><label class="smalltext" for="display_jump_to_select">Jump to:</label> <select name="display_jump_to_select" id="display_jump_to_select" onfocus="grabJumpToContent();"><option value="?board=27.0">=&gt; .NET</option></select> <input type="button" value="go" onclick="window.location.href = 'https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&board=27.0';"></div>
+		<br class="clear">
+				<script type="text/javascript" data-savepage-src="https://www.theswamp.org/Themes/default/scripts/topic.js"></script>
+				<script type="text/javascript"></script>
+			<script type="text/javascript"></script>
+		</div>
+	</div></div>
+	<div id="footer_section"><div class="frame">
+		<ul class="reset">
+			<li class="copyright">
+			<span class="smalltext" style="display: inline; visibility: visible; font-family: Verdana, Arial, sans-serif;"><a href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&action=credits" title="Simple Machines Forum" target="_blank" class="new_win">SMF 2.0.15</a> |
+ <a href="http://www.simplemachines.org/about/smf/license.php" title="License" target="_blank" class="new_win">SMF © 2017</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" class="new_win">Simple Machines</a>
+			</span></li>
+			<li><a id="button_xhtml" href="http://validator.w3.org/check?uri=referer" target="_blank" class="new_win" title="Valid XHTML 1.0!"><span>XHTML</span></a></li>
+			
+			<li class="last"><a id="button_wap2" href="https://www.theswamp.org/index.php?PHPSESSID=1iji446jjv34oe1cp80t73iud1&wap2" class="new_win"><span>WAP2</span></a></li>
+		</ul>
+	</div></div>
+</div>
+</body></html>
