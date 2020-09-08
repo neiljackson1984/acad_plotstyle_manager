@@ -3,7 +3,8 @@ unslashedDir=$(patsubst %/,%,$(dir $(1)))
 pathOfThisMakefile=$(call unslashedDir,$(lastword $(MAKEFILE_LIST)))
 pathOfHumanReadablePenTableScript:=${pathOfThisMakefile}/human_readable_pen_table.py
 buildFolder:=${pathOfThisMakefile}/build
-sourceDirectory:=${pathOfThisMakefile}/../../../acad_support
+# sourceDirectory:=${pathOfThisMakefile}/../../../acad_support
+sourceDirectory:=${pathOfThisMakefile}
 
 sources:=$(wildcard ${sourceDirectory}/*.stb)
 # sources:=$(wildcard ${pathOfThisMakefile}/../../../acad_support/acad.stb)
@@ -17,14 +18,13 @@ venv:=$(shell cd "$(abspath $(dir ${pathOfHumanReadablePenTableScript}))" > /dev
 
 .PHONY: default
 
-
 # default: | ${buildFolder} ${venv}
 # 	pipenv run python \
 # 		"$(call getFullyQualifiedWindowsStylePath,${pathOfHumanReadablePenTableScript})" \
 # 		--input_acad_pen_table_file="$(word 1,${sources})" \
 # 		--output_human_readable_pen_table_file="$(call getFullyQualifiedWindowsStylePath,$(word 1,$(foreach source,${sources},${buildFolder}/$(basename $(notdir ${source})).json)))" 
 	
-default: ${humanReadableFiles}
+default: ${humanReadableFiles} | ${venv}
 
 ${buildFolder}/%.json: ${sourceDirectory}/%.stb ${pathOfHumanReadablePenTableScript} | ${buildFolder} ${venv}
 	@echo "====== BUILDING $@ from $< ======= "
