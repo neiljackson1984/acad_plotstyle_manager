@@ -10,6 +10,7 @@ import zlib
 import json
 import uuid
 import enum
+import collections
 
 
 
@@ -196,57 +197,17 @@ classicLineweights = [
     2.11
 ]
 
-
-
-class AcadPlotstyle (object):
-    def __init__(
-        name                  ="Normal",
-        localized_name        = None,
-        description           = "",
-        color                 = -1006632961,
-        mode_color            = -1006632961,
-        color_policy          = ColorPolicy(),
-        physical_pen_number   = 0,     
-        virtual_pen_number    = 0,      
-        screen                = 100,  
-        linepattern_size      = 0.5,
-        linetype              = LineType(),
-        adaptive_linetype     = True,                         
-        lineweight            = 0,
-        fill_style            = FillStyle(), 
-        end_style             = EndStyle(),   
-        join_style            = JoinStyle()
-    ):
-        self.description           = str(description)
-        self.color                 = int(color)
-        self.mode_color            = int(mode_color)           
-        self.color_policy          = ColorPolicy(color_policy)
-        self.physical_pen_number   = int(physical_pen_number)
-        self.virtual_pen_number    = int(virtual_pen_number)   
-        self.screen                = int(screen)               
-        self.linepattern_size      = float(linepattern_size)
-        self.linetype              = LineType(linetype)
-        self.adaptive_linetype     = bool(adaptive_linetype)
-        self.lineweight            = int(lineweight)   
-        self.fill_style            = FillStyle(fill_style)        
-        self.end_style             = EndStyle(end_style)
-        self.join_style            = JoinStyle(join_style)
-
-
-
-
-
 class AcadPentable (object):
 
     def __init__(self, penTableFile=None):
-        self._description = ""
+        self.description = ""
         self.aci_table_available = False
         self.scale_factor = 1.0
         self.apply_factor = False
-        self.custom_lineweight_display_units =  CustomLineweightDisplayUnit()
+        self.custom_lineweight_display_units =  CustomLineweightDisplayUnit.MILLIMETER
         self.custom_lineweight_table = copy.deepcopy(defaultLineweights)
-        self.plot_style = OrderedDict()
-        normalPlotStyle = AcadPlotstyle()
+        self.plot_style = collections.OrderedDict()
+        normalPlotStyle = AcadPlotstyle(parent=self)
         self.plot_style[ normalPlotStyle.name ] = normalPlotStyle
         # it is possible to construct a pentable file in whcih there are multiple plot_style entries with the same name 
         # (the pentable file stored this internally as an ordered-list rather than a dictionary-like-structure.
@@ -258,24 +219,19 @@ class AcadPentable (object):
 
         #when we read in a pentable file, we will record the path of the source file, if available, in this variable
         # self._pathOfSourceFile = None  ## not yet implemented
+        
+        #when we read in a pentable file, we will store the _headerBytes for subsequent use during write-out (TO DO: if possible, store the constant header bytes as a constant in this code rather than dynamically reading them each time)
+        self._headerBytes = None
+
         if penTableFile: self.loadFromFile(penTableFile)
 
-
-
-
-    def loadFromFile(penTableFile):
+    def loadFromFile(self, penTableFile):
         # to do: allow passing either a file-like object or a path-like object (e.g. a string)
         self._headerBytes = penTableFile.read(60)
-        self._compressedBytes=penTableFile.read()
-        self._payloadBytes = zlib.decompress(compressedBytes)
+        compressedBytes=penTableFile.read()
+        payloadBytes = zlib.decompress(compressedBytes)
         payloadString = payloadBytes.decode("ascii")
-
-        nameAndPrimitiveValuePattern = re.compile(r"^\s*(?P<identifier>\w+)\s*=\s*(?P<rawvalue>.*)$")
-        nameAndSubObjectPattern = re.compile(r"^\s*(?P<identifier>\w+)\s*{\s*$")
-        subObjectTerminationPattern = re.compile(r"^\s*(}\s*)+$")
-
-        data = AcadPentable._payloadStringToRawDictionary(payloadString)
-
+        self.fromRawDictionary(AcadPentable._payloadStringToRawDictionary(payloadString))
         # headerString = headerBytes.decode("raw_unicode_escape")
         # if headerString.encode("raw_unicode_escape") == headerBytes:
         #     print("original header was preserved.")
@@ -315,66 +271,20 @@ class AcadPentable (object):
 
         # now, we are going to go a bit further, and clean up the representation of the stb/ctb data.
 
-        # AutoCAD stores the list of plot styles as an associative array, whose keys are always the integers 0...n
-        # Therefore, it would make sense not to represent the list of plot styles as an associative array, but instead as an 
-        # ordered list.  Probably, AutoCAD's serialization format does not have a way to encode a list, but our serialization format (probably json) does.
-        if 'plot_style' in data: 
-            for i in data['plot_style']:
-                thisPlotStyle = AcadPlotStyle(
-                    name                  = data['plot_style'][i]['name'],
-                    localized_name        = data['plot_style'][i]['localized_name'],       
-                    description           = data['plot_style'][i]['description'],          
-                    color                 = data['plot_style'][i]['color'],                
-                    mode_color            = data['plot_style'][i]['mode_color'],           
-                    color_policy          = data['plot_style'][i]['color_policy'],         
-                    physical_pen_number   = data['plot_style'][i]['physical_pen_number'],  
-                    virtual_pen_number    = data['plot_style'][i]['virtual_pen_number'],   
-                    screen                = data['plot_style'][i]['screen'],               
-                    linepattern_size      = data['plot_style'][i]['linepattern_size'],     
-                    linetype              = data['plot_style'][i]['linetype'],             
-                    adaptive_linetype     = data['plot_style'][i]['adaptive_linetype'],                 
-                    lineweight            = data['plot_style'][i]['lineweight'],           
-                    fill_style            = data['plot_style'][i]['fill_style'],           
-                    end_style             = data['plot_style'][i]['end_style'],            
-                    join_style            = data['plot_style'][i]['join_style'],           
-                )
-                self.plot_style[thisPlotStyle.name] = thisPlotStyle
-                #we are double-representing the name here, both as the key to the self.plot_style dictionary and as a property of thisPlotStyle -- not sure the best way to resolve this.
-
-        if 'custom_lineweight_table' in data: self.custom_lineweight_table = list(data['custom_lineweight_table'].values())
-
-        self._description = str(data['description'])
-        self.aci_table_available = bool(data['aci_table_available'])
-        self.scale_factor = float(data['scale_factor'])
-        self.apply_factor = bool(data['apply_factor'])
-        self.custom_lineweight_display_units =  CustomLineweightDisplayUnit(data['custom_lineweight_display_units'])
-
-        #I have made the penTableObjectToPayloadString() function so that a list results in exactly the same output as a dictionary whose keys
-        # are the stringified sequential integers starting with "0"
-        # thus, I do not need to bother converting data['plot_style'] back into a dictionary before writing to the stb file.
+        
 
 
-        #perhaps we should store the "plot_style" entry as a dictionary with the keys being names, but this would remove the order of plot_style list, which is 
-        # somewhat important because the order of the list controls the order in which the plot styles are presented to the user in the ui.
 
-        return data
+    def writeToFile(self, penTableFile):
+        #to do: accept file-like object or a path-like object (current;y , we are only accepting a file-like object.
 
+        
+        originalHeaderBytes =  self._headerBytes
+        conservedHeaderBytes = originalHeaderBytes[:originalHeaderBytes.find(b'\n') + 1 + len("pmzlibcodec")] #I suspect that this is a fixed magic string that we could store as a constant.
 
-    def writePenTableDataToFile(data: dict, penTableFile):
-        global payloadBytes
-        data = copy.deepcopy(data)
-        originalHeaderBytes =  data['_header'].encode("raw_unicode_escape")
+        
 
-        data.pop('_header',None)
-        data.pop('_mysteryBytes',None)
-        data.pop('_checksumOfPayload',None)
-        data.pop('_checksumOfCompressed',None)
-        data.pop('_payloadBytesCount',None)
-        data.pop('_payloadBytesCountBytes',None)
-        data.pop('_compressedBytesCount',None)
-        data.pop('_compressedBytesCountBytes',None)
-
-        payloadString = penTableObjectToPayloadString(data)
+        payloadString = AcadPentable._penTableObjectToPayloadString(self.toRawDictionary())
         payloadBytes = payloadString.encode('ascii')
         compressedBytes = zlib.compress(payloadBytes)
 
@@ -385,7 +295,7 @@ class AcadPentable (object):
         # followed by a 4-byte little-endian unsigned integer representation of the count of bytes in the uncompressed payload
         # followed by a 4-byte little-endian unsigned integer representation of the count of bytes in the compressed payload.
 
-        conservedHeaderBytes = originalHeaderBytes[:originalHeaderBytes.find(b'\n') + 1 + len("pmzlibcodec")]
+        # conservedHeaderBytes = originalHeaderBytes[:originalHeaderBytes.find(b'\n') + 1 + len("pmzlibcodec")]
         
         # checksumBytes = originalHeaderBytes[len(conservedHeaderBytes): len(conservedHeaderBytes)+4]
         # I am cheating by pulling the checksum bytes from the original header -- this may not work.
@@ -417,6 +327,65 @@ class AcadPentable (object):
         # data['_payloadBytesCountBytes'] = list(len(payloadBytes).to_bytes(length=4,byteorder='little'))
         # data['_compressedBytesCount'] = len(compressedBytes)
         # data['_compressedBytesCountBytes'] = list(len(compressedBytes).to_bytes(length=4,byteorder='little'))
+
+    def toRawDictionary(self) -> dict:
+        return {
+                                          
+            'description'                       : self.description                             ,    
+            'aci_table_available'               : self.aci_table_available                     ,            
+            'scale_factor'                      : self.scale_factor                            ,     
+            'apply_factor'                      : self.apply_factor                            ,     
+            'custom_lineweight_display_units'   : self.custom_lineweight_display_units         ,                       
+            'custom_lineweight_table'           : copy.deepcopy(self.custom_lineweight_table)  , 
+            # TO DO: deal with the case of having an ACI table
+
+            'plot_style'                        :  [ self.plot_style[i].toRawDictionary() for i in self.plot_style ] 
+        }   
+
+    def toHumanReadableDictionary(self) -> dict:
+        return {
+                                          
+            'description'                       : self.description                              ,          
+            'aci_table_available'               : self.aci_table_available                      ,                  
+            'scale_factor'                      : self.scale_factor                             ,           
+            'apply_factor'                      : self.apply_factor                             ,           
+            'custom_lineweight_display_units'   : self.custom_lineweight_display_units.name     ,                                   
+            'custom_lineweight_table'           : copy.deepcopy(self.custom_lineweight_table)   ,       
+            # TO DO: deal with the case of having an ACI table
+
+            'plot_style'                        :  [ self.plot_style[i].toHumanReadableDictionary() for i in self.plot_style ] 
+        }
+
+    def fromRawDictionary(self, data: dict):
+        # AutoCAD stores the list of plot styles as an associative array, whose keys are always the integers 0...n
+        # Therefore, it would make sense not to represent the list of plot styles as an associative array, but instead as an 
+        # ordered list.  Probably, AutoCAD's serialization format does not have a way to encode a list, but our serialization format (probably json) does.
+
+        self.plot_style = collections.OrderedDict(
+                {
+                    data['plot_style'][i]['name'] : AcadPlotstyle.createNewFromParentAndRawDictionary(parent = self, rawDictionary = data['plot_style'][i])
+                    for i in (data['plot_style'] if ('plot_style' in data) else [])
+                }
+            )
+            #we are double-representing the name here, both as the key to the self.plot_style dictionary and as a property of thisPlotStyle -- not sure the best way to resolve this.
+
+        if 'custom_lineweight_table' in data: self.custom_lineweight_table = list(data['custom_lineweight_table'].values())
+
+        self.description                        = str(data['description'])
+        self.aci_table_available                = bool(data['aci_table_available'])
+        self.scale_factor                       = float(data['scale_factor'])
+        self.apply_factor                       = bool(data['apply_factor'])
+        self.custom_lineweight_display_units    = CustomLineweightDisplayUnit(data['custom_lineweight_display_units'])
+
+        #I have made the _penTableObjectToPayloadString() function so that a list results in exactly the same output as a dictionary whose keys
+        # are the stringified sequential integers starting with "0"
+        # thus, I do not need to bother converting data['plot_style'] back into a dictionary before writing to the stb file.
+
+        #To do: deal with the case of having an aci table.
+
+        #perhaps we should store the "plot_style" entry as a dictionary with the keys being names, but this would remove the order of plot_style list, which is 
+        # somewhat important because the order of the list controls the order in which the plot styles are presented to the user in the ui.
+
 
     @staticmethod
     def _payloadStringToRawDictionary(payloadString: str):
@@ -479,19 +448,21 @@ class AcadPentable (object):
                 return "\"" + x
             elif isinstance(x, bool):
                 return ("TRUE" if x else "FALSE")
+            elif isinstance(x, enum.IntEnum) or isinstance(x, enum.IntFlag) :
+                return str(int(x))
             else:
                 return str(x)
 
         payloadString = ""
         keys = penTableObject.keys() if isinstance(penTableObject, dict) else range(len(penTableObject))
         for key in keys:
-            # print("now processing key " + key)
+            # print("now processing key " + str(key))
             payloadString += str(key)
             value = penTableObject[key]
             if isinstance(value, dict) or isinstance(value, list):
                 payloadString += (
                     "{\n" 
-                    + "\n".join(map(lambda y: " " + y, penTableObjectToPayloadString(value).splitlines())) 
+                    + "\n".join(map(lambda y: " " + y, AcadPentable._penTableObjectToPayloadString(value).splitlines())) 
                     + "\n"
                     + "}\n"
                 )
@@ -499,3 +470,104 @@ class AcadPentable (object):
                 payloadString += "=" + encodeAsPenTablePrimitive(value) + "\n"
         return payloadString
 
+
+class AcadPlotstyle (object):
+    def __init__(self, parent: AcadPentable,
+        name                  = "Normal",
+        localized_name        = None,
+        description           = "",
+        color                 = -1006632961,
+        mode_color            = -1006632961,
+        color_policy          = ColorPolicy(0),
+        physical_pen_number   = 0,     
+        virtual_pen_number    = 0,      
+        screen                = 100,  
+        linepattern_size      = 0.5,
+        linetype              = LineType.USE_OBJECT_LINETYPE,
+        adaptive_linetype     = True,                         
+        lineweight            = 0,
+        fill_style            = FillStyle.USE_OBJECT_FILL_STYLE, 
+        end_style             = EndStyle.USE_OBJECT_ENDSTYLE,   
+        join_style            = JoinStyle.USE_OBJECT_JOINSTYLE
+        ):
+        self.parent = parent
+
+        self.name                  = str(name)
+        self.localized_name        = str(localized_name if localized_name else self.name) 
+        self.description           = str(description)
+        self.color                 = int(color)
+        self.mode_color            = int(mode_color)           
+        self.color_policy          = ColorPolicy(color_policy)
+        self.physical_pen_number   = int(physical_pen_number)
+        self.virtual_pen_number    = int(virtual_pen_number)   
+        self.screen                = int(screen)               
+        self.linepattern_size      = float(linepattern_size)
+        self.linetype              = LineType(linetype)
+        self.adaptive_linetype     = bool(adaptive_linetype)
+        self.lineweight            = int(lineweight)   
+        self.fill_style            = FillStyle(fill_style)        
+        self.end_style             = EndStyle(end_style)
+        self.join_style            = JoinStyle(join_style)
+
+
+    @staticmethod
+    def createNewFromParentAndRawDictionary(parent: AcadPentable, rawDictionary: dict):
+        return AcadPlotstyle(parent = parent,
+            name                  = rawDictionary['name'                 ],
+            localized_name        = rawDictionary['localized_name'       ],
+            description           = rawDictionary['description'          ],
+            color                 = rawDictionary['color'                ],
+            mode_color            = rawDictionary['mode_color'           ],
+            color_policy          = rawDictionary['color_policy'         ],
+            physical_pen_number   = rawDictionary['physical_pen_number'  ],
+            virtual_pen_number    = rawDictionary['virtual_pen_number'   ],
+            screen                = rawDictionary['screen'               ],
+            linepattern_size      = rawDictionary['linepattern_size'     ],
+            linetype              = rawDictionary['linetype'             ],
+            adaptive_linetype     = rawDictionary['adaptive_linetype'    ],
+            lineweight            = rawDictionary['lineweight'           ],
+            fill_style            = rawDictionary['fill_style'           ],
+            end_style             = rawDictionary['end_style'            ],
+            join_style            = rawDictionary['join_style'           ]
+        )
+
+    def toRawDictionary(self) -> dict:
+        return {
+            'name'                  : self.name                ,
+            'localized_name'        : self.localized_name      ,
+            'description'           : self.description         ,
+            'color'                 : self.color               ,
+            'mode_color'            : self.mode_color          ,
+            'color_policy'          : self.color_policy        ,
+            'physical_pen_number'   : self.physical_pen_number ,
+            'virtual_pen_number'    : self.virtual_pen_number  ,
+            'screen'                : self.screen              ,
+            'linepattern_size'      : self.linepattern_size    ,
+            'linetype'              : self.linetype            ,
+            'adaptive_linetype'     : self.adaptive_linetype   ,
+            'lineweight'            : self.lineweight          ,
+            'fill_style'            : self.fill_style          ,
+            'end_style'             : self.end_style           ,
+            'join_style'            : self.join_style          
+        }
+
+    def toHumanReadableDictionary(self) -> dict:
+        # we convert some of the hard-to-interpret values (like the enums) into strings that are meaningful to the human reader
+        return {
+            'name'                  : self.name                ,
+            'localized_name'        : self.localized_name      ,
+            'description'           : self.description         ,
+            'color'                 : self.color               ,
+            'mode_color'            : self.mode_color          ,
+            'color_policy'          : self.color_policy        ,
+            'physical_pen_number'   : self.physical_pen_number ,
+            'virtual_pen_number'    : self.virtual_pen_number  ,
+            'screen'                : self.screen              ,
+            'linepattern_size'      : self.linepattern_size    ,
+            'linetype'              : self.linetype.name       ,
+            'adaptive_linetype'     : self.adaptive_linetype   ,
+            'lineweight'            : ("USE_OBJECT_LINEWEIGHT" if self.lineweight == 0 else "custom_lineweight_table[" + str(self.lineweight - 1) + "], which is " + str(self.parent.custom_lineweight_table[self.lineweight - 1])) ,
+            'fill_style'            : self.fill_style.name     ,
+            'end_style'             : self.end_style.name      ,
+            'join_style'            : self.join_style.name          
+        }

@@ -24,8 +24,9 @@ venv:=$(shell cd "$(abspath $(dir ${pathOfHumanReadablePenTableScript}))" > /dev
 # 		--input_acad_pen_table_file="$(word 1,${sources})" \
 # 		--output_human_readable_pen_table_file="$(call getFullyQualifiedWindowsStylePath,$(word 1,$(foreach source,${sources},${buildFolder}/$(basename $(notdir ${source})).json)))" 
 	
-default: ${humanReadableFiles} | ${venv}
-
+default: ${pathOfHumanReadablePenTableScript} ${humanReadableFiles} | ${venv}
+	@echo venv: ${venv}
+	
 ${buildFolder}/%.json: ${sourceDirectory}/%.stb ${pathOfHumanReadablePenTableScript} | ${buildFolder} ${venv}
 	@echo "====== BUILDING $@ from $< ======= "
 	pipenv run python \
