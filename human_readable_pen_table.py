@@ -71,33 +71,33 @@ fillStyles = {
 # AutoCAD will reconstruct the below values if the custom_lineweight_table property of the plot
 # style is absent or if the custom_lineweight_table property has fewer than the standard number of entries.
 defaultLineweightTable = [
-        0.0,    #  0                 
-        0.05,   #  1          
-        0.09,   #  2          
-        0.1,    #  3         
-        0.13,   #  4          
-        0.15,   #  5          
-        0.18,   #  6          
-        0.2,    #  7         
-        0.25,   #  8          
-        0.3,    #  9         
-        0.35,   # 10          
-        0.4,    # 11         
-        0.45,   # 12          
-        0.5,    # 13         
-        0.53,   # 14          
-        0.6,    # 15         
-        0.65,   # 16          
-        0.7,    # 17         
-        0.8,    # 17         
-        0.9,    # 18         
-        1.0,    # 19         
-        1.06,   # 20          
-        1.2,    # 21         
-        1.4,    # 22         
-        1.58,   # 23          
-        2.0,    # 24         
-        2.11    # 25         
+        0.00,    #  0  *classic             
+        0.05,    #  1  *classic     
+        0.09,    #  2  *classic       
+        0.10,    #  3         
+        0.13,    #  4  *classic        
+        0.15,    #  5  *classic        
+        0.18,    #  6  *classic        
+        0.20,    #  7  *classic       
+        0.25,    #  8  *classic        
+        0.30,    #  9  *classic       
+        0.35,    # 10  *classic        
+        0.40,    # 11  *classic       
+        0.45,    # 12          
+        0.50,    # 13  *classic       
+        0.53,    # 14  *classic        
+        0.60,    # 15  *classic       
+        0.65,    # 16          
+        0.70,    # 17  *classic       
+        0.80,    # 17  *classic       
+        0.90,    # 18  *classic       
+        1.00,    # 19  *classic       
+        1.06,    # 20  *classic        
+        1.20,    # 21  *classic        
+        1.40,    # 22  *classic        
+        1.58,    # 23  *classic         
+        2.00,    # 24  *classic       
+        2.11     # 25  *classic       
 ] 
 
 
@@ -132,7 +132,32 @@ defaultLineweightTable = [
 #                            kLnWtByLwDefault  = -3,
 #                            kLnWtByDIPs       = -4 };    // for internal use only
 
-
+classicLineweights = [
+    0.00,
+    0.05,
+    0.09,
+    0.13,
+    0.15,
+    0.18,
+    0.20,
+    0.25,
+    0.30,
+    0.35,
+    0.40,
+    0.50,
+    0.53,
+    0.60,
+    0.70,
+    0.80,
+    0.90,
+    1.00,
+    1.06,
+    1.20,
+    1.40,
+    1.58,
+    2.00,
+    2.11
+]
 
 lineTypes = {
     'solid'                              : 0 ,
@@ -461,7 +486,46 @@ for i in range(numberOfStandbyPlotstylesToAdd):
     penTableData['plot_style'].append(myPlotStyle)
 
 
+# reason about lineweights chosen in a geometric series (which the autocad lineweights and the iso standard linewights are based on)
+baseLineThickness = 0.25
+#0.01*25.4 # 0.25 # 0.13 # units are millimeters
+# the errors for indices 0..6 are all 0.0 steps when we take baseLineThickness to be 0.25.  This suggests that AutoCAD's original "preference" was to use 0.25 millimeters as the base line width.
+stepFactorJumpSize = 1 
+stepFactor = 2**(1/2 * stepFactorJumpSize)
+indices = range(-10,11)
+arbitraryLineThicknessFormat="{:6.3f}"
+standardLineThicknessFormat="{:6.2f}"
+logErrorFormat="{:+4.1f}"
+indexFormat="{:>3d}"
 
+print("preferred line thickness series:")
+print("stepFactor: " + "{:12.6f}".format(stepFactor))
+
+# positiveStandardLineThicknesses = list(filter( lambda x: x>0, defaultLineweightTable  ))
+positiveStandardLineThicknesses = list(filter( lambda x: x>0, classicLineweights  ))
+
+for i in indices:
+    thisLineThickness = baseLineThickness * stepFactor ** i
+    # nearestStandardThickness = min(defaultLineweightTable, key= lambda standardThickness: abs(math.log(standardThickness) - math.log(thisLineThickness))  ) # would it be equivalent to simply look at the abs of the (plain-old) difference between standardThickness and thisLineThickness? (no, because the "half-way point" between two adjacent standard thicknesses is different in the log differnece vs. plain-old difference cases.  of course, for very small differences, it wouldn't make much  of a difference (so to speak))
+    nearestStandardThickness = min( 
+        positiveStandardLineThicknesses, 
+        key= lambda standardThickness: abs(math.log(standardThickness) - math.log(thisLineThickness))  # would it be equivalent to simply look at the abs of the (plain-old) difference between standardThickness and thisLineThickness? (no, because the "half-way point" between two adjacent standard thicknesses is different in the log differnece vs. plain-old difference cases.  of course, for very small differences, it wouldn't make much  of a difference (so to speak))  
+    ) 
+    logError = math.log(nearestStandardThickness, stepFactor) - math.log(thisLineThickness, stepFactor)
+    
+    print(
+        "\t" + indexFormat.format(i) + ": " 
+        # + arbitraryLineThicknessFormat.format(thisLineThickness) + " --> " 
+        +  ( standardLineThicknessFormat.format(nearestStandardThickness)  + " (error: " + logErrorFormat.format(logError) + " steps)" 
+            if abs(logError)<0.5 else 
+            "unachievable among the standard line thicknesses"
+        )
+    )
+
+print("standard line thickness series:")
+for standardThickness in positiveStandardLineThicknesses:
+    degree = math.log(standardThickness, stepFactor) -  math.log(baseLineThickness, stepFactor) 
+    print( "\t" + standardLineThicknessFormat.format(standardThickness) + " is degree " + "{:+4.2f}".format(degree))
 
 
 json.dump(penTableData, open(output_human_readable_pen_table_file_path.with_suffix(".new.json"), "w"), indent=4)
