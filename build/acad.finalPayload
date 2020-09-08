@@ -2,7 +2,7 @@ description="
 aci_table_available=FALSE
 scale_factor=1.0
 apply_factor=FALSE
-custom_lineweight_display_units=0
+custom_lineweight_display_units=1
 plot_style{
  0{
   name="Normal
@@ -545,8 +545,8 @@ plot_style{
   join_style=5
  }
  30{
-  name="standby--668681b2a04542aead8599ed858829af
-  localized_name="standby--668681b2a04542aead8599ed858829af
+  name="standby--539fb2240bbb40e58bc7777c67508549
+  localized_name="standby--539fb2240bbb40e58bc7777c67508549
   description="
   color=-1006632961
   mode_color=-1006632961

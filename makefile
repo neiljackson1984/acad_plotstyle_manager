@@ -1,7 +1,7 @@
 getFullyQualifiedWindowsStylePath=$(shell cygpath --windows --absolute "$(1)")
 unslashedDir=$(patsubst %/,%,$(dir $(1)))
 pathOfThisMakefile=$(call unslashedDir,$(lastword $(MAKEFILE_LIST)))
-pathOfHumanReadablePenTableScript:=${pathOfThisMakefile}/human_readable_pen_table.py
+pathOfHumanReadablePenTableScript:=${pathOfThisMakefile}/acad_plotstyle_manager.py
 buildFolder:=${pathOfThisMakefile}/build
 # sourceDirectory:=${pathOfThisMakefile}/../../../acad_support
 sourceDirectory:=${pathOfThisMakefile}

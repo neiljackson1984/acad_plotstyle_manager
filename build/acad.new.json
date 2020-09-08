@@ -3,7 +3,7 @@
     "aci_table_available": false,
     "scale_factor": 1.0,
     "apply_factor": false,
-    "custom_lineweight_display_units": 0,
+    "custom_lineweight_display_units": 1,
     "plot_style": [
         {
             "name": "Normal",
@@ -546,8 +546,8 @@
             "join_style": 5
         },
         {
-            "name": "standby--668681b2a04542aead8599ed858829af",
-            "localized_name": "standby--668681b2a04542aead8599ed858829af",
+            "name": "standby--539fb2240bbb40e58bc7777c67508549",
+            "localized_name": "standby--539fb2240bbb40e58bc7777c67508549",
             "description": "",
             "color": -1006632961,
             "mode_color": -1006632961,
@@ -593,5 +593,5 @@
         2.0,
         2.11
     ],
-    "_header": "PIAFILEVERSION_2.0,STBVER1,compress\r\npmzlibcodec\u0089\u00c5\u00a4\u00d8(+\u0000\u0000\u0087\u0003\u0000\u0000"
+    "_header": "PIAFILEVERSION_2.0,STBVER1,compress\r\npmzlibcodec\u00b2\u00bc\u00f1\u000e(+\u0000\u0000\u0087\u0003\u0000\u0000"
 }

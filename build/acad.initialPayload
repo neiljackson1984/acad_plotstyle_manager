@@ -2,7 +2,7 @@ description="
 aci_table_available=FALSE
 scale_factor=1.0
 apply_factor=FALSE
-custom_lineweight_display_units=0
+custom_lineweight_display_units=1
 plot_style{
  0{
   name="Normal
