@@ -16,13 +16,18 @@ from typing import IO, Any, AnyStr, Union
 
 
 # color_policy bitmask values:
+# class ColorPolicy(enum.IntFlag):
+#     ENABLE_DITHERING        = 1   # bit 0
+#     CONVERT_TO_GRAYSCALE    = 2   # bit 1
+#     USE_OBJECT_COLOR        = 4   # bit 2
+
+# bit 2 (use object color) is allowed to be high only when bit 1 (convert to grayscale) is low.
+# oops, USE_OBJECT_COLOR should be relabled "DO_NOt_USE_OBJECT_COLOR" (aka (explciitly override tyhe color))
+
 class ColorPolicy(enum.IntFlag):
     ENABLE_DITHERING        = 1   # bit 0
     CONVERT_TO_GRAYSCALE    = 2   # bit 1
     USE_OBJECT_COLOR        = 4   # bit 2
-
-# bit 2 (use object color) is allowed to be high only when bit 1 (convert to grayscale) is low.
-# oops, USE_OBJECT_COLOR should be relabled "DO_NOt_USE_OBJECT_COLOR" (aka (explciitly override tyhe color))
 
 
 class EndStyle(enum.IntEnum):
@@ -665,3 +670,75 @@ class AcadPlotstyle (object):
                 'join_style'            : self.join_style.name          
             }
         }
+
+
+
+# this function is more annotational than functional.
+def lineweightConceptReport():
+    # reason about lineweights chosen in a geometric series (which the autocad lineweights and the iso standard linewights are based on)
+    baseLineThickness = 0.25
+    #0.01*25.4 # 0.25 # 0.13 # units are millimeters
+    # the errors for indices 0..6 are all 0.0 steps when we take baseLineThickness to be 0.25.  This suggests that AutoCAD's original "preference" was to use 0.25 millimeters as the base line width.
+    stepFactorJumpSize = 1 
+    stepFactor = 2**(1/2 * stepFactorJumpSize)
+    indices = range(-10,11)
+    arbitraryLineThicknessFormat="{:6.3f}"
+    standardLineThicknessFormat="{:6.2f}"
+    logErrorFormat="{:+4.1f}"
+    indexFormat="{:>3d}"
+
+    print("preferred line thickness series:")
+    print("stepFactor: " + "{:12.6f}".format(stepFactor))
+
+    # positiveStandardLineThicknesses = list(filter( lambda x: x>0, defaultLineweightTable  ))
+    positiveStandardLineThicknesses = list(filter( lambda x: x>0, classicLineweights  ))
+
+    for i in indices:
+        thisLineThickness = baseLineThickness * stepFactor ** i
+        # nearestStandardThickness = min(defaultLineweightTable, key= lambda standardThickness: abs(math.log(standardThickness) - math.log(thisLineThickness))  ) # would it be equivalent to simply look at the abs of the (plain-old) difference between standardThickness and thisLineThickness? (no, because the "half-way point" between two adjacent standard thicknesses is different in the log differnece vs. plain-old difference cases.  of course, for very small differences, it wouldn't make much  of a difference (so to speak))
+        nearestStandardThickness = min( 
+            positiveStandardLineThicknesses, 
+            key= lambda standardThickness: abs(math.log(standardThickness) - math.log(thisLineThickness))  # would it be equivalent to simply look at the abs of the (plain-old) difference between standardThickness and thisLineThickness? (no, because the "half-way point" between two adjacent standard thicknesses is different in the log differnece vs. plain-old difference cases.  of course, for very small differences, it wouldn't make much  of a difference (so to speak))  
+        ) 
+        logError = math.log(nearestStandardThickness, stepFactor) - math.log(thisLineThickness, stepFactor)
+        
+        print(
+            "\t" + indexFormat.format(i) + ": " 
+            # + arbitraryLineThicknessFormat.format(thisLineThickness) + " --> " 
+            +  ( standardLineThicknessFormat.format(nearestStandardThickness)  + " (error: " + logErrorFormat.format(logError) + " steps)" 
+                if abs(logError)<0.5 else 
+                "unachievable among the standard line thicknesses"
+            )
+        )
+
+    print("standard line thickness series:")
+    for standardThickness in positiveStandardLineThicknesses:
+        degree = math.log(standardThickness, stepFactor) -  math.log(baseLineThickness, stepFactor) 
+        print( "\t" + standardLineThicknessFormat.format(standardThickness) + " is degree " + "{:+4.2f}".format(degree))
+
+
+    # with:
+    #   baseLineThickness = 0.25 millimeter
+    #   stepFactorJumpSize = 1
+    #   stepFactor = 2**(1/2 * stepFactorJumpSize)
+    # we say that the degree i line thickness is the value in classicLineweights that is nearest (in a log sense) to
+    # baseLineThickness * stepFactor**i
+    # the set of classicLineweights contains reasonably close matches for degrees -4, ..., 6
+    # The goal is to restrict ourselves to using only the following 11 lineweights, and, even within this limited list,
+    # we should try to prefer lineweights of even degree, only reseorting to odd-degree lineweights in special cases where an intermediate thickness is needed.
+    # By sticking to this scheme (which can be adjusted if needed by starting with a different baseLineThickness value), we will produce drawings 
+    # with a small finite number of visually-distinct lineweights.
+    # the idea is that the perceived psychometric change from one degree of thickness to the next should be roughly uniform for all degrees.
+    preferredLineThicknessesByDegree = {
+        -4:   0.05,
+        -3:   0.09, 
+        -2:   0.13,  
+        -1:   0.18,  
+        0:   0.25,  
+        1:   0.35,  
+        2:   0.50,  
+        3:   0.70,  
+        4:   1.00,  
+        5:   1.40,  
+        6:   2.00  
+    }
