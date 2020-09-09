@@ -22,6 +22,8 @@ class ColorPolicy(enum.IntFlag):
     USE_OBJECT_COLOR        = 4   # bit 2
 
 # bit 2 (use object color) is allowed to be high only when bit 1 (convert to grayscale) is low.
+# oops, USE_OBJECT_COLOR should be relabled "DO_NOt_USE_OBJECT_COLOR" (aka (explciitly override tyhe color))
+
 
 class EndStyle(enum.IntEnum):
         BUTT                 = 0 
@@ -557,7 +559,7 @@ class AcadPlotstyle (object):
         description           = "",
         color                 = -1006632961,
         mode_color            = -1006632961,
-        color_policy          = ColorPolicy(0),
+        color_policy          = ColorPolicy.ENABLE_DITHERING,
         physical_pen_number   = 0,     
         virtual_pen_number    = 0,      
         screen                = 100,  

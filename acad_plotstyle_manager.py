@@ -1,23 +1,16 @@
 import argparse
 import os
-import re
 import json
 import pathlib
 import sys
 import math
 import copy
-import zlib
-import json
 import uuid
 
 from acad_pentable import *
+import itertools
 
 
-
-
-######################################################################################
-##  BEGIN  BUSINESS LOGIC
-######################################################################################
 
 parser = argparse.ArgumentParser(description="Generate a human-readable json representation of an autocad pen table (stb or ctb) file.")
 parser.add_argument("--input_acad_pen_table_file", action='store', nargs=1, required=True, help="the .stb or .ctb file to be converted into human readable format")
@@ -50,3 +43,122 @@ myPentable.plot_style['white'].mode_color = testColor
 
 # myPentable.writeToFile(pentableFile=open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name + "-new").with_suffix(input_acad_pen_table_file_path.suffix) ,"wb"))      
 myPentable.writeToFile(pentableFile=output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name + "-new").with_suffix(input_acad_pen_table_file_path.suffix))      
+
+
+
+# reason about lineweights chosen in a geometric series (which the autocad lineweights and the iso standard linewights are based on)
+baseLineThickness = 0.25
+#0.01*25.4 # 0.25 # 0.13 # units are millimeters
+# the errors for indices 0..6 are all 0.0 steps when we take baseLineThickness to be 0.25.  This suggests that AutoCAD's original "preference" was to use 0.25 millimeters as the base line width.
+stepFactorJumpSize = 1 
+stepFactor = 2**(1/2 * stepFactorJumpSize)
+indices = range(-10,11)
+arbitraryLineThicknessFormat="{:6.3f}"
+standardLineThicknessFormat="{:6.2f}"
+logErrorFormat="{:+4.1f}"
+indexFormat="{:>3d}"
+
+print("preferred line thickness series:")
+print("stepFactor: " + "{:12.6f}".format(stepFactor))
+
+# positiveStandardLineThicknesses = list(filter( lambda x: x>0, defaultLineweightTable  ))
+positiveStandardLineThicknesses = list(filter( lambda x: x>0, classicLineweights  ))
+
+for i in indices:
+    thisLineThickness = baseLineThickness * stepFactor ** i
+    # nearestStandardThickness = min(defaultLineweightTable, key= lambda standardThickness: abs(math.log(standardThickness) - math.log(thisLineThickness))  ) # would it be equivalent to simply look at the abs of the (plain-old) difference between standardThickness and thisLineThickness? (no, because the "half-way point" between two adjacent standard thicknesses is different in the log differnece vs. plain-old difference cases.  of course, for very small differences, it wouldn't make much  of a difference (so to speak))
+    nearestStandardThickness = min( 
+        positiveStandardLineThicknesses, 
+        key= lambda standardThickness: abs(math.log(standardThickness) - math.log(thisLineThickness))  # would it be equivalent to simply look at the abs of the (plain-old) difference between standardThickness and thisLineThickness? (no, because the "half-way point" between two adjacent standard thicknesses is different in the log differnece vs. plain-old difference cases.  of course, for very small differences, it wouldn't make much  of a difference (so to speak))  
+    ) 
+    logError = math.log(nearestStandardThickness, stepFactor) - math.log(thisLineThickness, stepFactor)
+    
+    print(
+        "\t" + indexFormat.format(i) + ": " 
+        # + arbitraryLineThicknessFormat.format(thisLineThickness) + " --> " 
+        +  ( standardLineThicknessFormat.format(nearestStandardThickness)  + " (error: " + logErrorFormat.format(logError) + " steps)" 
+            if abs(logError)<0.5 else 
+            "unachievable among the standard line thicknesses"
+        )
+    )
+
+print("standard line thickness series:")
+for standardThickness in positiveStandardLineThicknesses:
+    degree = math.log(standardThickness, stepFactor) -  math.log(baseLineThickness, stepFactor) 
+    print( "\t" + standardLineThicknessFormat.format(standardThickness) + " is degree " + "{:+4.2f}".format(degree))
+
+
+# with:
+#   baseLineThickness = 0.25 millimeter
+#   stepFactorJumpSize = 1
+#   stepFactor = 2**(1/2 * stepFactorJumpSize)
+# we say that the degree i line thickness is the value in classicLineweights that is nearest (in a log sense) to
+# baseLineThickness * stepFactor**i
+# the set of classicLineweights contains reasonably close matches for degrees -4, ..., 6
+# The goal is to restrict ourselves to using only the following 11 lineweights, and, even within this limited list,
+# we should try to prefer lineweights of even degree, only reseorting to odd-degree lineweights in special cases where an intermediate thickness is needed.
+# By sticking to this scheme (which can be adjusted if needed by starting with a different baseLineThickness value), we will produce drawings 
+# with a small finite number of visually-distinct lineweights.
+# the idea is that the perceived psychometric change from one degree of thickness to the next should be roughly uniform for all degrees.
+preferredLineThicknessesByDegree = {
+    -4:   0.05,
+    -3:   0.09, 
+    -2:   0.13,  
+    -1:   0.18,  
+     0:   0.25,  
+     1:   0.35,  
+     2:   0.50,  
+     3:   0.70,  
+     4:   1.00,  
+     5:   1.40,  
+     6:   2.00  
+}
+
+#similarly, we have the following 4 preferred degrees of density (a.k.a. "screening" in AutoCAD plotstyle parlance)
+preferredDensitiesByDegree = {
+    -3: 0.353,
+    -2: 0.500,
+    -1: 0.707,
+     0: 1.000
+}
+
+preferredColors = {
+    'black': (0, 0, 0),
+    'blue':(0,0,255)
+}
+
+# we want to consturct a pen table having a nicely-named plot style for each member of the cartesian prodcut of our 
+# series of preferred property values (along with an "unspecified") value added to each series of preferred property values
+# so that, for any combination of properties that we choose to enforce and preferred values for those properties, we can find a corresponding
+# plot style.  I am tempted not to have an "unspecified" value for the line thicknesses, because I want to strictly adhere to the
+# chosen few (and there is always the required "Normal" plot style -- which leaves every property unspecified).  Perhaps the only property
+# which I want the user to be able to leave "unspecified" by choosing a plot style is the color.  Even this is only a convenience, a hack to
+# avoid having to think carefully about colors in the same way that I have thought carefully about line thickness and density.
+# ideally, we should be able to parameterize the space of styles however we see fit, and then present the chosen parameterization to the user
+# as knobs to turn in the ui (along the lines of css), but given AuotCAD's relatively primitive concept of combining styles, explicitly constructing
+# each choice ahead-of-time, as we are doing here, is the coses we can come to giving the user the knobs that we would like to give him.
+
+thePentable = AcadPentable()
+
+for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferredLineThicknessesByDegree, preferredDensitiesByDegree, {**preferredColors, **{'unspecified':None}}):
+    # print("working on lineThicknessDegree " + str(lineThicknessDegree) + ", " + "densityDegree " + str(densityDegree) + ", colorKey " + str(colorKey))
+    thisPlotStyle = AcadPlotstyle(parent=thePentable,
+        name= "thickness{:+d}_density{:+d}".format(lineThicknessDegree, densityDegree) + ("" if colorKey == 'unspecified' else "_color" + colorKey[0].upper() + colorKey[1:] )
+    )
+    print("constructing plot style " + thisPlotStyle.name)
+
+
+    thisPlotStyle.lineweight = 1 + thePentable.custom_lineweight_table.index(preferredLineThicknessesByDegree[lineThicknessDegree])
+    thisPlotStyle.screen = int(100 * preferredDensitiesByDegree[densityDegree])
+    if colorKey != 'unspecified' : 
+        thisPlotStyle.color = int.from_bytes( (195,) + preferredColors[colorKey], byteorder='big', signed=True)
+        thisPlotStyle.mode_color = thisPlotStyle.color
+
+        print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
+        thisPlotStyle.color_policy = thisPlotStyle.color_policy & (thisPlotStyle.color_policy & ~ColorPolicy.USE_OBJECT_COLOR)
+        print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
+
+    thePentable.plot_style[thisPlotStyle.name] = thisPlotStyle
+
+
+thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("acad.stb"))
