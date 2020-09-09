@@ -27,7 +27,7 @@ from typing import IO, Any, AnyStr, Union
 class ColorPolicy(enum.IntFlag):
     ENABLE_DITHERING        = 1   # bit 0
     CONVERT_TO_GRAYSCALE    = 2   # bit 1
-    USE_OBJECT_COLOR        = 4   # bit 2
+    EXPLICIT_COLOR          = 4   # bit 2  # this bit goes low when the user in the ui selects "use object color" from the color dropdown box.
 
 
 class EndStyle(enum.IntEnum):
@@ -104,6 +104,66 @@ class LineType(enum.IntEnum):
 class CustomLineweightDisplayUnit(enum.IntEnum):
     MILLIMETER  = 0
     INCH        = 1
+
+
+class PentableColor (object):    
+    def __init__(self, *args, **kwargs):
+        #the constructor accepts any of the following argument signatures:
+        #   byte red, byte green, byte blue, byte colorMethod
+        #   byte red, byte green, byte blue
+        #   float red, float green, float blue, byte colorMethod
+        #   float red, float green, float blue
+        #   int pentableRgbqColorInt
+        # a float value for red, green, or blue, will be inerpreted as a ration, a real number in the range [0,1], which we will map onto [0, 255]
+        # an in value for red, green, or blue will be interpreted as the byte to be stored in the rgbQ data structure (i.e. the traditional 0--255 int color component value)
+
+        # the acadRgbqColorInt is the signed integer representation of color that is the 'native' type of the 'color' and 'mode_color' 
+        # properties that appear in the pen table.
+        if len(args) == 1 and len(kwargs)==0: 
+            # a single non-keyword argument will be interpreted as acadRgbqColorInt or as a PenTablColor object, if appropriate.
+            self.acadRgbqColorInt = (args[0].acadRgbqColorInt if isinstance(args[0], PentableColor) else int(args[0]))
+        else:
+            red              =  (kwargs['red'              ] if 'red'               in kwargs else (args[0] if len(args) >= 1 else 255 ))
+            green            =  (kwargs['green'            ] if 'green'             in kwargs else (args[1] if len(args) >= 2 else 255 ))
+            blue             =  (kwargs['blue'             ] if 'blue'              in kwargs else (args[2] if len(args) >= 3 else 255 ))
+            colorMethod      =  (kwargs['colorMethod'      ] if 'colorMethod'       in kwargs else (args[3] if len(args) >= 4 else 195 ))
+            acadRgbqColorInt =  (kwargs['acadRgbqColorInt' ] if 'acadRgbqColorInt'  in kwargs else None)
+            if acadRgbqColorInt != None:
+                self.acadRgbqColorInt = int(acadRgbqColorInt)
+            else: 
+                self.colorMethod = int( colorMethod )
+                self.setRgb( red, green, blue)
+            
+            # to do maybe: detect invalid argument combinations and throw an exception if encountered. something like   raise Exception("invalid arguments")
+            # to do maybe: setters for red, green, and blue
+
+    @property
+    def colorMethod(self) -> int:
+        return self._colorMethod 
+
+    @colorMethod.setter
+    def colorMethod(self, x) -> int:
+        self._colorMethod = int(x)
+        return self.colorMethod
+
+    @property
+    def acadRgbqColorInt(self) -> int:
+        return int.from_bytes( (self.blue, self.green, self.red, self.colorMethod), byteorder='little', signed=True)
+
+    @acadRgbqColorInt.setter
+    def acadRgbqColorInt(self, x: int) -> int:
+        (self.blue, self.green, self.red, self.colorMethod) = tuple(int(x).to_bytes(length=4,byteorder='little', signed=True))
+        return self.acadRgbqColorInt # are setters supposed/allowed to return a value?  perhaps the "@...setter" annotation automatically adds such a return statement.
+
+    def setRgb(self, red, green, blue):
+        self.red         = int( red    * 255 if isinstance(red   , float) else red    )
+        self.green       = int( green  * 255 if isinstance(green , float) else green  )
+        self.blue        = int( blue   * 255 if isinstance(blue  , float) else blue   )
+    
+    @property
+    def humanReadableString(self) -> str:
+        return "red: {:3d}, green: {:3d}, blue: {:3d}, colorMethod: {:d}".format(self.red, self.green, self.blue, self.colorMethod)
+        
 
 #the 'lineweight' property is as follows:
 # 0 means "useObjectLineweight"
@@ -581,8 +641,8 @@ class AcadPlotstyle (object):
         self.name                  = str(name)
         self.localized_name        = str(localized_name if localized_name else self.name) 
         self.description           = str(description)
-        self.color                 = int(color)
-        self.mode_color            = ( int(mode_color) if mode_color != None else None)           
+        self.color                 = PentableColor(color)
+        self.mode_color            = ( None if mode_color == None else PentableColor(mode_color))           
         self.color_policy          = ColorPolicy(color_policy)
         self.physical_pen_number   = int(physical_pen_number)
         self.virtual_pen_number    = int(virtual_pen_number)   
@@ -596,10 +656,14 @@ class AcadPlotstyle (object):
         self.join_style            = JoinStyle(join_style)
 
 
-        # the 'color' property is an signed 32-bit integer, which we interpret by converting it into a list of byte values (assuming big-endian and 2's complement)
-        # the bytes are of the form [195, r, g, b], where r, g, b are integers in the range [0,255] representing the usual rgb components.
-        # the "use object color" value for color that is pickable in the AutoCAD user interface corresponds to [195, 255, 255, 255].
-        # This means that, as far as I can tell, there is no way to specify literally red=255, green=255, blue=255 (Come on now, Autodesk -- you should be embarassed.)
+        # the 'color' property is an signed 32-bit integer, which we interpret by converting it into a list of byte values (assuming little-endian and 2's complement)
+        # the bytes are of the form [b, g, r, 195], where r, g, b are integers in the range [0,255] representing the usual rgb components.
+        # the "use object color" value for color that is pickable in the AutoCAD user interface corresponds to [255, 255, 255, 195].
+        # This means that, as far as I can tell, there is no way to specify literally red=255, green=255, blue=255 (Come on now, Autodesk -- you should be embarassed.  White lives matter too.)
+        # the Oarx c++ header file dbcolor.h seems like it is probably related to the way that color is represented in the pentable files. 
+        # The "195" value (aka 0xc3) is probably related to the AcCmEntityColor::ColorMethod.kByACI enum value that is decalred in that header file.
+        # the 4-byte representation of color that we are seeing in the pentable file is likely the same as the AcCmEntityColor::mRGBM .  (whose type is a rather complicated union of ints and enums.)
+        # 
 
     @staticmethod
     def createNewFromParentAndRawDictionary(parent: AcadPentable, rawDictionary: dict):
@@ -625,12 +689,12 @@ class AcadPlotstyle (object):
     def toRawDictionary(self) -> dict:
         return {
             **{
-                'name'                  : self.name                ,
-                'localized_name'        : self.localized_name      ,
-                'description'           : self.description         ,
-                'color'                 : self.color               
+                'name'                  : self.name                    ,
+                'localized_name'        : self.localized_name          ,
+                'description'           : self.description             ,
+                'color'                 : self.color.acadRgbqColorInt               
             }, 
-            **({} if self.mode_color == None else {'mode_color': self.mode_color }),
+            **({} if self.mode_color == None else {'mode_color': self.mode_color.acadRgbqColorInt }),
             **{
                 'color_policy'          : self.color_policy        ,
                 'physical_pen_number'   : self.physical_pen_number ,
@@ -650,12 +714,12 @@ class AcadPlotstyle (object):
         # we convert some of the hard-to-interpret values (like the enums) into strings that are meaningful to the human reader
         return {
             **{
-                'name'                  : self.name                ,
-                'localized_name'        : self.localized_name      ,
-                'description'           : self.description         ,
-                'color'                 : str(list(self.color.to_bytes(length=4,byteorder='big', signed=True)))      
+                'name'                  : self.name                      ,
+                'localized_name'        : self.localized_name            ,
+                'description'           : self.description               ,
+                'color'                 : self.color.humanReadableString  
             },  
-            **({} if self.mode_color == None else {'mode_color': str(list(self.mode_color.to_bytes(length=4,byteorder='big', signed=True)))  }),
+            **({} if self.mode_color == None else {'mode_color': self.mode_color.humanReadableString}),
             **{
                 'color_policy'          : self.color_policy.name   ,
                 'physical_pen_number'   : self.physical_pen_number ,
@@ -742,3 +806,141 @@ def lineweightConceptReport():
         5:   1.40,  
         6:   2.00  
     }
+
+
+
+###   # round trip file consistency test.
+###   pathOfRoundTripGeneration0 = input_acad_pen_table_file_path
+###   pathOfRoundTripGeneration1 = output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-roundTrip1").with_suffix(input_acad_pen_table_file_path.suffix)
+###   pathOfRoundTripGeneration2 = output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-roundTrip2").with_suffix(input_acad_pen_table_file_path.suffix)
+###   pathOfRoundTripGeneration3 = output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-roundTrip3").with_suffix(input_acad_pen_table_file_path.suffix)
+###   
+###   AcadPentable(pathOfRoundTripGeneration0).writeToFile(pathOfRoundTripGeneration1)
+###   AcadPentable(pathOfRoundTripGeneration1).writeToFile(pathOfRoundTripGeneration2)
+###   AcadPentable(pathOfRoundTripGeneration2).writeToFile(pathOfRoundTripGeneration3)
+###   
+###   
+###   # How does a pentable file change as it takes a (nominally non-modifying) round trip through
+###   # this script or through the autoCAD pentable editor.
+###   # "==T==>" means "open in the AutoCAD pen table editor, then click "save and close"".  (a round trip through the auTocad (T) editor)
+###   # "==N==>" (right-pointing arrow) or "\N/" (down-pointing arrow) means a round trip through this (Neil's (N)) python script.
+###   # the hashes I use below are a truncation of the sha1 hash, keeping the first few bytes as needed to ensure uniqueness.
+###   
+###   # a06627d8: the factory-original acad.stb file
+###   # b04bd8fe: the factory-original acad.ctb file
+###   # 1c03a1ea: an arbitrary stb file from an arbitrary project
+###   
+###   #  a06627d8 ==T==> 02503499 ==T==> a002fca8 ==T==> a002fca8
+###   #    \N/
+###   #  4b3f061a ==T==> 02503499 ==T==> a002fca8 ==T==> a002fca8
+###   #    \N/
+###   #  4b3f061a ==T==> 02503499 ==T==> a002fca8
+###   #    \N/
+###   #  4b3f061a ==T==> 02503499 ==T==> a002fca8
+###   
+###   #  b04bd8fe ==T==> d59c374a ==T==> e044dfd4 ==T==> e044dfd4
+###   #    \N/
+###   #  b2a316e6 ==T==> d59c374a ==T==> e044dfd4 ==T==> e044dfd4
+###   #    \N/
+###   #  b2a316e6 ==T==> d59c374a ==T==> e044dfd4
+###   
+###   #  1c03a1ea ==T==> 1c03a1ea ==T==> 1c03a1ea ==T==> 1c03a1ea
+###   #    \N/
+###   #  e0d21e21 ==T==> 1c03a1ea ==T==> 1c03a1ea ==T==> 1c03a1ea
+###   #    \N/
+###   #  e0d21e21 ==T==> 1c03a1ea ==T==> 1c03a1ea
+###   
+###   # very, very strange.  It is not hugely surprising that a round trip through this script is not entirely equivalent to a round 
+###   # trip throught he autocad pen table editor
+###   # (I think I remember noticing an extra null byte on the end of the payload that acad adds and this script does not (or vice versa))
+###   # it is also not hugely surprising (although rather bad practice) that some of the factory-original pen table files
+###   # might have been composed in an earlier/non-standard version of the pentable editor, and therefore require a single trip through the 
+###   # acad editor to settle down.
+###   # But, what is very weird is a06627d8 and b04bd8fe (the factory original acad.stb and acad.ctb files, respectively), which only settles down after TWO trips through the 
+###   # acad editor.  This means that there exists at least one input that requires more than one round trip through the acad editor before
+###   # settling down -- what is the acad editor doing that would require more than one trip to settle down?
+###  In the factory-original stb file, the 'color' property of each plotstyle is [255, 255, 255, 255] and there is no mode_color property.
+# On the first round-trip through the autocad pentable editor, the 'coolor' properties are changed to [255, 255, 255, 195] and a mode_color = [255, 255, 255, 255] property is added to each plot style.
+# On the second round-trip through the acad pen table editor, the 'mode color properties are changed to [255, 255, 255, 195].
+# There appear to be no other changes to the data occuring while taking the factory-original acad.stb round-tripping throuigh the acad editor.
+# it seems, therefore, that when the acad editor needs to add a new color or mode_color property, it uses a value of [255, 255, 255, 255], and
+# that, upon encountering an exiting color or mode_color properrty value in which the first byte is 255 (and, probably, anything other than 195), acad changes the first byte to 195.
+# that theory explains (but does not excuse) why it takes two round-trips through the acad pentable eitor for the factory-originalacad.stb file to settle down.
+#  The exact same thing is happening with the factory-original ctb file.
+#
+#  Perhaps the "mode_color" property is a relatively new invention that was not included with the factory-original pentable files, which are probably ancient 
+# (the factory-original acad.stb and acad.ctb have a filesystem timestamp of 1999 and 2016, respectively, on my computer,
+# but that could be meaningless)
+# the "195" (aka 0xc3) is probably related to the AcCmEntityColor::colorMethod enum (see http://help.autodesk.com/view/OARX/2021/ENU/?guid=OARX-RefGuide-AcCmEntityColor__colorMethod_const)
+# ( and the related .NET enum Autodesk.AutoCAD.Colors.ColorMethod (see http://help.autodesk.com/view/OARX/2021/ENU/?guid=OARX-ManagedRefGuide-Autodesk_AutoCAD_Colors_ColorMethod)).  
+# Notably, Autodesk.AutoCAD.Colors.ColorMethod.ByAci is 0xc3.
+# I think "ACI" stand for "Auotcad color index"
+
+# the C# code that defines the .NET enum is :
+#  public enum ColorMethod {
+#    ByAci = 0xc3,
+#    ByBlock = 0xc1,
+#    ByColor = 0xc2,
+#    ByLayer = 0xc0,
+#    ByPen = 0xc4,
+#    Foreground = 0xc5,
+#    LayerFrozen = 0xc7,
+#    LayerOff = 0xc6,
+#    None = 200
+#  }
+
+#from the Oarx header file dbcolor.h: 
+# class AcCmEntityColor
+# {
+# public:
+#     enum Color { kRed,
+#                  kGreen,
+#                  kBlue
+#     };
+# 
+#     // Color Method.
+#     enum ColorMethod {   kByLayer =0xC0, 
+#                          kByBlock,
+#                          kByColor,
+#                          kByACI,
+#                          kByPen,
+#                          kForeground,
+#                          kLayerOff,
+#                          // Run-time states
+#                          kLayerFrozen,
+#                          kNone
+#     };
+# 
+#     enum ACIcolorMethod {kACIbyBlock    = 0,
+#                          kACIforeground = 7,
+#                          kACIbyLayer    = 256,
+#                          // Run-time states
+#                          kACIclear      = 0,    
+#                          kACIstandard   = 7,
+#                          kACImaximum    = 255,
+#                          kACInone       = 257,
+#                          kACIminimum    = -255,
+#                          kACIfrozenLayer= -32700
+#     };
+# ............
+# private:
+#     // Blue, green, red, and Color Method (byBlock, byLayer, byColor).
+#     // Is stored that way for better performance. 
+#     // This is an RGBQUAD layout
+#     // https://docs.microsoft.com/en-us/windows/desktop/api/wingdi/ns-wingdi-tagrgbquad
+#     //
+#     // Note that color chanels in RGBQUAD are reversed from COLORREF (0x00bbggrr) 
+#     // Note the dependency on struct layout: we assume that indirect does not
+#     // overlap with colorMethod!
+#     //
+#     union {
+#         Adesk::UInt32    whole;
+#         Adesk::Int16     indirect;
+#         struct {
+#             Adesk::UInt8 blue,
+#                          green,
+#                          red,
+#                          colorMethod;
+#         } mdata;
+#         Adesk::Int32    mnIndirect32;
+#     } mRGBM;

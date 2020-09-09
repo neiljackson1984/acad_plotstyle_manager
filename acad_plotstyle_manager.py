@@ -22,85 +22,30 @@ print("input_acad_pen_table_file_path is " + str(input_acad_pen_table_file_path)
 print("output_human_readable_pen_table_file_path is " + str(output_human_readable_pen_table_file_path))
 
 
-# round trip file consistency test.
+
+
 myPentable = AcadPentable(input_acad_pen_table_file_path)
-pathOfRoundTripGeneration0 = input_acad_pen_table_file_path
-pathOfRoundTripGeneration1 = output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-roundTrip1").with_suffix(input_acad_pen_table_file_path.suffix)
-pathOfRoundTripGeneration2 = output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-roundTrip2").with_suffix(input_acad_pen_table_file_path.suffix)
-pathOfRoundTripGeneration3 = output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-roundTrip3").with_suffix(input_acad_pen_table_file_path.suffix)
-
-AcadPentable(pathOfRoundTripGeneration0).writeToFile(pathOfRoundTripGeneration1)
-AcadPentable(pathOfRoundTripGeneration1).writeToFile(pathOfRoundTripGeneration2)
-AcadPentable(pathOfRoundTripGeneration2).writeToFile(pathOfRoundTripGeneration3)
-
-
-
-# How does a pentable file change as it takes a (nominally non-modifying) round trip through
-# this script or through the autoCAD pentable editor.
-# "==T==>" means "open in the AutoCAD pen table editor, then click "save and close"".  (a round trip through the auTocad (T) editor)
-# "==N==>" (right-pointing arrow) or "\N/" (down-pointing arrow) means a round trip through this (Neil's (N)) python script.
-# the hashes I use below are a truncation of the sha1 hash, keeping the first few bytes as needed to ensure uniqueness.
-
-# a06627d8: the factory-original acad.stb file
-# b04bd8fe: the factory-original acad.ctb file
-# 1c03a1ea: an arbitrary stb file from an arbitrary project
-
-#  a06627d8 ==T==> 02503499 ==T==> a002fca8 ==T==> a002fca8
-#    \N/
-#  4b3f061a ==T==> 02503499 ==T==> a002fca8 ==T==> a002fca8
-#    \N/
-#  4b3f061a ==T==> 02503499 ==T==> a002fca8
-#    \N/
-#  4b3f061a ==T==> 02503499 ==T==> a002fca8
-
-#  b04bd8fe ==T==> d59c374a ==T==> e044dfd4 ==T==> e044dfd4
-#    \N/
-#  b2a316e6 ==T==> d59c374a ==T==> e044dfd4 ==T==> e044dfd4
-#    \N/
-#  b2a316e6 ==T==> d59c374a ==T==> e044dfd4
-
-#  1c03a1ea ==T==> 1c03a1ea ==T==> 1c03a1ea ==T==> 1c03a1ea
-#    \N/
-#  e0d21e21 ==T==> 1c03a1ea ==T==> 1c03a1ea ==T==> 1c03a1ea
-#    \N/
-#  e0d21e21 ==T==> 1c03a1ea ==T==> 1c03a1ea
-
-# very, very strange.  It is not hugely surprising that a round trip through this script is not entirely equivalent to a round 
-# trip throught he autocad pen table editor
-# (I think I remember noticing an extra null byte on the end of the payload that acad adds and this script does not (or vice versa))
-# it is also not hugely surprising (although rather bad practice) that some of the factory-original pen table files
-# might have been composed in an earlier/non-standard version of the pentable editor, and therefore require a single trip through the 
-# acad editor to settle down.
-# But, what is very weird is a06627d8 (the factory original acad.stb file), which only settles down after TWO trips through the 
-# acad editor.  This means that there exists at least one input that requires more than one round trip through the acad editor before
-# settling down -- what is the acad editor doing that would require more than one trip to settle down?
-
-
-
 json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen_table_file_path, "w"), indent=4)
 json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name).with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json")  , "w"), indent=4)
 
 # myPentable.plot_style['white'].color_policy = ColorPolicy(0)
 
-# testColor = int.from_bytes( [195, 254, 255, 255], byteorder='big', signed=True)
-testColor = int.from_bytes( [100, 254, 255, 255], byteorder='big', signed=True)
+# testColor = int.from_bytes( [255, 255, 254, 195], byteorder='little', signed=True)
+testColor = int.from_bytes( [255, 255, 255, 100], byteorder='little', signed=True)
+
 
 
  
-if 'white' not in myPentable.plot_style:
-    myPentable.plot_style['white'] = AcadPlotstyle(parent = myPentable, name = "white")
-         
-myPentable.plot_style['white'].color = testColor
-myPentable.plot_style['white'].mode_color = testColor
+##  if 'white' not in myPentable.plot_style:
+##    myPentable.plot_style['white'] = AcadPlotstyle(parent = myPentable, name = "white")
+##           
+##  myPentable.plot_style['white'].color = testColor
+##  myPentable.plot_style['white'].mode_color = testColor
+##    
+##  myPentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-modified" + input_acad_pen_table_file_path.suffix))      
+##  json.dump(myPentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-modified" + input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
+##  json.dump(myPentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-modified" + input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
 
-
-
-myPentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-modified").with_suffix(input_acad_pen_table_file_path.suffix))      
-json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen_table_file_path, "w"), indent=4)
-json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name).with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json")  , "w"), indent=4)
-
-# print(str(input_acad_pen_table_file_path.name) + "-new")
-# print("pathOfModifiedPentableFile: " + str(pathOfModifiedPentableFile))
 
 
 # lineweightConceptReport()
@@ -140,8 +85,8 @@ preferredDensitiesByDegree = {
 }
 
 preferredColors = {
-    'black': (0, 0, 0),
-    'blue':(0,0,255)
+    'black': PentableColor(0, 0,   0),
+    'blue':  PentableColor(0, 0, 255)
 }
 
 # we want to consturct a pen table having a nicely-named plot style for each member of the cartesian prodcut of our 
@@ -168,14 +113,23 @@ for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferre
     thisPlotStyle.lineweight = 1 + thePentable.custom_lineweight_table.index(preferredLineThicknessesByDegree[lineThicknessDegree])
     thisPlotStyle.screen = int(100 * preferredDensitiesByDegree[densityDegree])
     if colorKey != 'unspecified' : 
-        thisPlotStyle.color = int.from_bytes( (195,) + preferredColors[colorKey], byteorder='big', signed=True)
-        thisPlotStyle.mode_color = thisPlotStyle.color
+        thisPlotStyle.color = copy.deepcopy(preferredColors[colorKey]) 
+        thisPlotStyle.mode_color = copy.deepcopy(preferredColors[colorKey])
 
         # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
-        thisPlotStyle.color_policy = thisPlotStyle.color_policy & (thisPlotStyle.color_policy & ~ColorPolicy.USE_OBJECT_COLOR)
+        # thisPlotStyle.color_policy = thisPlotStyle.color_policy & (thisPlotStyle.color_policy & ~ColorPolicy.USE_OBJECT_COLOR)
         # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
 
     thePentable.plot_style[thisPlotStyle.name] = thisPlotStyle
 
 
 thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
+json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
+json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
+
+x = ColorPolicy.EXPLICIT_COLOR & ColorPolicy.ENABLE_DITHERING
+y = ColorPolicy.EXPLICIT_COLOR
+print("type(x): " + str(type(x)))
+print("repr(x): " + repr(x))
+print("repr(y): " + repr(y))
+# print(str([i for i in x]))
