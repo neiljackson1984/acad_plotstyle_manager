@@ -11,7 +11,7 @@ import json
 import uuid
 import enum
 import collections
-
+from typing import IO, Any, AnyStr, Union
 
 
 
@@ -206,6 +206,12 @@ ttbConstantHeader = b'PIAFILEVERSION_2.0,TTBVER1,compress\r\npmzlibcodec'
 # I think for my purposes, I will interpret the ttb header as meaning that we are dealing with a NAMED_PLOT_STYLES pentable (rather than interoduce a third PentableType value,
 # which would be ridiculous)
 
+#thanks to https://softwareengineering.stackexchange.com/questions/262346/should-i-pass-in-filenames-to-be-opened-or-open-files
+# for a flexible way to have a fucntion that accepts either a path-like object or a file-like object:
+Pathish = Union[AnyStr, pathlib.Path]  # in lieu of yet-unimplemented PEP 519
+FileSpec = Union[IO, Pathish]
+
+
 class PentableType(enum.Enum):
     NAMED_PLOT_STYLES            = enum.auto()
     COLOR_DEPENDENT_PLOT_STYLES  = enum.auto()
@@ -213,7 +219,7 @@ class PentableType(enum.Enum):
 
 class AcadPentable (object):
 
-    def __init__(self, penTableFile=None):
+    def __init__(self, pentableFile=None):
         self._pentableType = PentableType.NAMED_PLOT_STYLES
         self._conservedHeaderBytes = {PentableType.NAMED_PLOT_STYLES: stbConstantHeader, PentableType.COLOR_DEPENDENT_PLOT_STYLES: ctbConstantHeader}[self._pentableType]
         self.description = ""
@@ -240,11 +246,13 @@ class AcadPentable (object):
         #when we read in a pentable file, we will store the _headerBytes for subsequent use during write-out (TO DO: if possible, store the constant header bytes as a constant in this code rather than dynamically reading them each time)
         self._headerBytes = None
 
-        if penTableFile: self.loadFromFile(penTableFile)
+        if pentableFile: self.loadFromFile(pentableFile)
 
-    def loadFromFile(self, penTableFile):
+
+    #the private version of _loadFromFile expects an open file handle as an argument (hopefully one that is opened in binary mode)
+    def _loadFromFile(self, pentableFile):
         # to do: allow passing either a file-like object or a path-like object (e.g. a string)
-        headerBytes = penTableFile.read(60)
+        headerBytes = pentableFile.read(60)
         self._conservedHeaderBytes = headerBytes[:headerBytes.find(b'\n') + 1 + len("pmzlibcodec")] #I suspect that this is a fixed magic string that we could store as a constant.
         # print("self._conservedHeaderBytes: " + repr(self._conservedHeaderBytes))
         # to do: verify the checksums.
@@ -262,7 +270,7 @@ class AcadPentable (object):
         # header will always be one of the three "known" constant headers (because the idea that those three constant header values are consistent or
         # complete is merely the result of empirical investigation - Autodesk could change things on a whim.)
 
-        compressedBytes=penTableFile.read()
+        compressedBytes=pentableFile.read()
         payloadBytes = zlib.decompress(compressedBytes)
         payloadString = payloadBytes.decode("ascii")
         self.fromRawDictionary(AcadPentable._payloadStringToRawDictionary(payloadString))
@@ -308,8 +316,17 @@ class AcadPentable (object):
         
 
 
+     #the private version of _writeToFile expects an open file handle as an argument, and we will be writing to the file handle, so hopefully it is opened in write mode..
+    
+    #the public version of loadFromFile can take either an open file handle or a path-ish object (a string or a pathlib.Path)
+    def loadFromFile(self, pentableFile: FileSpec):
+        if isinstance(pentableFile, (str, bytes, pathlib.Path)):
+            with open(pentableFile, 'rb') as f:
+                return self._loadFromFile(f)
+        else:
+            return self._loadFromFile(pentableFile)
 
-    def writeToFile(self, penTableFile):
+    def _writeToFile(self, pentableFile):
         #to do: accept file-like object or a path-like object (current;y , we are only accepting a file-like object.
 
 
@@ -346,7 +363,7 @@ class AcadPentable (object):
 
         # print("len(conservedHeaderBytes): " + str(len(conservedHeaderBytes)))
 
-        penTableFile.write(
+        pentableFile.write(
             self._conservedHeaderBytes 
             + checksumBytes
             + payloadBytesCountBytes
@@ -364,6 +381,15 @@ class AcadPentable (object):
         # data['_payloadBytesCountBytes'] = list(len(payloadBytes).to_bytes(length=4,byteorder='little'))
         # data['_compressedBytesCount'] = len(compressedBytes)
         # data['_compressedBytesCountBytes'] = list(len(compressedBytes).to_bytes(length=4,byteorder='little'))
+
+    #the public version of writeToFile can take either an open file handle or a path-ish object (a string or a pathlib.Path)
+    def writeToFile(self, pentableFile: FileSpec):
+        if isinstance(pentableFile, (str, bytes, pathlib.Path)):
+            with open(pentableFile, 'wb') as f:
+                return self._writeToFile(f)
+        else:
+            return self._writeToFile(pentableFile)
+
 
     def toRawDictionary(self) -> dict:
         return {
