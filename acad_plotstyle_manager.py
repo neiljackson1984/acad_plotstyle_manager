@@ -29,7 +29,22 @@ print("input_acad_pen_table_file_path is " + str(input_acad_pen_table_file_path)
 print("output_human_readable_pen_table_file_path is " + str(output_human_readable_pen_table_file_path))
 
 myPentable = AcadPentable(open(input_acad_pen_table_file_path, "rb"))
-myPentable.writeToFile(penTableFile=open(output_human_readable_pen_table_file_path.with_suffix(".new.stb") ,"wb"))
-json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path, "w"), indent=4)
-json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen_table_file_path.with_suffix(".humanReadable.json"), "w"), indent=4)
-    
+
+json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen_table_file_path, "w"), indent=4)
+json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name).with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json")  , "w"), indent=4)
+
+# myPentable.plot_style['white'].color_policy = ColorPolicy(0)
+
+# testColor = int.from_bytes( [195, 254, 255, 255], byteorder='big', signed=True)
+testColor = int.from_bytes( [100, 254, 255, 255], byteorder='big', signed=True)
+
+
+ 
+if 'white' not in myPentable.plot_style:
+    myPentable.plot_style['white'] = AcadPlotstyle(parent = myPentable, name = "white")
+         
+myPentable.plot_style['white'].color = testColor
+myPentable.plot_style['white'].mode_color = testColor
+
+
+myPentable.writeToFile(penTableFile=open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name + "-new").with_suffix(input_acad_pen_table_file_path.suffix) ,"wb"))      

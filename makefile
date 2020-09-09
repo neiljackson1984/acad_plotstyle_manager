@@ -2,13 +2,16 @@ getFullyQualifiedWindowsStylePath=$(shell cygpath --windows --absolute "$(1)")
 unslashedDir=$(patsubst %/,%,$(dir $(1)))
 pathOfThisMakefile=$(call unslashedDir,$(lastword $(MAKEFILE_LIST)))
 pathOfHumanReadablePenTableScript:=${pathOfThisMakefile}/acad_plotstyle_manager.py
+pathOfPenTableModule:=${pathOfThisMakefile}/acad_pentable.py
+
 buildFolder:=${pathOfThisMakefile}/build
 # sourceDirectory:=${pathOfThisMakefile}/../../../acad_support
-sourceDirectory:=${pathOfThisMakefile}
+sourceDirectory:=${pathOfThisMakefile}/test_fodder
 
-sources:=$(wildcard ${sourceDirectory}/*.stb)
+sources:=$(wildcard ${sourceDirectory}/*.stb) $(wildcard ${sourceDirectory}/*.ctb)
 # sources:=$(wildcard ${pathOfThisMakefile}/../../../acad_support/acad.stb)
-humanReadableFiles:=$(foreach source,${sources},${buildFolder}/$(basename $(notdir ${source})).json)
+# humanReadableFiles:=$(foreach source,${sources},${buildFolder}/$(basename $(notdir ${source})).json)
+humanReadableFiles:=$(foreach source,${sources},${buildFolder}/$(notdir ${source}).json)
 
 venv:=$(shell cd "$(abspath $(dir ${pathOfHumanReadablePenTableScript}))" > /dev/null 2>&1; pipenv --venv || echo initializeVenv)
 # the variable 'venv' will evaluate to the path of the venv, if it exists, or else will evaluate to 'initializeVenv', which is a target that we have created below.
@@ -24,16 +27,30 @@ venv:=$(shell cd "$(abspath $(dir ${pathOfHumanReadablePenTableScript}))" > /dev
 # 		--input_acad_pen_table_file="$(word 1,${sources})" \
 # 		--output_human_readable_pen_table_file="$(call getFullyQualifiedWindowsStylePath,$(word 1,$(foreach source,${sources},${buildFolder}/$(basename $(notdir ${source})).json)))" 
 	
-default: ${pathOfHumanReadablePenTableScript} ${humanReadableFiles} | ${venv}
+default: ${humanReadableFiles} 
 	@echo venv: ${venv}
 	
-${buildFolder}/%.json: ${sourceDirectory}/%.stb ${pathOfHumanReadablePenTableScript} | ${buildFolder} ${venv}
+
+
+# ${buildFolder}/%.json: ${sourceDirectory}/%.stb ${pathOfHumanReadablePenTableScript} | ${buildFolder} ${venv}
+
+
+${buildFolder}/%.ctb.json: ${sourceDirectory}/%.ctb ${pathOfHumanReadablePenTableScript} ${pathOfPenTableModule} | ${buildFolder} ${venv}
 	@echo "====== BUILDING $@ from $< ======= "
 	pipenv run python \
 		"$(call getFullyQualifiedWindowsStylePath,${pathOfHumanReadablePenTableScript})" \
 		--input_acad_pen_table_file="$(call getFullyQualifiedWindowsStylePath,$<)" \
 		--output_human_readable_pen_table_file="$(call getFullyQualifiedWindowsStylePath,$@)" 
-	
+
+
+${buildFolder}/%.stb.json: ${sourceDirectory}/%.stb ${pathOfHumanReadablePenTableScript} ${pathOfPenTableModule} | ${buildFolder} ${venv}
+	@echo "====== BUILDING $@ from $< ======= "
+	pipenv run python \
+		"$(call getFullyQualifiedWindowsStylePath,${pathOfHumanReadablePenTableScript})" \
+		--input_acad_pen_table_file="$(call getFullyQualifiedWindowsStylePath,$<)" \
+		--output_human_readable_pen_table_file="$(call getFullyQualifiedWindowsStylePath,$@)" 
+
+
 
 ${buildFolder}:
 	@echo "====== CREATING THE BUILD FOLDER ======="
