@@ -98,62 +98,58 @@ preferredColors = {
 
 thePentable = AcadPentable()
 
-thisPlotStyle = thePentable.addAPlotstyle(name="tester1")
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=250 ,  green=100 ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=50   , colorMethod=ColorMethod.BY_COLOR  ) 
+if False:
+    thisPlotStyle = thePentable.addAPlotstyle(name="tester1")
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=250 ,  green=100 ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=50   , colorMethod=ColorMethod.BY_COLOR  ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester2')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester3')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR    ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester4')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester5')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR       ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester6')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester7')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR    ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester8')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
+
+    thisPlotStyle = thePentable.addAPlotstyle(name='tester9')
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR       ) 
+    thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
 
 
 
-thisPlotStyle = thePentable.addAPlotstyle(name='tester2')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
-
-thisPlotStyle = thePentable.addAPlotstyle(name='tester3')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR    ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
-
-thisPlotStyle = thePentable.addAPlotstyle(name='tester4')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
-
-thisPlotStyle = thePentable.addAPlotstyle(name='tester5')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR       ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
-
-
-
-
-thisPlotStyle = thePentable.addAPlotstyle(name='tester6')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
-
-thisPlotStyle = thePentable.addAPlotstyle(name='tester7')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR    ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
-
-thisPlotStyle = thePentable.addAPlotstyle(name='tester8')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
-
-thisPlotStyle = thePentable.addAPlotstyle(name='tester9')
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR       ) 
-thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
-
-
-
-thisPlotStyle = thePentable.plot_style['Normal']
-thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
-thisPlotStyle.color      = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
-thisPlotStyle.mode_color = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_ACI      ) 
+    thisPlotStyle = thePentable.plot_style['Normal']
+    thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
+    thisPlotStyle.color      = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
+    thisPlotStyle.mode_color = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_ACI      ) 
 
 
 
@@ -205,26 +201,26 @@ for (color, colorPolicy) in itertools.product((arbitraryNonIndexColor, white), a
 
     
 
+if False:
+    for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferredLineThicknessesByDegree, preferredDensitiesByDegree, {**preferredColors, **{'unspecified':None}}):
+        # print("working on lineThicknessDegree " + str(lineThicknessDegree) + ", " + "densityDegree " + str(densityDegree) + ", colorKey " + str(colorKey))
+        thisPlotStyle = AcadPlotstyle(owner=thePentable,
+            name= "thickness{:+d}_density{:+d}".format(lineThicknessDegree, densityDegree) + ("" if colorKey == 'unspecified' else "_color" + colorKey[0].upper() + colorKey[1:] )
+        )
+        # print("constructing plot style " + thisPlotStyle.name)
 
-for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferredLineThicknessesByDegree, preferredDensitiesByDegree, {**preferredColors, **{'unspecified':None}}):
-    # print("working on lineThicknessDegree " + str(lineThicknessDegree) + ", " + "densityDegree " + str(densityDegree) + ", colorKey " + str(colorKey))
-    thisPlotStyle = AcadPlotstyle(owner=thePentable,
-        name= "thickness{:+d}_density{:+d}".format(lineThicknessDegree, densityDegree) + ("" if colorKey == 'unspecified' else "_color" + colorKey[0].upper() + colorKey[1:] )
-    )
-    # print("constructing plot style " + thisPlotStyle.name)
 
+        thisPlotStyle.lineweight = 1 + thePentable.custom_lineweight_table.index(preferredLineThicknessesByDegree[lineThicknessDegree])
+        thisPlotStyle.screen = int(100 * preferredDensitiesByDegree[densityDegree])
+        if colorKey != 'unspecified' : 
+            thisPlotStyle.color = copy.deepcopy(preferredColors[colorKey]) 
+            thisPlotStyle.mode_color = copy.deepcopy(preferredColors[colorKey])
 
-    thisPlotStyle.lineweight = 1 + thePentable.custom_lineweight_table.index(preferredLineThicknessesByDegree[lineThicknessDegree])
-    thisPlotStyle.screen = int(100 * preferredDensitiesByDegree[densityDegree])
-    if colorKey != 'unspecified' : 
-        thisPlotStyle.color = copy.deepcopy(preferredColors[colorKey]) 
-        thisPlotStyle.mode_color = copy.deepcopy(preferredColors[colorKey])
+            # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
+            # thisPlotStyle.color_policy = thisPlotStyle.color_policy & (thisPlotStyle.color_policy & ~ColorPolicy.USE_OBJECT_COLOR)
+            # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
 
-        # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
-        # thisPlotStyle.color_policy = thisPlotStyle.color_policy & (thisPlotStyle.color_policy & ~ColorPolicy.USE_OBJECT_COLOR)
-        # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
-
-    thePentable.plot_style[thisPlotStyle.name] = thisPlotStyle
+        thePentable.plot_style[thisPlotStyle.name] = thisPlotStyle
 
 
 thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
@@ -339,3 +335,138 @@ if False:
 if False:    
     x = PentableColor()
     print("x.htmlCode: " + x.htmlCode )
+
+
+# generate a test drawing containing a sample of each plotstyle.
+import decimal
+def drange(x, y, jump):
+  while x < y:
+    yield float(x)
+    x = decimal.Decimal(x) + decimal.Decimal(jump)
+
+samplerScript = ""
+
+insertionPoint = (1,11,0)
+stationIntervalX = 2.5
+stationIntervalY = 0.1
+nominalTextWidth = 0.5
+lineLength = 0.5
+
+stationIncrementDirectionX = 1
+stationIncrementDirectionY = -1
+
+xRange = (1,7.5)
+yRange = (1,10)
+
+
+xValues = drange( xRange[0], xRange[1] + stationIntervalX, stationIntervalX )
+yValues = drange( yRange[0], yRange[1] + stationIntervalY, stationIntervalY )
+
+yValues = reversed(list(yValues))
+
+stations = tuple(itertools.product(xValues, yValues))
+
+interval = (0,-0.3,0)
+textHeight = 0.04
+textAngle = 0
+textAlignment = "MR" # the sttring to be passed as the "Justify" option to the "Text" command.  must be one of Left Center Right Align Middle Fit TL TC TR ML MC MR BL BC BR 
+# note the "Align" keyword launches into more point selection and changes the subsequent syntaz of the Text command .
+
+# positions relative to insertionPoint, which we will move for each subsequent sample.
+anchors = {
+    'textPosition': (nominalTextWidth ,0,0), 
+    'lineStartPoint': (nominalTextWidth + 3 * textHeight,0,0),
+    'lineEndPoint': (nominalTextWidth + 3 * textHeight + lineLength,0,0)
+}
+
+#returns an autolisp expression that will evaluate to the specified string
+def escapeStringForAutolisp(x: str) -> str:
+    # using conversion via list of character codes -- crude and inefficient, but effective and reliable.
+    return "(vl-list->string '(" + " ".join(map(str,x.encode())) + "))"
+
+def toAutolispExpression(x) -> str:
+    if isinstance(x, str): return escapeStringForAutolisp(x)
+    elif isinstance(x, tuple): return "'(" + " ".join(map(toAutolispExpression, x)) + ")"
+    else: return str(x)
+
+samplerScript += '(command "._erase" (ssget "A") "")' + "\n"
+
+stationIndex =  0
+stationsRolloverCount = 0
+for plotStyle in thePentable.plot_style.values():
+    if stationsRolloverCount > 0: print("warning: re-used stations .")
+    #add commands to the samplerScript to draw the sample of this plotSTyle.
+    #the sample will consist of a text object containing the name of the plot style,
+    # then a line with the line's plotstyleName set to the name of the plotstyle.
+    #the script is intended to be run in a dwg file that is configured to use the 
+    # pen table file corresponding to thePentable
+    thisStation = stations[stationIndex]
+    print("thisStation: " + str(thisStation))
+
+
+    localAnchors = {key: tuple(map(operator.add, stations[stationIndex], value)) for (key,value) in anchors.items()}
+
+    annotationTextForThisSample = plotStyle.name
+
+    # all strings:
+
+
+    defaultDesiredSysvarState = {
+        'CLAYER'         :'0',
+        'CELTYPE'        :'Continuous',
+        'CETRANSPARENCY' : 0,
+        'CELTSCALE'      : 0.9,
+        'TEXTSTYLE'      : 'Standard',
+    }
+
+    desiredSysvarStateForInsertingTheText = {
+        'CECOLOR'       : '0,0,0',
+        'CPLOTSTYLE'    : "Normal",
+        'CELWEIGHT'     : 0,
+    }
+
+    desiredSysvarStateForInsertingTheLine = {
+        'CECOLOR'       : '66,77,88',
+        'CPLOTSTYLE'    : plotStyle.name,
+        'CELWEIGHT'     : 211,
+    }
+
+
+    samplerScript += (
+        ""
+
+
+
+        + "\n".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in defaultDesiredSysvarState.items() ) + "\n"
+
+
+        + "\n".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheLine.items() ) + "\n"
+        + "(command " 
+        +   '"._line"' + " " 
+        +   toAutolispExpression(localAnchors['lineStartPoint']) + " "
+        +   toAutolispExpression(localAnchors['lineEndPoint']) + " "
+        +   '""' + " " 
+        + ")" + "\n"
+
+
+        + "\n".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheText.items() ) + "\n"
+        + "(command " 
+        +   '"text"' + " " 
+        +   toAutolispExpression('Justify') 
+        +   toAutolispExpression(textAlignment)
+        +   toAutolispExpression(localAnchors['textPosition']) + " "
+        +   toAutolispExpression(textHeight) + " "
+        +   toAutolispExpression(textAngle) + " "
+        +   toAutolispExpression(annotationTextForThisSample) + " "
+        + ")" + "\n"
+    )
+
+    insertionPoint = tuple(map(operator.add, insertionPoint,interval))
+
+    stationIndex = (stationIndex + 1) % len(stations)
+    if stationIndex == 0: stationsRolloverCount += 1
+# print(samplerScript)
+
+
+with open(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"), "w") as f:
+    f.write(samplerScript)

@@ -29,6 +29,7 @@ venv:=$(shell cd "$(abspath $(dir ${pathOfHumanReadablePenTableScript}))" > /dev
 	
 default: ${humanReadableFiles} 
 	@echo venv: ${venv}
+	autohotkey "U:\global hotkeys\executeInAutocad.ahk" "$(call getFullyQualifiedWindowsStylePath,${buildFolder}/sampler.lsp)"
 	
 
 
