@@ -98,6 +98,68 @@ preferredColors = {
 
 thePentable = AcadPentable()
 
+thisPlotStyle = thePentable.addAPlotstyle(name="tester1")
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=250 ,  green=100 ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=50   , colorMethod=ColorMethod.BY_COLOR  ) 
+
+
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester2')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester3')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR    ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester4')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester5')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=0 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR       ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
+
+
+
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester6')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester7')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR    ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_ACI    ) 
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester8')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
+
+thisPlotStyle = thePentable.addAPlotstyle(name='tester9')
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=99 ,  green=255   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR       ) 
+thisPlotStyle.mode_color = PentableColor(red=221 ,  green=33   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR      ) 
+
+
+
+thisPlotStyle = thePentable.plot_style['Normal']
+thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+thisPlotStyle.color      = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
+thisPlotStyle.mode_color = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_ACI      ) 
+
+
+
+
+
+
 
 allPossibleColorPolicies = map(
     lambda y : functools.reduce(operator.or_, y),
@@ -240,6 +302,6 @@ if False:
     print("repr(PentableColor(-1006632962 + 1*2**24).colorMethod): " + repr(PentableColor(-1006632962 +  1*2**24).colorMethod))
     print("repr(PentableColor(-1006632962 + 19*2**24).colorMethod): " + repr(PentableColor(-1006632962 +  19*2**24).colorMethod))
     
-if True:    
+if False:    
     x = PentableColor()
     print("x.htmlCode: " + x.htmlCode )

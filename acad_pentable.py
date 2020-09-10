@@ -117,66 +117,6 @@ class CustomLineweightDisplayUnit(enum.IntEnum):
     INCH        = 1
 
 
-class PentableColor (object):    
-    def __init__(self, *args, **kwargs):
-        #the constructor accepts any of the following argument signatures:
-        #   (byte or float) red, (byte or float) green, (byte or float) blue, (byte or ColorMethod) colorMethod
-        #   (byte or float) red, (byte or float) green, (byte or float) blue
-        #   int pentableRgbqColorInt
-        # a float value for red, green, or blue, will be inerpreted as a ratio: a real number in the range [0,1], which we will map onto [0, 255]
-        # an int value for red, green, or blue will be interpreted as the byte to be stored in the rgbQ data structure (i.e. the traditional 0..255 int color component value)
-        # the acadRgbqColorInt is the signed integer representation of color that is the 'native' type of the 'color' and 'mode_color' 
-        # properties that appear in the pen table.
-        if len(args) == 1 and len(kwargs)==0: 
-            # a single non-keyword argument will be interpreted as acadRgbqColorInt or as a PenTablColor object, if appropriate.
-            self.acadRgbqColorInt = (args[0].acadRgbqColorInt if isinstance(args[0], PentableColor) else int(args[0]))
-        else:
-            red              =  (kwargs['red'              ] if 'red'               in kwargs else (args[0] if len(args) >= 1 else 255 ))
-            green            =  (kwargs['green'            ] if 'green'             in kwargs else (args[1] if len(args) >= 2 else 255 ))
-            blue             =  (kwargs['blue'             ] if 'blue'              in kwargs else (args[2] if len(args) >= 3 else 255 ))
-            colorMethod      =  (kwargs['colorMethod'      ] if 'colorMethod'       in kwargs else (args[3] if len(args) >= 4 else ColorMethod.BY_ACI ))
-            acadRgbqColorInt =  (kwargs['acadRgbqColorInt' ] if 'acadRgbqColorInt'  in kwargs else None)
-            if acadRgbqColorInt != None:
-                self.acadRgbqColorInt = int(acadRgbqColorInt)
-            else: 
-                self.colorMethod = colorMethod
-                self.setRgb( red, green, blue)
-            
-            # to do maybe: detect invalid argument combinations and throw an exception if encountered. something like   raise Exception("invalid arguments")
-            # to do maybe: setters for red, green, and blue
-
-    @property
-    def colorMethod(self) -> int:
-        return self._colorMethod 
-
-    @colorMethod.setter
-    def colorMethod(self, x) -> ColorMethod:
-        self._colorMethod = ColorMethod(int(x))
-        return self.colorMethod
-
-    @property
-    def acadRgbqColorInt(self) -> int:
-        return int.from_bytes( (self.blue, self.green, self.red, self.colorMethod), byteorder='little', signed=True)
-
-    @acadRgbqColorInt.setter
-    def acadRgbqColorInt(self, x: int) -> int:
-        (self.blue, self.green, self.red, self.colorMethod) = tuple(int(x).to_bytes(length=4,byteorder='little', signed=True))
-        return self.acadRgbqColorInt # are setters supposed/allowed to return a value?  perhaps the "@...setter" annotation automatically adds such a return statement.
-
-    def setRgb(self, red, green, blue):
-        self.red         = int( red    * 255 if isinstance(red   , float) else red    )
-        self.green       = int( green  * 255 if isinstance(green , float) else green  )
-        self.blue        = int( blue   * 255 if isinstance(blue  , float) else blue   )
-    
-    @property
-    def humanReadableString(self) -> str:
-        # return "red: {:3d}, green: {:3d}, blue: {:3d}, colorMethod: {:s} (acadRgbqColorInt: {:d})".format(self.red, self.green, self.blue, repr(self.colorMethod), self.acadRgbqColorInt)
-        return "red: {:d}, green: {:d}, blue: {:d}, colorMethod: {:s} (acadRgbqColorInt: {:d})".format(self.red, self.green, self.blue, repr(self.colorMethod), self.acadRgbqColorInt)
-
-    @property 
-    def htmlCode(self) -> str:
-        return "{:02X}{:02X}{:02X}".format(self.red, self.green, self.blue)        
-
 #the 'lineweight' property is as follows:
 # 0 means "useObjectLineweight"
 # any other integer n is a reference to custom_linewight_table[n-1]
@@ -633,6 +573,66 @@ class AcadPentable (object):
         # caution: this overwrites an existing plot style at the specified dictionary key, if one already exists.
         return newPlotstyle
 
+class PentableColor (object):    
+    def __init__(self, *args, **kwargs):
+        #the constructor accepts any of the following argument signatures:
+        #   (byte or float) red, (byte or float) green, (byte or float) blue, (byte or ColorMethod) colorMethod
+        #   (byte or float) red, (byte or float) green, (byte or float) blue
+        #   int pentableRgbqColorInt
+        # a float value for red, green, or blue, will be inerpreted as a ratio: a real number in the range [0,1], which we will map onto [0, 255]
+        # an int value for red, green, or blue will be interpreted as the byte to be stored in the rgbQ data structure (i.e. the traditional 0..255 int color component value)
+        # the acadRgbqColorInt is the signed integer representation of color that is the 'native' type of the 'color' and 'mode_color' 
+        # properties that appear in the pen table.
+        if len(args) == 1 and len(kwargs)==0: 
+            # a single non-keyword argument will be interpreted as acadRgbqColorInt or as a PenTablColor object, if appropriate.
+            self.acadRgbqColorInt = (args[0].acadRgbqColorInt if isinstance(args[0], PentableColor) else int(args[0]))
+        else:
+            red              =  (kwargs['red'              ] if 'red'               in kwargs else (args[0] if len(args) >= 1 else 255 ))
+            green            =  (kwargs['green'            ] if 'green'             in kwargs else (args[1] if len(args) >= 2 else 255 ))
+            blue             =  (kwargs['blue'             ] if 'blue'              in kwargs else (args[2] if len(args) >= 3 else 255 ))
+            colorMethod      =  (kwargs['colorMethod'      ] if 'colorMethod'       in kwargs else (args[3] if len(args) >= 4 else ColorMethod.BY_ACI ))
+            acadRgbqColorInt =  (kwargs['acadRgbqColorInt' ] if 'acadRgbqColorInt'  in kwargs else None)
+            if acadRgbqColorInt != None:
+                self.acadRgbqColorInt = int(acadRgbqColorInt)
+            else: 
+                self.colorMethod = colorMethod
+                self.setRgb( red, green, blue)
+            
+            # to do maybe: detect invalid argument combinations and throw an exception if encountered. something like   raise Exception("invalid arguments")
+            # to do maybe: setters for red, green, and blue
+
+    @property
+    def colorMethod(self) -> int:
+        return self._colorMethod 
+
+    @colorMethod.setter
+    def colorMethod(self, x) -> ColorMethod:
+        self._colorMethod = ColorMethod(int(x))
+        return self.colorMethod
+
+    @property
+    def acadRgbqColorInt(self) -> int:
+        return int.from_bytes( (self.blue, self.green, self.red, self.colorMethod), byteorder='little', signed=True)
+
+    @acadRgbqColorInt.setter
+    def acadRgbqColorInt(self, x: int) -> int:
+        (self.blue, self.green, self.red, self.colorMethod) = tuple(int(x).to_bytes(length=4,byteorder='little', signed=True))
+        return self.acadRgbqColorInt # are setters supposed/allowed to return a value?  perhaps the "@...setter" annotation automatically adds such a return statement.
+
+    def setRgb(self, red, green, blue):
+        self.red         = int( red    * 255 if isinstance(red   , float) else red    )
+        self.green       = int( green  * 255 if isinstance(green , float) else green  )
+        self.blue        = int( blue   * 255 if isinstance(blue  , float) else blue   )
+    
+    @property
+    def humanReadableString(self) -> str:
+        # return "red: {:3d}, green: {:3d}, blue: {:3d}, colorMethod: {:s} (acadRgbqColorInt: {:d})".format(self.red, self.green, self.blue, repr(self.colorMethod), self.acadRgbqColorInt)
+        return "red: {:d}, green: {:d}, blue: {:d}, colorMethod: {:s} (acadRgbqColorInt: {:d})".format(self.red, self.green, self.blue, repr(self.colorMethod), self.acadRgbqColorInt)
+
+    @property 
+    def htmlCode(self) -> str:
+        return "{:02X}{:02X}{:02X}".format(self.red, self.green, self.blue)        
+
 class AcadPlotstyle (object):
     def __init__(self, owner: AcadPentable,
         name                  = "Normal",
@@ -750,6 +750,54 @@ class AcadPlotstyle (object):
                 'join_style'            : repr(self.join_style)         
             }
         }
+
+
+
+# It seems that the AutoCAD pentable editor acts so as to keep plotStyle.color set to the index color that is nearest to the selected
+# rgb color (i.e. autoCAD sets the rgb values of plotStyle.color to the rgb values that match some index color, and AutoCAD sets plotStyle.color.colorMethod = ColorMethod.BY_ACI)
+# 
+#  The user interface logic for selecting color seems to be as follows: 
+# the result of the user picking a color from the color dropdown box 
+# (including the case where the user clicks  the "select color" item in the dropdown and goes through the color selection dialog) is a 
+# triple of bytes: the red, green, blue values, which we will call r, g, and b, below, and a boolean choice of whether or not to "use object color"
+# AutoCAD then does the following:
+# 1: plotStyle.mode_color.setRgb(r,g,b)
+# 2: if the user chose use_object_color=true, then clear the EXPLICIT_COLOR bit of plotStyle.color_policy, else set the EXPLICIT_COLOR bit of plotStyle.color_policy.
+#       in our python-based domain-specific-language, this would look like:
+#       plotStyle.color_policy = (plotStyle.color_policy  & ~ColorPolicy.EXPLICIT_COLOR) | (0 if <the user chose "use object color"> else ColorPolicy.EXPLICIT_COLOR) 
+# 3: plotStyle.mode_color.colorMethod = ( <does the triple of bytes exactly match some index color> ? ColorMethod.BY_ACI : ColorMethod.BY_COLOR );
+# 4: if <does the triple of bytes exactly match some index color> { 
+#   display the color in the interface as "Color 112", for instance, or "Red", etc. ;
+# } else { 
+#   display the color in the interface as "132,87,66" (or the like) ;
+# }
+# 5: plotStyle.color = <index color that most closely matches the triple of bytes> ; // the 'index color', here, always has colorMethod == BY_ACI
+# 
+# Based on what the interface shows when I open a specially-contrived pen table that has some plot styles that whose color and mode_color values are other
+# than how the pentable editor would have made them, I suspect the following hypothesis:
+# The complete set of information that the user perceives to be controlled by and displayed in the "color" dropdown box in the ui
+# (naively: byte red, byte blue, byte green, bool USE_OBJECT_COLOR (where the red, green, and blue bytes being relevant only when USE_OBJECT_COLOR is false)
+# is entirely represented by the following:
+# the 'EXPLICIT_COLOR' bit of plotStyle.color_policy  (low corresponds with the user seeing "use object color" in the ui)
+# plotStyle.mode_color.red
+# plotStyle.mode_color.green
+# plotStyle.mode_color.blue
+# 
+# I suspect that we could exercise effectively complete programmatic control of the 'color' property of a plot style 
+# (i.e. acheive every functional outcome that could be acheived with the ui)
+# by attending only to plotStyle.mode_color.red, plotStyle.mode_color.green, plotStyle.mode_color.blue, and the EXPLICIT_COLOR bit of 
+# plotStyle.color_policy, and that we could completely ignore plotStyle.color and plotStyle.mode_color.colorMethod.
+#
+# In other words, I suspect that our mission of being able to do complte programmatic manipulation of a pentable file 
+# does not require us to reproduce all 5 steps of the ui's color-setting logic that I described above.
+# Rather, we can get away doing only steps 1 and 2, and ignore the rest of the steps, whose only purpose is 
+# to update plotStyle.color and  plotStyle.mode_color.colorMethod according to the user's choice.
+#
+# One quirk to the way AutoCAD displays the color (as text) in the interface is that the index colors that 
+# do not have names (e.g. color 12, whose rgb representation is 221,0,0) are displayed in rgb format when the 
+# plot style editor first opens.  Only after you manipulate the plot style's 'color' dropdown box does AutoCAD "realize"
+# that the color is an index color and so changes the display from "221,0,0" to "Color 12" (for instance).
+
 
 
 
