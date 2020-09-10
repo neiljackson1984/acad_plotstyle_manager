@@ -13,7 +13,7 @@ import enum
 import collections
 from typing import IO, Any, AnyStr, Union
 
-
+# to do: figure out how to escape double quotes and newlines in the string values in the pentable payload (would mainly be used in the description field).
 
 # color_policy bitmask values:
 # class ColorPolicy(enum.IntFlag):
@@ -29,6 +29,17 @@ class ColorPolicy(enum.IntFlag):
     CONVERT_TO_GRAYSCALE    = 2   # bit 1
     EXPLICIT_COLOR          = 4   # bit 2  # this bit goes low when the user in the ui selects "use object color" from the color dropdown box.
 
+#this is a duplicate of the AcCmEntityColor::ColorMethod definfed in the oarx c++ header file dbcolor.h
+class ColorMethod(enum.IntEnum):
+    BY_LAYER        = 192 # 0xc0 
+    BY_BLOCK        = 193 # 0xc1
+    BY_COLOR        = 194 # 0xc2
+    BY_ACI          = 195 # 0xc3
+    BY_PEN          = 196 # 0xc4
+    FOREGROUND      = 197 # 0xc5
+    LAYER_OFF       = 198 # 0xc6
+    LAYER_FROZEN    = 199 # 0xc7
+    NONE            = 200 # 0xc8
 
 class EndStyle(enum.IntEnum):
         BUTT                 = 0 
@@ -109,14 +120,11 @@ class CustomLineweightDisplayUnit(enum.IntEnum):
 class PentableColor (object):    
     def __init__(self, *args, **kwargs):
         #the constructor accepts any of the following argument signatures:
-        #   byte red, byte green, byte blue, byte colorMethod
-        #   byte red, byte green, byte blue
-        #   float red, float green, float blue, byte colorMethod
-        #   float red, float green, float blue
+        #   (byte or float) red, (byte or float) green, (byte or float) blue, (byte or ColorMethod) colorMethod
+        #   (byte or float) red, (byte or float) green, (byte or float) blue
         #   int pentableRgbqColorInt
-        # a float value for red, green, or blue, will be inerpreted as a ration, a real number in the range [0,1], which we will map onto [0, 255]
-        # an in value for red, green, or blue will be interpreted as the byte to be stored in the rgbQ data structure (i.e. the traditional 0--255 int color component value)
-
+        # a float value for red, green, or blue, will be inerpreted as a ratio: a real number in the range [0,1], which we will map onto [0, 255]
+        # an int value for red, green, or blue will be interpreted as the byte to be stored in the rgbQ data structure (i.e. the traditional 0..255 int color component value)
         # the acadRgbqColorInt is the signed integer representation of color that is the 'native' type of the 'color' and 'mode_color' 
         # properties that appear in the pen table.
         if len(args) == 1 and len(kwargs)==0: 
@@ -126,12 +134,12 @@ class PentableColor (object):
             red              =  (kwargs['red'              ] if 'red'               in kwargs else (args[0] if len(args) >= 1 else 255 ))
             green            =  (kwargs['green'            ] if 'green'             in kwargs else (args[1] if len(args) >= 2 else 255 ))
             blue             =  (kwargs['blue'             ] if 'blue'              in kwargs else (args[2] if len(args) >= 3 else 255 ))
-            colorMethod      =  (kwargs['colorMethod'      ] if 'colorMethod'       in kwargs else (args[3] if len(args) >= 4 else 195 ))
+            colorMethod      =  (kwargs['colorMethod'      ] if 'colorMethod'       in kwargs else (args[3] if len(args) >= 4 else ColorMethod.BY_ACI ))
             acadRgbqColorInt =  (kwargs['acadRgbqColorInt' ] if 'acadRgbqColorInt'  in kwargs else None)
             if acadRgbqColorInt != None:
                 self.acadRgbqColorInt = int(acadRgbqColorInt)
             else: 
-                self.colorMethod = int( colorMethod )
+                self.colorMethod = colorMethod
                 self.setRgb( red, green, blue)
             
             # to do maybe: detect invalid argument combinations and throw an exception if encountered. something like   raise Exception("invalid arguments")
@@ -142,8 +150,8 @@ class PentableColor (object):
         return self._colorMethod 
 
     @colorMethod.setter
-    def colorMethod(self, x) -> int:
-        self._colorMethod = int(x)
+    def colorMethod(self, x) -> ColorMethod:
+        self._colorMethod = ColorMethod(int(x))
         return self.colorMethod
 
     @property
@@ -162,8 +170,12 @@ class PentableColor (object):
     
     @property
     def humanReadableString(self) -> str:
-        return "red: {:3d}, green: {:3d}, blue: {:3d}, colorMethod: {:d}".format(self.red, self.green, self.blue, self.colorMethod)
-        
+        # return "red: {:3d}, green: {:3d}, blue: {:3d}, colorMethod: {:s} (acadRgbqColorInt: {:d})".format(self.red, self.green, self.blue, repr(self.colorMethod), self.acadRgbqColorInt)
+        return "red: {:d}, green: {:d}, blue: {:d}, colorMethod: {:s} (acadRgbqColorInt: {:d})".format(self.red, self.green, self.blue, repr(self.colorMethod), self.acadRgbqColorInt)
+
+    @property 
+    def htmlCode(self) -> str:
+        return "{:02X}{:02X}{:02X}".format(self.red, self.green, self.blue)        
 
 #the 'lineweight' property is as follows:
 # 0 means "useObjectLineweight"
@@ -296,7 +308,7 @@ class AcadPentable (object):
         self.custom_lineweight_display_units =  CustomLineweightDisplayUnit.MILLIMETER
         self.custom_lineweight_table = copy.deepcopy(defaultLineweights)
         self.plot_style = collections.OrderedDict()
-        normalPlotStyle = AcadPlotstyle(parent=self)
+        normalPlotStyle = AcadPlotstyle(owner=self)
         self.plot_style[ normalPlotStyle.name ] = normalPlotStyle
         self.aci_table = None
         # it is possible to construct a pentable file in whcih there are multiple plot_style entries with the same name 
@@ -478,14 +490,15 @@ class AcadPentable (object):
     def toHumanReadableDictionary(self) -> dict:
         return {
             **{
+                # '_conservedHeaderBytes'             : repr(self._conservedHeaderBytes), 
                 '_conservedHeaderBytes'             : self._conservedHeaderBytes.decode('ascii')    , 
-                '_pentableType'                     : self._pentableType.name                       ,
+                '_pentableType'                     : repr(self._pentableType)                      ,
 
                 'description'                       : self.description                              ,          
                 'aci_table_available'               : self.aci_table_available                      ,                  
                 'scale_factor'                      : self.scale_factor                             ,           
                 'apply_factor'                      : self.apply_factor                             ,           
-                'custom_lineweight_display_units'   : self.custom_lineweight_display_units.name     ,                                   
+                'custom_lineweight_display_units'   : repr(self.custom_lineweight_display_units)    ,                                   
                 'custom_lineweight_table'           : copy.deepcopy(self.custom_lineweight_table)   ,       
                 # TO DO: deal with the case of having an ACI table
 
@@ -493,7 +506,6 @@ class AcadPentable (object):
             },
             **( {} if self.aci_table == None else  {'aci_table': self.aci_table})
         }
-
 
     def fromRawDictionary(self, data: dict):
         # AutoCAD stores the list of plot styles as an associative array, whose keys are always the integers 0...n
@@ -506,7 +518,7 @@ class AcadPentable (object):
 
         self.plot_style = collections.OrderedDict(
                 {
-                    plotStyleEntry['name'] : AcadPlotstyle.createNewFromParentAndRawDictionary(parent = self, rawDictionary = plotStyleEntry)
+                    plotStyleEntry['name'] : AcadPlotstyle.createNewFromOwnerAndRawDictionary(owner = self, rawDictionary = plotStyleEntry)
                     for plotStyleEntry in data.pop('plot_style',[]).values()  # I am trusting .values() (and all the preceeding construction of data) to have preserved the order present in the orignal file.
                 }
             )
@@ -531,7 +543,6 @@ class AcadPentable (object):
 
         #perhaps we should store the "plot_style" entry as a dictionary with the keys being names, but this would remove the order of plot_style list, which is 
         # somewhat important because the order of the list controls the order in which the plot styles are presented to the user in the ui.
-
 
     @staticmethod
     def _payloadStringToRawDictionary(payloadString: str):
@@ -616,14 +627,19 @@ class AcadPentable (object):
                 payloadString += "=" + encodeAsPenTablePrimitive(value) + "\n"
         return payloadString
 
+    def addAPlotstyle(self, name: str) -> 'AcadPlotstyle':
+        newPlotstyle = AcadPlotstyle(owner=self, name=name)
+        self.plot_style[str(name)] = newPlotstyle
+        # caution: this overwrites an existing plot style at the specified dictionary key, if one already exists.
+        return newPlotstyle
 
 class AcadPlotstyle (object):
-    def __init__(self, parent: AcadPentable,
+    def __init__(self, owner: AcadPentable,
         name                  = "Normal",
         localized_name        = None,
         description           = "",
-        color                 = -1006632961,
-        mode_color            = -1006632961,
+        color                 = PentableColor(red=255, green=255, blue=255, colorMethod=195), #-1006632961,
+        mode_color            = PentableColor(red=255, green=255, blue=255, colorMethod=195), #-1006632961,
         color_policy          = ColorPolicy.ENABLE_DITHERING,
         physical_pen_number   = 0,     
         virtual_pen_number    = 0,      
@@ -636,7 +652,7 @@ class AcadPlotstyle (object):
         end_style             = EndStyle.USE_OBJECT_ENDSTYLE,   
         join_style            = JoinStyle.USE_OBJECT_JOINSTYLE
         ):
-        self.parent = parent
+        self.owner = owner
 
         self.name                  = str(name)
         self.localized_name        = str(localized_name if localized_name else self.name) 
@@ -666,8 +682,8 @@ class AcadPlotstyle (object):
         # 
 
     @staticmethod
-    def createNewFromParentAndRawDictionary(parent: AcadPentable, rawDictionary: dict):
-        return AcadPlotstyle(parent = parent,
+    def createNewFromOwnerAndRawDictionary(owner: AcadPentable, rawDictionary: dict):
+        return AcadPlotstyle(owner = owner,
             name                  = rawDictionary['name'                 ],
             localized_name        = rawDictionary['localized_name'       ],
             description           = rawDictionary['description'          ],
@@ -721,17 +737,17 @@ class AcadPlotstyle (object):
             },  
             **({} if self.mode_color == None else {'mode_color': self.mode_color.humanReadableString}),
             **{
-                'color_policy'          : self.color_policy.name   ,
+                'color_policy'          : repr(self.color_policy)   ,
                 'physical_pen_number'   : self.physical_pen_number ,
                 'virtual_pen_number'    : self.virtual_pen_number  ,
                 'screen'                : self.screen              ,
                 'linepattern_size'      : self.linepattern_size    ,
-                'linetype'              : self.linetype.name       ,
+                'linetype'              : repr(self.linetype)      ,
                 'adaptive_linetype'     : self.adaptive_linetype   ,
-                'lineweight'            : ("USE_OBJECT_LINEWEIGHT" if self.lineweight == 0 else "custom_lineweight_table[" + str(self.lineweight - 1) + "], which is " + str(self.parent.custom_lineweight_table[self.lineweight - 1])) ,
-                'fill_style'            : self.fill_style.name     ,
-                'end_style'             : self.end_style.name      ,
-                'join_style'            : self.join_style.name          
+                'lineweight'            : ("(use object lineweight)" if self.lineweight == 0 else "custom_lineweight_table[" + str(self.lineweight - 1) + "], which is " + str(self.owner.custom_lineweight_table[self.lineweight - 1])) ,
+                'fill_style'            : repr(self.fill_style)    ,
+                'end_style'             : repr(self.end_style)     ,
+                'join_style'            : repr(self.join_style)         
             }
         }
 

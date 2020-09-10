@@ -9,7 +9,8 @@ import uuid
 
 from acad_pentable import *
 import itertools
-
+import operator
+import functools
 
 
 parser = argparse.ArgumentParser(description="Generate a human-readable json representation of an autocad pen table (stb or ctb) file.")
@@ -23,21 +24,16 @@ print("output_human_readable_pen_table_file_path is " + str(output_human_readabl
 
 
 
-
 myPentable = AcadPentable(input_acad_pen_table_file_path)
 json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen_table_file_path, "w"), indent=4)
 json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name).with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json")  , "w"), indent=4)
 
 # myPentable.plot_style['white'].color_policy = ColorPolicy(0)
 
-# testColor = int.from_bytes( [255, 255, 254, 195], byteorder='little', signed=True)
-testColor = int.from_bytes( [255, 255, 255, 100], byteorder='little', signed=True)
-
-
 
  
 ##  if 'white' not in myPentable.plot_style:
-##    myPentable.plot_style['white'] = AcadPlotstyle(parent = myPentable, name = "white")
+##    myPentable.plot_style['white'] = AcadPlotstyle(owner = myPentable, name = "white")
 ##           
 ##  myPentable.plot_style['white'].color = testColor
 ##  myPentable.plot_style['white'].mode_color = testColor
@@ -102,9 +98,21 @@ preferredColors = {
 
 thePentable = AcadPentable()
 
+
+allPossibleColorPolicies = map(
+    lambda y : functools.reduce(operator.or_, y),
+    itertools.product(  *( (ColorPolicy(0), x) for x in ColorPolicy )   ) 
+)
+
+for colorPolicy in allPossibleColorPolicies:
+    thisPlotstyle = thePentable.addAPlotstyle(name=str(colorPolicy))
+    thisPlotstyle.description = str(colorPolicy)
+    thisPlotstyle.color_policy = colorPolicy
+
+
 for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferredLineThicknessesByDegree, preferredDensitiesByDegree, {**preferredColors, **{'unspecified':None}}):
     # print("working on lineThicknessDegree " + str(lineThicknessDegree) + ", " + "densityDegree " + str(densityDegree) + ", colorKey " + str(colorKey))
-    thisPlotStyle = AcadPlotstyle(parent=thePentable,
+    thisPlotStyle = AcadPlotstyle(owner=thePentable,
         name= "thickness{:+d}_density{:+d}".format(lineThicknessDegree, densityDegree) + ("" if colorKey == 'unspecified' else "_color" + colorKey[0].upper() + colorKey[1:] )
     )
     # print("constructing plot style " + thisPlotStyle.name)
@@ -127,9 +135,111 @@ thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpat
 json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
 json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
 
-x = ColorPolicy.EXPLICIT_COLOR & ColorPolicy.ENABLE_DITHERING
-y = ColorPolicy.EXPLICIT_COLOR
-print("type(x): " + str(type(x)))
-print("repr(x): " + repr(x))
-print("repr(y): " + repr(y))
-# print(str([i for i in x]))
+
+if False:
+    #=======================================
+    # sussing out how the Flag enum works:
+    #=======================================
+    x = ColorPolicy.EXPLICIT_COLOR | ColorPolicy.ENABLE_DITHERING
+    y = ColorPolicy.EXPLICIT_COLOR & ColorPolicy.ENABLE_DITHERING
+    # x = ColorPolicy.EXPLICIT_COLOR | ColorPolicy.ENABLE_DITHERING
+    # y = ColorPolicy.EXPLICIT_COLOR
+    # print("type(x): " + str(type(x)))
+    print("repr(ColorPolicy.EXPLICIT_COLOR & ColorPolicy.ENABLE_DITHERING): " + repr(ColorPolicy.EXPLICIT_COLOR & ColorPolicy.ENABLE_DITHERING))
+    print("repr(ColorPolicy.EXPLICIT_COLOR | ColorPolicy.ENABLE_DITHERING): " + repr(ColorPolicy.EXPLICIT_COLOR | ColorPolicy.ENABLE_DITHERING)) 
+    print("repr(ColorPolicy.ENABLE_DITHERING | ColorPolicy.EXPLICIT_COLOR): " + repr(ColorPolicy.ENABLE_DITHERING | ColorPolicy.EXPLICIT_COLOR)) 
+    print("repr(ColorPolicy(ColorPolicy.ENABLE_DITHERING)): " + repr(ColorPolicy(ColorPolicy.ENABLE_DITHERING))) 
+    print("repr(~ColorPolicy.ENABLE_DITHERING): " + repr(~ColorPolicy.ENABLE_DITHERING)) 
+    print("repr(ColorPolicy(~ColorPolicy.ENABLE_DITHERING)): " + repr(ColorPolicy(~ColorPolicy.ENABLE_DITHERING))) 
+    print("x.EXPLICIT_COLOR: " + repr(x.EXPLICIT_COLOR))
+    print("y.EXPLICIT_COLOR: " + repr(y.EXPLICIT_COLOR))
+    print(repr(PentableColor(10,11,12))) 
+
+
+    print([x for x in ColorPolicy ]) 
+    print("===============")
+
+    # # print("\n".join([str(x) for x in itertools.product(ColorPolicy) ])) 
+    # print(
+    #     "\n".join(
+    #         str(x) for x in ( (ColorPolicy(0), x) for x in ColorPolicy )
+    #     )
+    # )
+
+    # print("===============")
+
+
+    print("===============")
+    print(
+        "\n".join(
+                str(x) 
+                for x in 
+                map(
+                    lambda y : y,
+                    itertools.product(  *( (0, x) for x in "abc" )   ) 
+                )
+            )
+        )
+
+    print("===============")
+    print(
+        "\n".join(
+                str(x) 
+                for x in 
+                map(
+                    lambda y : y,
+                    itertools.product(  *( (ColorPolicy(0), x) for x in ColorPolicy )   ) 
+                )
+            )
+        )
+
+    print("===============")
+    print(
+        "\n".join(
+                str(x) 
+                for x in 
+                map(
+                    lambda y : functools.reduce(operator.or_, y),
+                    itertools.product(  *( (ColorPolicy(0), x) for x in ColorPolicy )   ) 
+                )
+            )
+        ) 
+
+
+    print("===============")
+    allPossibleColorPolicies = map(
+        lambda y : functools.reduce(operator.or_, y),
+        itertools.product(  *( (ColorPolicy(0), x) for x in ColorPolicy )   ) 
+    )
+    print(
+        "\n".join(
+                map(str,  
+                    allPossibleColorPolicies
+                )
+            )
+        ) 
+
+if False:
+    x = PentableColor()
+    print("repr(x.colorMethod): " + repr(x.colorMethod))
+    x.colorMethod = 198
+    print("repr(x.colorMethod): " + repr(x.colorMethod))
+
+    y = ColorMethod.BY_ACI
+    print("repr(y): " + repr(y))
+    y = 198
+    print("repr(y): " + repr(y))
+    print("type(y): " + str(type(y)))
+
+
+    x = PentableColor(-1006632961)
+    print("repr(x.colorMethod): " + repr(x.colorMethod))
+    x.colorMethod = 198
+    print("repr(x.colorMethod): " + repr(x.colorMethod))
+    print("repr(PentableColor(-1006632961).colorMethod): " + repr(PentableColor(-1006632961).colorMethod))
+    print("repr(PentableColor(-1006632962 + 1*2**24).colorMethod): " + repr(PentableColor(-1006632962 +  1*2**24).colorMethod))
+    print("repr(PentableColor(-1006632962 + 19*2**24).colorMethod): " + repr(PentableColor(-1006632962 +  19*2**24).colorMethod))
+    
+if True:    
+    x = PentableColor()
+    print("x.htmlCode: " + x.htmlCode )
