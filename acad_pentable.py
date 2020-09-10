@@ -832,6 +832,110 @@ class AcadPlotstyle (object):
 
 
 
+# programattically setting color_policy to each possible ColorPolicy (with the color set to an arbitrary non-index RGB color
+# (red=2,green=4,blue=6)
+# to ensure that the weirdness with an rgb color of 255,255,255 corresponding to "use object color" doesn't obscure the 
+# action of the EXPLICIT_COLOR bit), we have the following observed in the user interface:
+# d for (D)ithering.
+# g for convert to (G)rayscale
+# e for (E)xplicit color
+# uppercase means the bit is high.  lowercase means the bit is low.
+#
+#                               ||---------------------------------------|
+#                               || displayed in the user interface       | 
+#   |===========|==============||========|===========|==================|
+#   | rgb color | color_policy || Dither | Grayscale | Color            |
+#   |-----------|--------------||--------|-----------|------------------|
+#   | 020406    | dge          || Off    | Off       | Use object color |                                                  
+#   | 020406    | dgE          || Off    | Off       | 2,4,6            |                                    
+#   | 020406    | dGe          || Off    | On        | 2,4,6            |                                
+#   | 020406    | dGE          || On     | Off       | Use object color |                                            
+#   | 020406    | Dge          || On     | Off       | Use object color |                                                    
+#   | 020406    | DgE          || On     | Off       | 2,4,6            |                                  
+#   | 020406    | DGe          || On     | On        | 2,4,6            |                               
+#   | 020406    | DGE          || On     | Off       | Use object color |    
+#   |-----------|--------------||--------|-----------|------------------|
+#   | FFFFFF    | dge          || Off    | Off       | Use object color |                                                  
+#   | FFFFFF    | dgE          || Off    | Off       | Use object color |                                    
+#   | FFFFFF    | dGe          || Off    | On        | Use object color |                                
+#   | FFFFFF    | dGE          || On     | Off       | Use object color |                                            
+#   | FFFFFF    | Dge          || On     | Off       | Use object color |                                                    
+#   | FFFFFF    | DgE          || On     | Off       | Use object color |                                  
+#   | FFFFFF    | DGe          || On     | On        | Use object color |                               
+#   | FFFFFF    | DGE          || On     | Off       | Use object color |                                    
+#   |===========|==============||========|===========|==================|  
+#   | unachievable:                                                     |
+#   |===========|==============||========|===========|==================|   
+#   | 020406    |              || Off    | On        | Use object color |
+#   | 020406    |              || On     | On        | Use object color |
+#   |-----------|              ||--------|-----------|------------------|
+#   | FFFFFF    |              || Off    | Off       | 255,255,255      |                                    
+#   | FFFFFF    |              || Off    | On        | 255,255,255      |                                                                                    
+#   | FFFFFF    |              || On     | Off       | 255,255,255      |                                  
+#   | FFFFFF    |              || On     | On        | 255,255,255      | 
+#   ------------|--------------||--------|-----------|------------------|
+#
+# the user interface states marked "unachievable" above cannot be acheived
+# by programmatically manipulating the plotStyle.color_policy value
+# and cannot be achieved by manually manipulating controls in the user interface.
+#
+# The basic conept is: the d and g bits behave exactly as expected (affecting the Dither
+# and Grayscale field values in the naive, expected way) except when:
+# e is high and g is high, 
+# in which case the Grayscale field shows "Off" (despite the g bit being high)
+# and the Dither field shows "On" (even when the d bit is low)
+
+# I am beginning to think that the e bit is not exactly an "EXPLICIT_COLOR" bit.
+# it is more like a "user has attempted to set the color explicitly" bit -- no not quite nevermind.
+
+
+# Here's the deal:
+# all the color policy bits work exactly as expected except for the following exceptions:
+
+# If I want to explicitly set the color (which, naively means set e high)
+# and want convert_to_grayscale to be on, then I must, counterintuitevly, set e low.  Bizarre!
+#
+# If I want to leave color unspecified (i.e. I want 'Use object color')
+# (which, naively, means set e low), and want convert_to_grayscale to be on,
+# then I must change the color to 255,255,255
+#
+# Said another way: all the color policy bits work as expected with the following exceptions:
+# 1: If I want to explcitly set the color to white (r=255,b=255,g=255), then I am out of luck (niether programmatically nor using the ui will cause 'white' or 255,255,255 to appear in the UI)
+# 2: If want convert_to_grayscale to be on, in which case:
+# to achieve an explicitly set color, I must (counter-intuitively) set the e bit low (even though, naively, I would think I should set e high)
+# to achieve an inherited color (i.e. "Use object color"), I must set the rgb color value to 255,255,255 (even though, naively, I would think that if I am inheriting 
+# a color value, then the rgb color value would be irrelevant).
+# 
+# That is annoying and bizarre, but tolerable, so far as it goes.  What I am having a really hard time
+# understanding are the results of violating rule 2; if I want convert_to_grayscale to be on, but I forget the rule and naively set the G bit high, then
+# if I am attempting to have an explicitly set color (i.e. e high), the actual result will be that convert_to_grayscale 
+# will be off and color will be shown as "use object color" and "Dither" will be "On" (even if I set d low),
+# and if, instead, I am attempting to have an inherited color (a.k.a "use object color")(i.e. e low), the actual result will 
+# be that the rgb values of my color will appear in the "color" field of the user interface
+#  (unless of course my color happens to be 255,255,255).
+#
+# What is going on under the hood in the AutoCAD pen table editor (and presumably in other parts of AutoCAD) that would cause this bizarre behavior?
+# Even if there is something screwed up about the case where the user wants to explicitly set a white color, how does the "white" weirdness
+# disrupt the connection between the d bit and the "Dither" user interface setting?
+# It is almost as if, in the process of displaying a given plotstyle in the user interface, AutoCAD first throws up a default display (which has dithering on)
+# Then, AutoCAD starts reading through the plotstyle data in the file.  When AutoCAD sees that the e bit is low but the color is not 255,255,255, AutoCAD "freaks out" and 
+# decides to stop reading the rest of the plotstyle data and simply leaves the default display (including the "dithering:on" readout) up on the screen.... or something like that
+# OR, alternatively, is there some legitimate reason why dithering and grayscale should have any interaction with one another? 
+#
+# If we suppose that AutoCAD encodes the "explcitly_override_the_color" flag by putting exactly 1 high bit in the pair of slots (g and e)
+# and that AutoCAD encodes whether to "convert_to_grayscale" by deciding WHICH of the two slots the 1 high bit goes into (put the high bit in g to mean "convert_to_grayscale",
+# and put the high bit in e to mean "don't convert to grayscale"), then, under that account, it seems that what really makes autocad freak out is having both the G and the E bits being high.
+# If they are both high, autoCAD "freaks out" (as suggested above) and leaves the "default" vlaues displayed: "use object color", "dither:on", "grayscale:off".
+#  
+# That account starts to make sense.  
+# continuing to think along those lines, autoCAD has no way to encode simultaneously "grayscale:on" and "use object color".
+# So, (as if it were someone's half-baked work-around to an edge case, or to maintain backward compatibility somewhere), they adopted 
+# the convention that a color of 255,255,255 (because who is ever going to want to explicitly set a white color? (admittedly, it is perhaps the least likely color that
+# one would want to explicitly set)) will force a meaning of "use object color", so that we can now encode both  "grayscale:on" and "use object color" 
+# by instead encoding "grayscale:on" and "explicitly override the color to white".
+# That is perhaps the most reasonable explanation that I can come up with, but still, what nonsense!
+
+
 # this function is more annotational than functional.
 def lineweightConceptReport():
     # reason about lineweights chosen in a geometric series (which the autocad lineweights and the iso standard linewights are based on)

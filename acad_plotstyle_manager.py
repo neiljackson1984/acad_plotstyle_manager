@@ -162,12 +162,47 @@ allPossibleColorPolicies = map(
     itertools.product(  *( (ColorPolicy(0), x) for x in ColorPolicy )   ) 
 )
 
-for colorPolicy in allPossibleColorPolicies:
-    thisPlotstyle = thePentable.addAPlotstyle(name=str(colorPolicy))
+arbitraryNonIndexColor=PentableColor(red=2 ,  green=4   ,  blue=6   , colorMethod=ColorMethod.BY_COLOR       ) 
+white=PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_COLOR       ) 
+
+for (color, colorPolicy) in itertools.product((arbitraryNonIndexColor, white), allPossibleColorPolicies):    
+    d = bool(colorPolicy & ColorPolicy.ENABLE_DITHERING)
+    g = bool(colorPolicy & ColorPolicy.CONVERT_TO_GRAYSCALE)
+    e = bool(colorPolicy & ColorPolicy.EXPLICIT_COLOR)
+
+    predictedValueOfTheColorFieldInTheUserInterface               = {
+        True:",".join(map(str,(color.red,color.green,color.blue))),
+        False:"Use object color"
+     }[(e ^ g) & (not (color is white)) ] 
+
+    predictedValueOfTheDitheringFieldInTheUserInterface           = {
+        True:"On",
+        False:"Off"
+    }[d | ( g & e )]
+
+    predictedValueOfTheConvertToGrayscaleFieldInTheUserInterface  = {
+        True:"On",
+        False:"Off"
+    }[g & (not e)]
+ 
+    colorPolicyCuteString = ("D" if d else "d") + ("G" if g else "g") + ("E" if e else "e")
+    
+    thisPlotstyle = thePentable.addAPlotstyle(name=color.htmlCode + " " + colorPolicyCuteString)
     thisPlotstyle.color_policy = colorPolicy
-    thisPlotstyle.mode_color = PentableColor(red=99 ,  green=243   ,  blue=0   , colorMethod=ColorMethod.BY_COLOR       ) 
-    thisPlotstyle.description = str(colorPolicy) + "\r\n" + "ahoy" " \""
-    # thisPlotstyle.description = str(colorPolicy) + "   " +  "ahoy" + " \" \\n"
+    thisPlotstyle.mode_color = color
+
+    thisPlotstyle.description = (
+        ""
+        + colorPolicyCuteString
+        + "\t\t" 
+        + predictedValueOfTheColorFieldInTheUserInterface 
+        + " " + predictedValueOfTheDitheringFieldInTheUserInterface 
+        + " " + predictedValueOfTheConvertToGrayscaleFieldInTheUserInterface
+        # + "\t\t" + thisPlotstyle.mode_color.htmlCode 
+        + "\t"*6
+        + str(colorPolicy)
+    )
+
     
 
 
