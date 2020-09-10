@@ -659,6 +659,23 @@ class PentableColor (object):
     def htmlCode(self) -> str:
         return "{:02X}{:02X}{:02X}".format(self.red, self.green, self.blue)        
 
+    @property 
+    #This returns a string suitable for setting as the value of the CECOLOR system variable in autocad
+    
+    def sysvarString(self) -> str:
+        # #descriptinf of the CECOLOR system variable from the AutoCAD documentation:
+        # Sets the color of new objects as you create them.
+        # 
+        # Valid values include the following:
+        # * BYLAYER or BYBLOCK
+        # * AutoCAD Color Index (ACI): integer values from 1 to 255, or a color name from the first seven colors
+        # * True Colors: RGB or HSL values from 000 to 255 in the form "RGB:130,200,240"
+        # * Color Books: Text from standard PANTONE or custom color books, the DIC color guide, or RAL color sets, for example "DIC COLOR GUIDE(R)$DIC 43"
+        # 
+        # Note: this is not yet fully implemented to be fully faithful to the CECOLOR variable's description in the documentation; I am blindly emitting the rgb form 
+        # of the string rather than properly emitting the colr index or color books pecification as applicable.
+        return "RGB:{:d},{:d},{:d}".format(self.red, self.green, self.blue)        
+
 class AcadPlotstyle (object):
     def __init__(self, owner: AcadPentable,
         name                  = "Normal",
@@ -836,44 +853,57 @@ class AcadPlotstyle (object):
 # (red=2,green=4,blue=6)
 # to ensure that the weirdness with an rgb color of 255,255,255 corresponding to "use object color" doesn't obscure the 
 # action of the EXPLICIT_COLOR bit), we have the following observed in the user interface:
-# d for (D)ithering.
-# g for convert to (G)rayscale
+
 # e for (E)xplicit color
+# g for convert to (G)rayscale
+# d for (D)ithering.
 # uppercase means the bit is high.  lowercase means the bit is low.
 #
-#                               ||---------------------------------------|
-#                               || displayed in the user interface       | 
-#   |===========|==============||========|===========|==================|
-#   | rgb color | color_policy || Dither | Grayscale | Color            |
-#   |-----------|--------------||--------|-----------|------------------|
-#   | 020406    | dge          || Off    | Off       | Use object color |                                                  
-#   | 020406    | dgE          || Off    | Off       | 2,4,6            |                                    
-#   | 020406    | dGe          || Off    | On        | 2,4,6            |                                
-#   | 020406    | dGE          || On     | Off       | Use object color |                                            
-#   | 020406    | Dge          || On     | Off       | Use object color |                                                    
-#   | 020406    | DgE          || On     | Off       | 2,4,6            |                                  
-#   | 020406    | DGe          || On     | On        | 2,4,6            |                               
-#   | 020406    | DGE          || On     | Off       | Use object color |    
-#   |-----------|--------------||--------|-----------|------------------|
-#   | FFFFFF    | dge          || Off    | Off       | Use object color |                                                  
-#   | FFFFFF    | dgE          || Off    | Off       | Use object color |                                    
-#   | FFFFFF    | dGe          || Off    | On        | Use object color |                                
-#   | FFFFFF    | dGE          || On     | Off       | Use object color |                                            
-#   | FFFFFF    | Dge          || On     | Off       | Use object color |                                                    
-#   | FFFFFF    | DgE          || On     | Off       | Use object color |                                  
-#   | FFFFFF    | DGe          || On     | On        | Use object color |                               
-#   | FFFFFF    | DGE          || On     | Off       | Use object color |                                    
-#   |===========|==============||========|===========|==================|  
-#   | unachievable:                                                     |
-#   |===========|==============||========|===========|==================|   
-#   | 020406    |              || Off    | On        | Use object color |
-#   | 020406    |              || On     | On        | Use object color |
-#   |-----------|              ||--------|-----------|------------------|
-#   | FFFFFF    |              || Off    | Off       | 255,255,255      |                                    
-#   | FFFFFF    |              || Off    | On        | 255,255,255      |                                                                                    
-#   | FFFFFF    |              || On     | Off       | 255,255,255      |                                  
-#   | FFFFFF    |              || On     | On        | 255,255,255      | 
-#   ------------|--------------||--------|-----------|------------------|
+#                              ||---------------------------------------||--------------------------------------------------------|
+#                              || displayed in the pentable editor's    || visible result on the screen                           |
+#                              || user interface                        || in AutoCAD, with bright green/light                    |
+#                              ||                                       || gray corresponding to NOT "use object                  |
+#                              ||                                       || color"                                                 |
+#                              ||                                       || and dark red/dark gray corresponding                   |
+#                              ||                                       || to "use object color"                                  |
+#                              ||                                       || and gray of any intensity                              |
+#                              ||                                       || corrsponding to                                        |
+#                              ||                                       || "convert to grayscale:on"                              |
+#   |===========|==============||========|===========|==================||========|===========|==================||===============|
+#   | rgb color | color_policy || Dither | Grayscale | Color            || Dither | Grayscale | color was over-  || subjectively  |               
+#   |           |              ||        |           |                  ||        |           | ridden by the    || appreciated   |               
+#   |           |              ||        |           |                  ||        |           | plot style       || color         |        
+#   |-----------|--------------||--------|-----------|------------------||--------|-----------|------------------||---------------|
+#   | 00FA00    | egd          || Off    | Off       | Use object color || ???    | Off       | overridden       || bright green  |                
+#   | 00FA00    | egD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
+#   | 00FA00    | eGd          || Off    | On        | 0,250,0          || ???    | On        | overridden       || light gray    |              
+#   | 00FA00    | eGD          || On     | On        | 0,250,0          || ???    | On        | overridden       || light gray    |                                                          
+#   | 00FA00    | Egd          || Off    | Off       | 0,250,0          || ???    | Off       | overridden       || bright green  |                                       
+#   | 00FA00    | EgD          || On     | Off       | 0,250,0          || ???    | Off       | overridden       || bright green  |                              
+#   | 00FA00    | EGd          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                                                        
+#   | 00FA00    | EGD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
+#   |-----------|--------------||--------|-----------|------------------||--------|-----------|------------------||---------------|  
+#   | FFFFFF    | egd          || Off    | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
+#   | FFFFFF    | egD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
+#   | FFFFFF    | eGd          || Off    | On        | Use object color || ???    | On        | use object color || dark gray     |                   
+#   | FFFFFF    | eGD          || On     | On        | Use object color || ???    | On        | use object color || dark gray     |                                                   
+#   | FFFFFF    | Egd          || Off    | Off       | Use object color || ???    | Off       | use object color || dark red      |                                     
+#   | FFFFFF    | EgD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                      
+#   | FFFFFF    | EGd          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                                         
+#   | FFFFFF    | EGD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                                
+#   |===========|==============||========|===========|==================||========|===========|==================||===============|   
+#
+#
+#   | unachievable  :                                                   ||                                          
+#   |===========|==============||========|===========|==================||  
+#   | 00FA00    |              || Off    | On        | Use object color ||
+#   | 00FA00    |              || On     | On        | Use object color ||
+#   |-----------|              ||--------|-----------|------------------||
+#   | FFFFFF    |              || Off    | Off       | 255,255,255      ||                                    
+#   | FFFFFF    |              || Off    | On        | 255,255,255      ||                                                                                    
+#   | FFFFFF    |              || On     | Off       | 255,255,255      ||                                  
+#   | FFFFFF    |              || On     | On        | 255,255,255      || 
+#   |-----------|--------------||--------|-----------|------------------||
 #
 # the user interface states marked "unachievable" above cannot be acheived
 # by programmatically manipulating the plotStyle.color_policy value
@@ -1143,3 +1173,4 @@ def lineweightConceptReport():
 #         } mdata;
 #         Adesk::Int32    mnIndirect32;
 #     } mRGBM;
+

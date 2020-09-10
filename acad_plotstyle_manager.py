@@ -46,56 +46,6 @@ json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_fil
 
 # lineweightConceptReport()
 
-# with:
-#   baseLineThickness = 0.25 millimeter
-#   stepFactorJumpSize = 1
-#   stepFactor = 2**(1/2 * stepFactorJumpSize)
-# we say that the degree i line thickness is the value in classicLineweights that is nearest (in a log sense) to
-# baseLineThickness * stepFactor**i
-# the set of classicLineweights contains reasonably close matches for degrees -4, ..., 6
-# The goal is to restrict ourselves to using only the following 11 lineweights, and, even within this limited list,
-# we should try to prefer lineweights of even degree, only reseorting to odd-degree lineweights in special cases where an intermediate thickness is needed.
-# By sticking to this scheme (which can be adjusted if needed by starting with a different baseLineThickness value), we will produce drawings 
-# with a small finite number of visually-distinct lineweights.
-# the idea is that the perceived psychometric change from one degree of thickness to the next should be roughly uniform for all degrees.
-preferredLineThicknessesByDegree = {
-    -4:   0.05,
-    -3:   0.09, 
-    -2:   0.13,  
-    -1:   0.18,  
-     0:   0.25,  
-     1:   0.35,  
-     2:   0.50,  
-     3:   0.70,  
-     4:   1.00,  
-     5:   1.40,  
-     6:   2.00  
-}
-
-#similarly, we have the following 4 preferred degrees of density (a.k.a. "screening" in AutoCAD plotstyle parlance)
-preferredDensitiesByDegree = {
-    -3: 0.353,
-    -2: 0.500,
-    -1: 0.707,
-     0: 1.000
-}
-
-preferredColors = {
-    'black': PentableColor(0, 0,   0),
-    'blue':  PentableColor(0, 0, 255)
-}
-
-# we want to consturct a pen table having a nicely-named plot style for each member of the cartesian prodcut of our 
-# series of preferred property values (along with an "unspecified") value added to each series of preferred property values
-# so that, for any combination of properties that we choose to enforce and preferred values for those properties, we can find a corresponding
-# plot style.  I am tempted not to have an "unspecified" value for the line thicknesses, because I want to strictly adhere to the
-# chosen few (and there is always the required "Normal" plot style -- which leaves every property unspecified).  Perhaps the only property
-# which I want the user to be able to leave "unspecified" by choosing a plot style is the color.  Even this is only a convenience, a hack to
-# avoid having to think carefully about colors in the same way that I have thought carefully about line thickness and density.
-# ideally, we should be able to parameterize the space of styles however we see fit, and then present the chosen parameterization to the user
-# as knobs to turn in the ui (along the lines of css), but given AuotCAD's relatively primitive concept of combining styles, explicitly constructing
-# each choice ahead-of-time, as we are doing here, is the coses we can come to giving the user the knobs that we would like to give him.
-
 thePentable = AcadPentable()
 
 if False:
@@ -155,13 +105,17 @@ if False:
 
 allPossibleColorPolicies = map(
     lambda y : functools.reduce(operator.or_, y),
-    itertools.product(  *( (ColorPolicy(0), x) for x in ColorPolicy )   ) 
+    itertools.product(  *( (ColorPolicy(0), x) for x in reversed(ColorPolicy) )   ) 
 )
 
-arbitraryNonIndexColor=PentableColor(red=2 ,  green=4   ,  blue=6   , colorMethod=ColorMethod.BY_COLOR       ) 
-white=PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_COLOR       ) 
+brightGreen = PentableColor(red=0   ,  green=250   ,  blue=0     , colorMethod=ColorMethod.BY_COLOR       ) 
+darkRed     = PentableColor(red=195  ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR       ) 
+white       = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_COLOR       ) 
+black       = PentableColor(red=0   ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR       ) 
 
-for (color, colorPolicy) in itertools.product((arbitraryNonIndexColor, white), allPossibleColorPolicies):    
+colorExplicitlyDefinedInThePentable =   brightGreen
+
+for (color, colorPolicy) in itertools.product((colorExplicitlyDefinedInThePentable, white), allPossibleColorPolicies):    
     d = bool(colorPolicy & ColorPolicy.ENABLE_DITHERING)
     g = bool(colorPolicy & ColorPolicy.CONVERT_TO_GRAYSCALE)
     e = bool(colorPolicy & ColorPolicy.EXPLICIT_COLOR)
@@ -181,9 +135,12 @@ for (color, colorPolicy) in itertools.product((arbitraryNonIndexColor, white), a
         False:"Off"
     }[g & (not e)]
  
-    colorPolicyCuteString = ("D" if d else "d") + ("G" if g else "g") + ("E" if e else "e")
+    colorPolicyCuteString = ("E" if e else "e") +  ("G" if g else "g") + ("D" if d else "d")
+    # oops, plot style names are supposed to be case insensitive (i.e. two names that differe only in capitalization are regarded by AutoCAD to be equivalent.
+    # could case-sensitiviy be the root of all my confusion, since I have been naming my plot styles names that differ only in capitalization.
+    # To overcome case insensitivity, I have appended  str(int(colorPolicy))  to the plot style name, below:
     
-    thisPlotstyle = thePentable.addAPlotstyle(name=color.htmlCode + " " + colorPolicyCuteString)
+    thisPlotstyle = thePentable.addAPlotstyle(name=color.htmlCode + " " + colorPolicyCuteString + " " + str(int(colorPolicy)) )
     thisPlotstyle.color_policy = colorPolicy
     thisPlotstyle.mode_color = color
 
@@ -199,9 +156,66 @@ for (color, colorPolicy) in itertools.product((arbitraryNonIndexColor, white), a
         + str(colorPolicy)
     )
 
+
+
     
 
 if False:
+    
+    # with:
+    #   baseLineThickness = 0.25 millimeter
+    #   stepFactorJumpSize = 1
+    #   stepFactor = 2**(1/2 * stepFactorJumpSize)
+    # we say that the degree i line thickness is the value in classicLineweights that is nearest (in a log sense) to
+    # baseLineThickness * stepFactor**i
+    # the set of classicLineweights contains reasonably close matches for degrees -4, ..., 6
+    # The goal is to restrict ourselves to using only the following 11 lineweights, and, even within this limited list,
+    # we should try to prefer lineweights of even degree, only reseorting to odd-degree lineweights in special cases where an intermediate thickness is needed.
+    # By sticking to this scheme (which can be adjusted if needed by starting with a different baseLineThickness value), we will produce drawings 
+    # with a small finite number of visually-distinct lineweights.
+    # the idea is that the perceived psychometric change from one degree of thickness to the next should be roughly uniform for all degrees.
+    preferredLineThicknessesByDegree = {
+        -4:   0.05,
+        -3:   0.09, 
+        -2:   0.13,  
+        -1:   0.18,  
+        0:   0.25,  
+        1:   0.35,  
+        2:   0.50,  
+        3:   0.70,  
+        4:   1.00,  
+        5:   1.40,  
+        6:   2.00  
+    }
+
+    #similarly, we have the following 4 preferred degrees of density (a.k.a. "screening" in AutoCAD plotstyle parlance)
+    preferredDensitiesByDegree = {
+        -3: 0.353,
+        -2: 0.500,
+        -1: 0.707,
+        0: 1.000
+    }
+
+    preferredColors = {
+        'black': PentableColor(0, 0,   0),
+        'blue':  PentableColor(0, 0, 255)
+    }
+
+    # we want to consturct a pen table having a nicely-named plot style for each member of the cartesian prodcut of our 
+    # series of preferred property values (along with an "unspecified") value added to each series of preferred property values
+    # so that, for any combination of properties that we choose to enforce and preferred values for those properties, we can find a corresponding
+    # plot style.  I am tempted not to have an "unspecified" value for the line thicknesses, because I want to strictly adhere to the
+    # chosen few (and there is always the required "Normal" plot style -- which leaves every property unspecified).  Perhaps the only property
+    # which I want the user to be able to leave "unspecified" by choosing a plot style is the color.  Even this is only a convenience, a hack to
+    # avoid having to think carefully about colors in the same way that I have thought carefully about line thickness and density.
+    # ideally, we should be able to parameterize the space of styles however we see fit, and then present the chosen parameterization to the user
+    # as knobs to turn in the ui (along the lines of css), but given AuotCAD's relatively primitive concept of combining styles, explicitly constructing
+    # each choice ahead-of-time, as we are doing here, is the coses we can come to giving the user the knobs that we would like to give him.
+
+        
+        
+    
+    
     for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferredLineThicknessesByDegree, preferredDensitiesByDegree, {**preferredColors, **{'unspecified':None}}):
         # print("working on lineThicknessDegree " + str(lineThicknessDegree) + ", " + "densityDegree " + str(densityDegree) + ", colorKey " + str(colorKey))
         thisPlotStyle = AcadPlotstyle(owner=thePentable,
@@ -345,39 +359,34 @@ def drange(x, y, jump):
     x = decimal.Decimal(x) + decimal.Decimal(jump)
 
 samplerScript = ""
+# colorExplicitlyDefinedInThePentable is defined above.  that and white are the two colors that we are attempting to override to.
+lineColor = darkRed 
 
-insertionPoint = (1,11,0)
+textColor = black
 stationIntervalX = 2.5
 stationIntervalY = 0.1
 nominalTextWidth = 0.5
 lineLength = 0.5
 
-stationIncrementDirectionX = 1
-stationIncrementDirectionY = -1
+
 
 xRange = (1,7.5)
 yRange = (1,10)
-
-
 xValues = drange( xRange[0], xRange[1] + stationIntervalX, stationIntervalX )
 yValues = drange( yRange[0], yRange[1] + stationIntervalY, stationIntervalY )
-
 yValues = reversed(list(yValues))
-
 stations = tuple(itertools.product(xValues, yValues))
 
-interval = (0,-0.3,0)
 textHeight = 0.04
 textAngle = 0
 textAlignment = "MR" # the sttring to be passed as the "Justify" option to the "Text" command.  must be one of Left Center Right Align Middle Fit TL TC TR ML MC MR BL BC BR 
 # note the "Align" keyword launches into more point selection and changes the subsequent syntaz of the Text command .
 
 # positions relative to insertionPoint, which we will move for each subsequent sample.
-anchors = {
-    'textPosition': (nominalTextWidth ,0,0), 
-    'lineStartPoint': (nominalTextWidth + 3 * textHeight,0,0),
-    'lineEndPoint': (nominalTextWidth + 3 * textHeight + lineLength,0,0)
-}
+anchors = {}
+anchors['textPosition']   = (nominalTextWidth ,0,0)
+anchors['lineStartPoint'] =   tuple(map(operator.add, anchors['textPosition']   ,  (2 * textHeight ,0,0)  ))
+anchors['lineEndPoint']   =   tuple(map(operator.add, anchors['lineStartPoint'] ,  (lineLength     ,0,0)  ))
 
 #returns an autolisp expression that will evaluate to the specified string
 def escapeStringForAutolisp(x: str) -> str:
@@ -387,29 +396,29 @@ def escapeStringForAutolisp(x: str) -> str:
 def toAutolispExpression(x) -> str:
     if isinstance(x, str): return escapeStringForAutolisp(x)
     elif isinstance(x, tuple): return "'(" + " ".join(map(toAutolispExpression, x)) + ")"
+    elif isinstance(x, PentableColor): return toAutolispExpression(x.sysvarString)
     else: return str(x)
 
+# first, erase all existing entities.
 samplerScript += '(command "._erase" (ssget "A") "")' + "\n"
 
 stationIndex =  0
 stationsRolloverCount = 0
+lastEncounteredRolloverCount = 0
 for plotStyle in thePentable.plot_style.values():
-    if stationsRolloverCount > 0: print("warning: re-used stations .")
+    lastEncounteredRolloverCount = stationsRolloverCount
+
     #add commands to the samplerScript to draw the sample of this plotSTyle.
     #the sample will consist of a text object containing the name of the plot style,
     # then a line with the line's plotstyleName set to the name of the plotstyle.
     #the script is intended to be run in a dwg file that is configured to use the 
     # pen table file corresponding to thePentable
     thisStation = stations[stationIndex]
-    print("thisStation: " + str(thisStation))
-
+    # print("thisStation: " + str(thisStation))
 
     localAnchors = {key: tuple(map(operator.add, stations[stationIndex], value)) for (key,value) in anchors.items()}
 
     annotationTextForThisSample = plotStyle.name
-
-    # all strings:
-
 
     defaultDesiredSysvarState = {
         'CLAYER'         :'0',
@@ -420,38 +429,39 @@ for plotStyle in thePentable.plot_style.values():
     }
 
     desiredSysvarStateForInsertingTheText = {
-        'CECOLOR'       : '0,0,0',
+        'CECOLOR'       : textColor,
         'CPLOTSTYLE'    : "Normal",
         'CELWEIGHT'     : 0,
     }
 
     desiredSysvarStateForInsertingTheLine = {
-        'CECOLOR'       : '66,77,88',
+        'CECOLOR'       : lineColor,
         'CPLOTSTYLE'    : plotStyle.name,
         'CELWEIGHT'     : 211,
     }
 
+    # The CPLOTSTYLE variable is not case sensitive, which is really a problem because plot style names are, in gneral, case sensitive.
 
     samplerScript += (
         ""
 
 
 
-        + "\n".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in defaultDesiredSysvarState.items() ) + "\n"
+        + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in defaultDesiredSysvarState.items() ) 
 
 
-        + "\n".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheLine.items() ) + "\n"
+        + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheLine.items() ) 
         + "(command " 
         +   '"._line"' + " " 
         +   toAutolispExpression(localAnchors['lineStartPoint']) + " "
         +   toAutolispExpression(localAnchors['lineEndPoint']) + " "
-        +   '""' + " " 
-        + ")" + "\n"
+        +   '""' 
+        + ")"  
 
 
-        + "\n".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheText.items() ) + "\n"
+        + " ".join( '(setvar ' + toAutolispExpression(sysvarName)    + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheText.items() ) 
         + "(command " 
-        +   '"text"' + " " 
+        +   '"text"'  
         +   toAutolispExpression('Justify') 
         +   toAutolispExpression(textAlignment)
         +   toAutolispExpression(localAnchors['textPosition']) + " "
@@ -461,12 +471,21 @@ for plotStyle in thePentable.plot_style.values():
         + ")" + "\n"
     )
 
-    insertionPoint = tuple(map(operator.add, insertionPoint,interval))
+    # for each sample, it will be obvious to distinguish visually whether the line's 
+    # final graphical color is lineColor (dark red, or if convered to grayscale, dark grey) 
+    # (which means that "use object color" has actually happened.
+    # or colorExplicitlyDefinedInThePentable (either bright green (or, if converted to 
+    # grayscale, light gray) or white) (whcih means thaat "use object color" has not happened.)
+    # 
+    # Thus, we can determine visually whether AutoCAD is doing an explicit color override 
+    # and whetehr it is doing conversion to grayscale for each test case.
+
 
     stationIndex = (stationIndex + 1) % len(stations)
     if stationIndex == 0: stationsRolloverCount += 1
 # print(samplerScript)
-
+if lastEncounteredRolloverCount > 0:
+    print("warning: re-used stations up to " + str(lastEncounteredRolloverCount) + "times.")
 
 with open(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"), "w") as f:
     f.write(samplerScript)
