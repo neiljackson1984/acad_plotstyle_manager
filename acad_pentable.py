@@ -292,6 +292,12 @@ class AcadPentable (object):
         compressedBytes=pentableFile.read()
         payloadBytes = zlib.decompress(compressedBytes)
         payloadString = payloadBytes.decode("ascii")
+
+        #debugging only:
+        #print(payloadString)
+
+
+
         self.fromRawDictionary(AcadPentable._payloadStringToRawDictionary(payloadString))
         # headerString = headerBytes.decode("raw_unicode_escape")
         # if headerString.encode("raw_unicode_escape") == headerBytes:
@@ -542,7 +548,27 @@ class AcadPentable (object):
     def _penTableObjectToPayloadString(penTableObject) -> str:
         def encodeAsPenTablePrimitive(x) -> str:
             if isinstance(x,str):
-                return "\"" + x
+                # return "\"" + x
+
+                # Although the pentable editor ui appears to support having newlines in the description of a plot style, 
+                # upon saving and re-opening, the newlines have been replaced with spaces.
+                # that is very crappy design (both to not support newlines in the first place, and, in the second place, knowing that newlines are not supported, 
+                # to have the user interface give the user the impression that they are supported (but actually unceremoneously replacing the user's (carefully placed) newlines with spaces when the uses saves the pen table file)
+                # Once again, Autodesk, you should be embarassed.
+                # Even crappier, for the pentable description field (the description for the entire pentable, not the per-plotstyle description), the user interface gives the impression that nbewlines are supported,
+                # but if the user enters some newlines and saves, upon repopening, the pentable editor throws a popup message saying "Error syntax", followed by another popup error message saying "File Error Could not load file", 
+                # and refuses to open the file (the same thing that happens when we 
+                # insert newlines programmtically in the payload string).
+                # For the hapless user who just so happened to add a newline to the description field of his precious pentable file (which he has not bothered to back up) and save, his pentable file is rendered useless,
+                # and he will only find out that there is a problem the next time he opens the pentable file in the pentable editor (or, presumably, trys to plot with it -- I am not sure what AutoCAD will do when you 
+                # attempt to plot with the newline-plagued pentable file.  
+                # This is REALLY, REALLY bad, careless software design.
+                # the plotstyle name field has the same problem -- the ui will let you insert newlines and save and close with no indication of a problem, and the file is then completey broken and unusable.
+                # let me not make the same mistake.  Even though I cannot do anything to magically support newlines,
+                # I can at least consistently sanitize newlines (and carriage returns, which cause the same problems as linefeeds.)
+                # from all string values (both the plotstyle description and the pen table description (and any other strings that happen to be in the data (names for instance)) that I write into the payloadString.
+                return "\"" + x.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
+
             elif isinstance(x, bool):
                 return ("TRUE" if x else "FALSE")
             elif isinstance(x, enum.IntEnum) or isinstance(x, enum.IntFlag) :
@@ -762,7 +788,7 @@ class AcadPlotstyle (object):
 # triple of bytes: the red, green, blue values, which we will call r, g, and b, below, and a boolean choice of whether or not to "use object color"
 # AutoCAD then does the following:
 # 1: plotStyle.mode_color.setRgb(r,g,b)
-# 2: if the user chose use_object_color=true, then clear the EXPLICIT_COLOR bit of plotStyle.color_policy, else set the EXPLICIT_COLOR bit of plotStyle.color_policy.
+# 2: if the user chose use_object_color=true or if the user chose r=g=b=255, then clear the EXPLICIT_COLOR bit of plotStyle.color_policy, else set the EXPLICIT_COLOR bit of plotStyle.color_policy.
 #       in our python-based domain-specific-language, this would look like:
 #       plotStyle.color_policy = (plotStyle.color_policy  & ~ColorPolicy.EXPLICIT_COLOR) | (0 if <the user chose "use object color"> else ColorPolicy.EXPLICIT_COLOR) 
 # 3: plotStyle.mode_color.colorMethod = ( <does the triple of bytes exactly match some index color> ? ColorMethod.BY_ACI : ColorMethod.BY_COLOR );
@@ -797,7 +823,12 @@ class AcadPlotstyle (object):
 # do not have names (e.g. color 12, whose rgb representation is 221,0,0) are displayed in rgb format when the 
 # plot style editor first opens.  Only after you manipulate the plot style's 'color' dropdown box does AutoCAD "realize"
 # that the color is an index color and so changes the display from "221,0,0" to "Color 12" (for instance).
-
+#
+#  The result of the "or if the user chose r=g=b=255" expression in the above pseudo-code is that it is impossible in the ui to explcitly specify an
+# explicit color that is pure white (i.e. r=g=b=255).
+# if we attempt to speicify pure white programmataically and then open the resulting pentable file in that autoCAD pen table editor,
+# the pen table editor ui shows "use object color" just as it does when we attempted to make the change in the ui, which suggests
+# (but further testing is still in order) that the end result when plotting will be to "use object color".
 
 
 
