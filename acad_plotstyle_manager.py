@@ -28,21 +28,6 @@ myPentable = AcadPentable(input_acad_pen_table_file_path)
 json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen_table_file_path, "w"), indent=4)
 json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name).with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json")  , "w"), indent=4)
 
-# myPentable.plot_style['white'].color_policy = ColorPolicy(0)
-
-
- 
-##  if 'white' not in myPentable.plot_style:
-##    myPentable.plot_style['white'] = AcadPlotstyle(owner = myPentable, name = "white")
-##           
-##  myPentable.plot_style['white'].color = testColor
-##  myPentable.plot_style['white'].mode_color = testColor
-##    
-##  myPentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-modified" + input_acad_pen_table_file_path.suffix))      
-##  json.dump(myPentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-modified" + input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
-##  json.dump(myPentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.stem + "-modified" + input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
-
-
 
 # lineweightConceptReport()
 
@@ -100,69 +85,6 @@ if False:
     thisPlotStyle.color_policy |= ColorPolicy.EXPLICIT_COLOR | ColorPolicy.CONVERT_TO_GRAYSCALE
     thisPlotStyle.color      = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
     thisPlotStyle.mode_color = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_ACI      ) 
-
-
-
-allPossibleColorPolicies = map(
-    lambda y : functools.reduce(operator.or_, y),
-    itertools.product(  *( (ColorPolicy(0), x) for x in reversed(ColorPolicy) )   ) 
-)
-
-brightGreen = PentableColor(red=0   ,  green=250   ,  blue=0     , colorMethod=ColorMethod.BY_COLOR       ) 
-darkRed     = PentableColor(red=195  ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR       ) 
-white       = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_COLOR       ) 
-black       = PentableColor(red=0   ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR       ) 
-
-colorExplicitlyDefinedInThePentable =   brightGreen
-
-for (color, colorPolicy) in itertools.product((colorExplicitlyDefinedInThePentable, white), allPossibleColorPolicies):    
-    d = bool(colorPolicy & ColorPolicy.ENABLE_DITHERING)
-    g = bool(colorPolicy & ColorPolicy.CONVERT_TO_GRAYSCALE)
-    e = bool(colorPolicy & ColorPolicy.EXPLICIT_COLOR)
-
-    predictedValueOfTheColorFieldInTheUserInterface               = {
-        True:",".join(map(str,(color.red,color.green,color.blue))),
-        False:"Use object color"
-     }[(e ^ g) & (not (color is white)) ] 
-
-    predictedValueOfTheDitheringFieldInTheUserInterface           = {
-        True:"On",
-        False:"Off"
-    }[d | ( g & e )]
-
-    predictedValueOfTheConvertToGrayscaleFieldInTheUserInterface  = {
-        True:"On",
-        False:"Off"
-    }[g & (not e)]
- 
-    colorPolicyCuteString = ("E" if e else "e") +  ("G" if g else "g") + ("D" if d else "d")
-    # oops, plot style names are supposed to be case insensitive (i.e. two names that differe only in capitalization are regarded by AutoCAD to be equivalent.
-    # could case-sensitiviy be the root of all my confusion, since I have been naming my plot styles names that differ only in capitalization.
-    # To overcome case insensitivity, I have appended  str(int(colorPolicy))  to the plot style name, below:
-    
-    thisPlotstyle = thePentable.addAPlotstyle(name=color.htmlCode + " " + colorPolicyCuteString + " " + str(int(colorPolicy)) )
-    thisPlotstyle.color_policy = colorPolicy
-    thisPlotstyle.mode_color = color
-
-    thisPlotstyle.description = (
-        ""
-        + colorPolicyCuteString
-        + "\t\t" 
-        + predictedValueOfTheColorFieldInTheUserInterface 
-        + " " + predictedValueOfTheDitheringFieldInTheUserInterface 
-        + " " + predictedValueOfTheConvertToGrayscaleFieldInTheUserInterface
-        # + "\t\t" + thisPlotstyle.mode_color.htmlCode 
-        + "\t"*6 
-        + "thisPlotstyle.explicitlyOverrideTheColor: " + str(thisPlotstyle.explicitlyOverrideTheColor) + "  "
-        + "thisPlotstyle.grayscale: " + str(thisPlotstyle.grayscale) + "  "
-        + "thisPlotstyle.dither: " + str(thisPlotstyle.dither) + "  "
-
-        + str(colorPolicy)
-    )
-
-
-
-    
 
 if False:
     
@@ -239,12 +161,6 @@ if False:
             # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
 
         thePentable.plot_style[thisPlotStyle.name] = thisPlotStyle
-
-
-thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
-json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
-json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
-
 
 if False:
     #=======================================
@@ -354,142 +270,206 @@ if False:
     x = PentableColor()
     print("x.htmlCode: " + x.htmlCode )
 
-
-# generate a test drawing containing a sample of each plotstyle.
-import decimal
-def drange(x, y, jump):
-  while x < y:
-    yield float(x)
-    x = decimal.Decimal(x) + decimal.Decimal(jump)
-
-samplerScript = ""
-# colorExplicitlyDefinedInThePentable is defined above.  that and white are the two colors that we are attempting to override to.
-lineColor = darkRed 
-
-textColor = black
-stationIntervalX = 2.5
-stationIntervalY = 0.1
-nominalTextWidth = 0.5
-lineLength = 0.5
-
-
-
-xRange = (1,7.5)
-yRange = (1,10)
-xValues = drange( xRange[0], xRange[1] + stationIntervalX, stationIntervalX )
-yValues = drange( yRange[0], yRange[1] + stationIntervalY, stationIntervalY )
-yValues = reversed(list(yValues))
-stations = tuple(itertools.product(xValues, yValues))
-
-textHeight = 0.04
-textAngle = 0
-textAlignment = "MR" # the sttring to be passed as the "Justify" option to the "Text" command.  must be one of Left Center Right Align Middle Fit TL TC TR ML MC MR BL BC BR 
-# note the "Align" keyword launches into more point selection and changes the subsequent syntaz of the Text command .
-
-# positions relative to insertionPoint, which we will move for each subsequent sample.
-anchors = {}
-anchors['textPosition']   = (nominalTextWidth ,0,0)
-anchors['lineStartPoint'] =   tuple(map(operator.add, anchors['textPosition']   ,  (2 * textHeight ,0,0)  ))
-anchors['lineEndPoint']   =   tuple(map(operator.add, anchors['lineStartPoint'] ,  (lineLength     ,0,0)  ))
-
-#returns an autolisp expression that will evaluate to the specified string
-def escapeStringForAutolisp(x: str) -> str:
-    # using conversion via list of character codes -- crude and inefficient, but effective and reliable.
-    return "(vl-list->string '(" + " ".join(map(str,x.encode())) + "))"
-
-def toAutolispExpression(x) -> str:
-    if isinstance(x, str): return escapeStringForAutolisp(x)
-    elif isinstance(x, tuple): return "'(" + " ".join(map(toAutolispExpression, x)) + ")"
-    elif isinstance(x, PentableColor): return toAutolispExpression(x.sysvarString)
-    else: return str(x)
-
-# first, erase all existing entities.
-samplerScript += '(command "._erase" (ssget "A") "")' + "\n"
-
-stationIndex =  0
-stationsRolloverCount = 0
-lastEncounteredRolloverCount = 0
-for plotStyle in thePentable.plot_style.values():
-    lastEncounteredRolloverCount = stationsRolloverCount
-
-    #add commands to the samplerScript to draw the sample of this plotSTyle.
-    #the sample will consist of a text object containing the name of the plot style,
-    # then a line with the line's plotstyleName set to the name of the plotstyle.
-    #the script is intended to be run in a dwg file that is configured to use the 
-    # pen table file corresponding to thePentable
-    thisStation = stations[stationIndex]
-    # print("thisStation: " + str(thisStation))
-
-    localAnchors = {key: tuple(map(operator.add, stations[stationIndex], value)) for (key,value) in anchors.items()}
-
-    annotationTextForThisSample = plotStyle.name
-
-    defaultDesiredSysvarState = {
-        'CLAYER'         :'0',
-        'CELTYPE'        :'Continuous',
-        'CETRANSPARENCY' : 0,
-        'CELTSCALE'      : 0.9,
-        'TEXTSTYLE'      : 'Standard',
-    }
-
-    desiredSysvarStateForInsertingTheText = {
-        'CECOLOR'       : textColor,
-        'CPLOTSTYLE'    : "Normal",
-        'CELWEIGHT'     : 0,
-    }
-
-    desiredSysvarStateForInsertingTheLine = {
-        'CECOLOR'       : lineColor,
-        'CPLOTSTYLE'    : plotStyle.name,
-        'CELWEIGHT'     : 211,
-    }
-
-    # The CPLOTSTYLE variable is not case sensitive, which is really a problem because plot style names are, in gneral, case sensitive.
-
-    samplerScript += (
-        ""
-
-
-
-        + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in defaultDesiredSysvarState.items() ) 
-
-
-        + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheLine.items() ) 
-        + "(command " 
-        +   '"._line"' + " " 
-        +   toAutolispExpression(localAnchors['lineStartPoint']) + " "
-        +   toAutolispExpression(localAnchors['lineEndPoint']) + " "
-        +   '""' 
-        + ")"  
-
-
-        + " ".join( '(setvar ' + toAutolispExpression(sysvarName)    + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheText.items() ) 
-        + "(command " 
-        +   '"text"'  
-        +   toAutolispExpression('Justify') 
-        +   toAutolispExpression(textAlignment)
-        +   toAutolispExpression(localAnchors['textPosition']) + " "
-        +   toAutolispExpression(textHeight) + " "
-        +   toAutolispExpression(textAngle) + " "
-        +   toAutolispExpression(annotationTextForThisSample) + " "
-        + ")" + "\n"
+if False:  
+    # add a sequence of plotStyles to test the effect of the various values of color_policy and to experiment
+    # with the weird white-implies-no-override behavior.
+    allPossibleColorPolicies = map(
+        lambda y : functools.reduce(operator.or_, y),
+        itertools.product(  *( (ColorPolicy(0), x) for x in reversed(ColorPolicy) )   ) 
     )
 
-    # for each sample, it will be obvious to distinguish visually whether the line's 
-    # final graphical color is lineColor (dark red, or if convered to grayscale, dark grey) 
-    # (which means that "use object color" has actually happened.
-    # or colorExplicitlyDefinedInThePentable (either bright green (or, if converted to 
-    # grayscale, light gray) or white) (whcih means thaat "use object color" has not happened.)
-    # 
-    # Thus, we can determine visually whether AutoCAD is doing an explicit color override 
-    # and whetehr it is doing conversion to grayscale for each test case.
+    brightGreen  = PentableColor(red=0   ,  green=250   ,  blue=0     , colorMethod=ColorMethod.BY_COLOR      ) 
+    darkRed      = PentableColor(red=195 ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR      )
+    brightOrange = PentableColor(red=245 ,  green=145   ,  blue=50    , colorMethod=ColorMethod.BY_COLOR      )
+    white        = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_COLOR      ) 
+    black        = PentableColor(red=0   ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR      ) 
+
+    colorExplicitlyDefinedInThePentable =   brightGreen
+    for (color, colorPolicy) in itertools.product((colorExplicitlyDefinedInThePentable, white), allPossibleColorPolicies):    
+        d = bool(colorPolicy & ColorPolicy.ENABLE_DITHERING)
+        g = bool(colorPolicy & ColorPolicy.CONVERT_TO_GRAYSCALE)
+        e = bool(colorPolicy & ColorPolicy.EXPLICIT_COLOR)
+
+        predictedValueOfTheColorFieldInTheUserInterface               = {
+            True:",".join(map(str,(color.red,color.green,color.blue))),
+            False:"Use object color"
+        }[(e ^ g) & (not (color is white)) ] 
+
+        predictedValueOfTheDitheringFieldInTheUserInterface           = {
+            True:"On",
+            False:"Off"
+        }[d | ( g & e )]
+
+        predictedValueOfTheConvertToGrayscaleFieldInTheUserInterface  = {
+            True:"On",
+            False:"Off"
+        }[g & (not e)]
+    
+        colorPolicyCuteString = ("E" if e else "e") +  ("G" if g else "g") + ("D" if d else "d")
+        # oops, plot style names are supposed to be case insensitive (i.e. two names that differe only in capitalization are regarded by AutoCAD to be equivalent.
+        # could case-sensitiviy be the root of all my confusion, since I have been naming my plot styles names that differ only in capitalization.
+        # To overcome case insensitivity, I have appended  str(int(colorPolicy))  to the plot style name, below:
+        
+        thisPlotstyle = thePentable.addAPlotstyle(name=color.htmlCode + " " + colorPolicyCuteString + " " + str(int(colorPolicy)) )
+        thisPlotstyle.color_policy = colorPolicy
+        thisPlotstyle.mode_color = color
+
+        thisPlotstyle.description = (
+            ""
+            + colorPolicyCuteString
+            + "\t\t" 
+            + predictedValueOfTheColorFieldInTheUserInterface 
+            + " " + predictedValueOfTheDitheringFieldInTheUserInterface 
+            + " " + predictedValueOfTheConvertToGrayscaleFieldInTheUserInterface
+            # + "\t\t" + thisPlotstyle.mode_color.htmlCode 
+            + "\t"*6 
+            + "thisPlotstyle.explicitlyOverrideTheColor: " + str(thisPlotstyle.explicitlyOverrideTheColor) + "  "
+            + "thisPlotstyle.grayscale: " + str(thisPlotstyle.grayscale) + "  "
+            + "thisPlotstyle.dither: " + str(thisPlotstyle.dither) + "  "
+
+            + str(colorPolicy)
+        )
+    
+    # generate a test drawing (or rather an autolisp script that populates the test drawing) containing a sample of each plotstyle
+    import decimal
+    def drange(x, y, jump):
+        while x < y:
+            yield float(x)
+            x = decimal.Decimal(x) + decimal.Decimal(jump)
+
+    samplerScript = ""
+    # colorExplicitlyDefinedInThePentable is defined above.  that and white are the two colors that we are attempting to override to.
+    lineColor = darkRed 
+
+    textColor = black
+    stationIntervalX = 2.5
+    stationIntervalY = 0.1
+    nominalTextWidth = 0.5
+    lineLength = 0.5
 
 
-    stationIndex = (stationIndex + 1) % len(stations)
-    if stationIndex == 0: stationsRolloverCount += 1
-# print(samplerScript)
-if lastEncounteredRolloverCount > 0:
-    print("warning: re-used stations up to " + str(lastEncounteredRolloverCount) + "times.")
 
-with open(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"), "w") as f:
-    f.write(samplerScript)
+    xRange = (1,7.5)
+    yRange = (1,10)
+    xValues = drange( xRange[0], xRange[1] + stationIntervalX, stationIntervalX )
+    yValues = drange( yRange[0], yRange[1] + stationIntervalY, stationIntervalY )
+    yValues = reversed(list(yValues))
+    stations = tuple(itertools.product(xValues, yValues))
+
+    textHeight = 0.04
+    textAngle = 0
+    textAlignment = "MR" # the sttring to be passed as the "Justify" option to the "Text" command.  must be one of Left Center Right Align Middle Fit TL TC TR ML MC MR BL BC BR 
+    # note the "Align" keyword launches into more point selection and changes the subsequent syntaz of the Text command .
+
+    # positions relative to insertionPoint, which we will move for each subsequent sample.
+    anchors = {}
+    anchors['textPosition']   = (nominalTextWidth ,0,0)
+    anchors['lineStartPoint'] =   tuple(map(operator.add, anchors['textPosition']   ,  (2 * textHeight ,0,0)  ))
+    anchors['lineEndPoint']   =   tuple(map(operator.add, anchors['lineStartPoint'] ,  (lineLength     ,0,0)  ))
+
+    #returns an autolisp expression that will evaluate to the specified string
+    def escapeStringForAutolisp(x: str) -> str:
+        # using conversion via list of character codes -- crude and inefficient, but effective and reliable.
+        return "(vl-list->string '(" + " ".join(map(str,x.encode())) + "))"
+
+    def toAutolispExpression(x) -> str:
+        if isinstance(x, str): return escapeStringForAutolisp(x)
+        elif isinstance(x, tuple): return "'(" + " ".join(map(toAutolispExpression, x)) + ")"
+        elif isinstance(x, PentableColor): return toAutolispExpression(x.sysvarString)
+        else: return str(x)
+
+    # first, erase all existing entities.
+    samplerScript += '(command "._erase" (ssget "A") "")' + "\n"
+
+    stationIndex =  0
+    stationsRolloverCount = 0
+    lastEncounteredRolloverCount = 0
+    for plotStyle in thePentable.plot_style.values():
+        lastEncounteredRolloverCount = stationsRolloverCount
+
+        #add commands to the samplerScript to draw the sample of this plotSTyle.
+        #the sample will consist of a text object containing the name of the plot style,
+        # then a line with the line's plotstyleName set to the name of the plotstyle.
+        #the script is intended to be run in a dwg file that is configured to use the 
+        # pen table file corresponding to thePentable
+        thisStation = stations[stationIndex]
+        # print("thisStation: " + str(thisStation))
+
+        localAnchors = {key: tuple(map(operator.add, stations[stationIndex], value)) for (key,value) in anchors.items()}
+
+        annotationTextForThisSample = plotStyle.name
+
+        defaultDesiredSysvarState = {
+            'CLAYER'         :'0',
+            'CELTYPE'        :'Continuous',
+            'CETRANSPARENCY' : 0,
+            'CELTSCALE'      : 0.9,
+            'TEXTSTYLE'      : 'Standard',
+        }
+
+        desiredSysvarStateForInsertingTheText = {
+            'CECOLOR'       : textColor,
+            'CPLOTSTYLE'    : "Normal",
+            'CELWEIGHT'     : 0,
+        }
+
+        desiredSysvarStateForInsertingTheLine = {
+            'CECOLOR'       : lineColor,
+            'CPLOTSTYLE'    : plotStyle.name,
+            'CELWEIGHT'     : 211,
+        }
+
+        # The CPLOTSTYLE variable is not case sensitive, which is really a problem because plot style names are, in gneral, case sensitive.
+
+        samplerScript += (
+            ""
+
+
+
+            + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in defaultDesiredSysvarState.items() ) 
+
+
+            + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheLine.items() ) 
+            + "(command " 
+            +   '"._line"' + " " 
+            +   toAutolispExpression(localAnchors['lineStartPoint']) + " "
+            +   toAutolispExpression(localAnchors['lineEndPoint']) + " "
+            +   '""' 
+            + ")"  
+
+
+            + " ".join( '(setvar ' + toAutolispExpression(sysvarName)    + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheText.items() ) 
+            + "(command " 
+            +   '"text"'  
+            +   toAutolispExpression('Justify') 
+            +   toAutolispExpression(textAlignment)
+            +   toAutolispExpression(localAnchors['textPosition']) + " "
+            +   toAutolispExpression(textHeight) + " "
+            +   toAutolispExpression(textAngle) + " "
+            +   toAutolispExpression(annotationTextForThisSample) + " "
+            + ")" + "\n"
+        )
+
+        # for each sample, it will be obvious to distinguish visually whether the line's 
+        # final graphical color is lineColor (dark red, or if convered to grayscale, dark grey) 
+        # (which means that "use object color" has actually happened.
+        # or colorExplicitlyDefinedInThePentable (either bright green (or, if converted to 
+        # grayscale, light gray) or white) (whcih means thaat "use object color" has not happened.)
+        # 
+        # Thus, we can determine visually whether AutoCAD is doing an explicit color override 
+        # and whetehr it is doing conversion to grayscale for each test case.
+
+
+        stationIndex = (stationIndex + 1) % len(stations)
+        if stationIndex == 0: stationsRolloverCount += 1
+    # print(samplerScript)
+    if lastEncounteredRolloverCount > 0:
+        print("warning: re-used stations up to " + str(lastEncounteredRolloverCount) + "times.")
+
+    with open(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"), "w") as f:
+        f.write(samplerScript)
+
+
+thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
+json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
+json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)

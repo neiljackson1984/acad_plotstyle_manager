@@ -690,13 +690,6 @@ class PentableColor (object):
         # of the string rather than properly emitting the colr index or color books pecification as applicable.
         return "RGB:{:d},{:d},{:d}".format(self.red, self.green, self.blue)        
 
-class NullableColor(object):
-    def __init__(red: int, green: int, blue: int, isNull: bool = False):
-        self.red    = red
-        self.green  = green
-        self.blue   = blue
-        self.isNull = isNull
-
 class AcadPlotstyle (object):
     def __init__(self, owner: AcadPentable,
         name                  = "Normal",
@@ -735,10 +728,8 @@ class AcadPlotstyle (object):
         self.end_style             = EndStyle(end_style)
         self.join_style            = JoinStyle(join_style)
 
-        self._explicitColor = NullableColor( *((self.color if self.mode_color == None else self.mode_color).getRgbTuple()), isNull=self.colorOverride ) 
-
-
-    )
+        # self._explicitColor = NullableColor( *((self.color if self.mode_color == None else self.mode_color).getRgbTuple()), isNull=self.colorOverride ) 
+    
 
 
         # the 'color' property is an signed 32-bit integer, which we interpret by converting it into a list of byte values (assuming little-endian and 2's complement)
@@ -770,56 +761,6 @@ class AcadPlotstyle (object):
             end_style             = rawDictionary['end_style'            ],
             join_style            = rawDictionary['join_style'           ]
         )
-
-    # for dealing with the PlotStyle.control_policy property and whether or not we make mode_color white,
-    # we have to take pains, because the mapping from these four controllable 1-bit levers
-    # to the observable behaviors which those bits control is non-intuitive, to say the least,
-    # and there are even some (easily) conceivable behaviors that are (infuriatingly) unacheivable.
-
-    # a control state is a 4-bit number encoding the four bits that we can control directly, namely:
-    # (modeColorIsWhite, EXPLICIT_OVERRIDE bit of color_policy (a.k.a. the eBit) , CONVERT_TO_GRAYSCALE bit of color_policy (aka gBit), ENABLE_DITHERING bit of color_policy (aka dBit))
-    # the bits of the ColorPolicy enum values are only very loosely related to the behaviors for which they are named 
-    # -- hence the need for this elaborate mapping system.
-    # We assign unique integer index i to each member of the control state space, constructed 
-    # thus: i = modeColorIsWhite*8 + eBit*4 + gBit*2 + dBit*1
-    # (note: each of these dimensions has 2 possible values, which we encode as 0 or 1, in the usual way)
-
-    # a behavior state is a member of the cartesian product between three dimensions:
-    #   colorOverride: this has three possible (imaginable) values: 
-    #       0: don't override
-    #       1: override to some color other than white
-    #       2: override to white
-    #   grayscale:
-    #       0: no
-    #       1: yes
-    #   dither:
-    #       0:no
-    #       1:yes
-    #
-    # We assign a unique integer index i to each member of the behavior state space, constructed 
-    # thus: i = colorOverride*4 + grayscale*2 + dither*1
-
-    # here is a map between controlStates and behaviorStates, worked out empirically.
-    # this is intended to be const
-    # notice that behavior states 8, 9, 10, and 11 (which correspond to colorOverride == 2), are unreachable (AutoCAD won't let you override to white)
-    colorControlStatesToColorBehaviorStates = {
-        0  : 4 ,
-        1  : 1 ,
-        2  : 6 ,
-        3  : 7 ,
-        4  : 4 ,
-        5  : 5 ,
-        6  : 1 ,
-        7  : 1 ,
-        8  : 0 ,
-        9  : 1 ,
-        10 : 2 ,
-        11 : 3 ,
-        12 : 0 ,
-        13 : 1 ,
-        14 : 1 ,
-        15 : 1 
-    } 
 
     def toRawDictionary(self) -> dict:
         return {
@@ -870,74 +811,6 @@ class AcadPlotstyle (object):
             }
         }
 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @property
-    def colorControlState(self) -> int:
-        # returnValue = 0
-        # returnValue = set_bit(returnValue, 3, self.modeColorIsWhite                                )
-        # returnValue = set_bit(returnValue, 2, self.color_policy & ColorPolicy.EXPLICIT_COLOR       )
-        # returnValue = set_bit(returnValue, 1, self.color_policy & ColorPolicy.CONVERT_TO_GRAYSCALE )
-        # returnValue = set_bit(returnValue, 0, self.color_policy & ColorPolicy.ENABLE_DITHERING     )
-        # return returnValue
-
-        #or, equivalently:
-        return (
-               ( 8 if self.modeColorIsWhite                                 else 0 )
-            +  ( 4 if self.color_policy & ColorPolicy.EXPLICIT_COLOR        else 0 )
-            +  ( 2 if self.color_policy & ColorPolicy.CONVERT_TO_GRAYSCALE  else 0 )
-            +  ( 1 if self.color_policy & ColorPolicy.ENABLE_DITHERING      else 0 )
-        )
-
-
-    @colorControlState.setter
-    def colorControlState(self, x):
-        
-        self.color_policy = (
-              (ColorPolicy.EXPLICIT_COLOR        if get_bit(x,2) else ColorPolicy(0))
-            | (ColorPolicy.CONVERT_TO_GRAYSCALE  if get_bit(x,1) else ColorPolicy(0))
-            | (ColorPolicy.ENABLE_DITHERING      if get_bit(x,0) else ColorPolicy(0))
-        )
-
-        if bool(self.modeColorIsWhite) != bool(get_bit(x, 3)):
-            print("warning: in order to achieve the requested colorControl
-
-        
-
-
-
-
-
-
-
-
-
-
     @property
     def modeColorIsWhite(self) -> bool:
         return (
@@ -952,35 +825,42 @@ class AcadPlotstyle (object):
     def setModeColorRgb(self, *args):
         self.mode_color.setRgb(*args)
 
-    
-
     @property 
+    # this tells us whether AutoCAD is explicitly overriding the color to the rgb content of mode_color.
     def explicitlyOverrideTheColor(self) -> bool:
-        
+        return ( 
+            {
+                (False, False , False , False): True , # the pentable editor ui suggests that in this case color would not be overriden, but in fact AutoCAD does override the color in this case.
+                (False, False , False , True ): False ,
+                (False, False , True  , False): True  ,
+                (False, False , True  , True ): True  ,
+                (False, True  , False , False): True ,
+                (False, True  , False , True ): True ,
+                (False, True  , True  , False): False ,
+                (False, True  , True  , True ): False ,
+                (True , False , False , False): False ,
+                (True , False , False , True ): False ,
+                (True , False , True  , False): False  ,
+                (True , False , True  , True ): False  ,
+                (True , True  , False , False): False ,
+                (True , True  , False , True ): False ,
+                (True , True  , True  , False): False ,
+                (True , True  , True  , True ): False
 
-    @explicitlyOverrideTheColor.setter
-    def explicitlyOverrideTheColor(self, x: bool):
-
-
-
-
+            }[(
+                self.modeColorIsWhite,
+                bool(self.color_policy & ColorPolicy.EXPLICIT_COLOR         ),
+                bool(self.color_policy & ColorPolicy.CONVERT_TO_GRAYSCALE   ),
+                bool(self.color_policy & ColorPolicy.ENABLE_DITHERING       )
+            )]
+        )
 
     @property 
+    # this tells us whether autocad will convert the color (as determined by the combination of mode_color and color_policy in 
+    # AutoCAD's bizarre way) to grayscale.
     def grayscale(self) -> bool:
         # a lookup table for all possible values of self.color_policy, 
         # which seems to be the only part of a plotStyle that has any bearing on whether AutoCAD performs the "convert to grayscale" behavior.
-        # return (
-        #     {
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): True,
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): False
-        #     }
-        # )[self.color_policy]
         return ( 
             {
                 (False , False , False): False ,
@@ -999,12 +879,6 @@ class AcadPlotstyle (object):
             )]
         )
 
-    @grayscale.setter
-    def grayscale(self, x: bool) -> bool:
-
-        return self.grayscale
-
-
     @property 
     def dither(self) -> bool:
         # a lookup table for all possible values of self.color_policy, 
@@ -1013,22 +887,8 @@ class AcadPlotstyle (object):
         # In my tests, niether the ENABLE_DITHERING bit nor the value of the On/Off "Dither" readout in the pentable ui
         # had any coprrespondence with anything in autoCAD on the screen or in the pdf plot.
         # therefore, I have designed this function to return the "Dither" status that the pentable editor ui would show the user,
-        # which (if the other prperties are any guide) might not be quite the same thing as the "dither" behavior that AutoCAD would do while plotting
+        # which (if the other properties are any guide) might not be quite the same thing as the "dither" behavior that AutoCAD would do while plotting
         # (which, I imagine, only happens with certain special plotter configurations and plotter drivers, but does not happen with the default AutoCAD pdf printer drivers.)
-        #
-        # return (
-        #     {
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): True,
-        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True
-        #     }
-
-        # )[self.color_policy]
         return ( 
             {
                 (False , False , False): False ,
@@ -1047,15 +907,16 @@ class AcadPlotstyle (object):
             )]
         )
     
-    @dither.setter
-    def dither(self, x: bool) -> bool:
-        if x != self.dither:
-            
-
-        return self.dither
-
-
-
+# I intitally set out to enhance the AcadPlotstyle class with methods and properties that would enable me to use it in an intuitive way 
+# (and throw exceptions if we were trying to achieve bheavior that is unachievable in AutoCAD (like overriding color to white)
+# (i..e I set out to make setters for explicitlyOverrideTheColor, grayscale, and dither) that would work in an intelligent way.
+# However, I have given up on that mission because it is simply too hard to  wrestle with AuotCAD's bizarre behavior.
+# I will allow the documentation that I have written up in the comments below to serve as a handbook for driving the AcadPlotstyle class, 
+# and the person using the class (most likely: me) will have to contend with AutoCAD's weirdness in his head.
+# An eventual goal might be to create a more intuitively-behaved class that wraps AcadPlotstyle -- that would be a better strategy than
+# trying to force AcadPlotstyle to be something that it isn't.  For now, I will get on with the business of generating useful pentables
+# with the raw crapy weirdness of the plot styles, and might revisit the conceptual improvement project (the project of making use more intuitive)
+# later.
 
 # It seems that the AutoCAD pentable editor acts so as to keep plotStyle.color set to the index color that is nearest to the selected
 # rgb color (i.e. autoCAD sets the rgb values of plotStyle.color to the rgb values that match some index color, and AutoCAD sets plotStyle.color.colorMethod = ColorMethod.BY_ACI)
