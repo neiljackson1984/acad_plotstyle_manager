@@ -86,7 +86,7 @@ if False:
     thisPlotStyle.color      = PentableColor(red=221 ,  green=0   ,  blue=0   , colorMethod=ColorMethod.BY_ACI       ) 
     thisPlotStyle.mode_color = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_ACI      ) 
 
-if False:
+if True:
     
     # with:
     #   baseLineThickness = 0.25 millimeter
@@ -138,29 +138,22 @@ if False:
     # as knobs to turn in the ui (along the lines of css), but given AuotCAD's relatively primitive concept of combining styles, explicitly constructing
     # each choice ahead-of-time, as we are doing here, is the coses we can come to giving the user the knobs that we would like to give him.
 
-        
-        
-    
-    
-    for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferredLineThicknessesByDegree, preferredDensitiesByDegree, {**preferredColors, **{'unspecified':None}}):
+    for (lineThicknessDegree, densityDegree, colorKey) in itertools.product(preferredLineThicknessesByDegree, preferredDensitiesByDegree, {**{'unspecified':None}, **preferredColors}):
         # print("working on lineThicknessDegree " + str(lineThicknessDegree) + ", " + "densityDegree " + str(densityDegree) + ", colorKey " + str(colorKey))
-        thisPlotStyle = AcadPlotstyle(owner=thePentable,
-            name= "thickness{:+d}_density{:+d}".format(lineThicknessDegree, densityDegree) + ("" if colorKey == 'unspecified' else "_color" + colorKey[0].upper() + colorKey[1:] )
+        thisPlotstyle = thePentable.addAPlotstyle( 
+            name= "thickness{:d}_density{:d}".format(lineThicknessDegree, densityDegree) + ("" if colorKey == 'unspecified' else "_color" + colorKey[0].upper() + colorKey[1:] )
         )
-        # print("constructing plot style " + thisPlotStyle.name)
+        # print("constructing plot style " + thisPlotstyle.name)
 
-
-        thisPlotStyle.lineweight = 1 + thePentable.custom_lineweight_table.index(preferredLineThicknessesByDegree[lineThicknessDegree])
-        thisPlotStyle.screen = int(100 * preferredDensitiesByDegree[densityDegree])
+        thisPlotstyle.lineweight = 1 + thePentable.custom_lineweight_table.index(preferredLineThicknessesByDegree[lineThicknessDegree])
+        thisPlotstyle.screen = int(100 * preferredDensitiesByDegree[densityDegree])
         if colorKey != 'unspecified' : 
-            thisPlotStyle.color = copy.deepcopy(preferredColors[colorKey]) 
-            thisPlotStyle.mode_color = copy.deepcopy(preferredColors[colorKey])
+            thisPlotstyle.mode_color = preferredColors[colorKey]
+            thisPlotstyle.color_policy |= ColorPolicy.EXPLICIT_COLOR
+            # print("thisPlotstyle.color_policy.value: " + str(thisPlotstyle.color_policy.value))
+            # thisPlotstyle.color_policy = thisPlotstyle.color_policy & (thisPlotstyle.color_policy & ~ColorPolicy.USE_OBJECT_COLOR)
+            # print("thisPlotstyle.color_policy.value: " + str(thisPlotstyle.color_policy.value))
 
-            # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
-            # thisPlotStyle.color_policy = thisPlotStyle.color_policy & (thisPlotStyle.color_policy & ~ColorPolicy.USE_OBJECT_COLOR)
-            # print("thisPlotStyle.color_policy.value: " + str(thisPlotStyle.color_policy.value))
-
-        thePentable.plot_style[thisPlotStyle.name] = thisPlotStyle
 
 if False:
     #=======================================
@@ -473,3 +466,5 @@ if False:
 thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
 json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
 json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
+
+thePentable.writeSamplerToFile(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"))

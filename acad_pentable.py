@@ -12,6 +12,8 @@ import uuid
 import enum
 import collections
 from typing import IO, Any, AnyStr, Union
+import operator
+import itertools
 
 def set_bit(v, index, x):
   """Set the index:th bit of v to 1 if x is truthy, else to 0, and return the new value."""
@@ -248,7 +250,6 @@ class PentableType(enum.Enum):
 
 
 class AcadPentable (object):
-
     def __init__(self, pentableFile=None):
         self._pentableType = PentableType.NAMED_PLOT_STYLES
         self._conservedHeaderBytes = {PentableType.NAMED_PLOT_STYLES: stbConstantHeader, PentableType.COLOR_DEPENDENT_PLOT_STYLES: ctbConstantHeader}[self._pentableType]
@@ -278,10 +279,8 @@ class AcadPentable (object):
 
         if pentableFile: self.loadFromFile(pentableFile)
 
-
     #the private version of _loadFromFile expects an open file handle as an argument (hopefully one that is opened in binary mode)
     def _loadFromFile(self, pentableFile):
-        # to do: allow passing either a file-like object or a path-like object (e.g. a string)
         headerBytes = pentableFile.read(60)
         self._conservedHeaderBytes = headerBytes[:headerBytes.find(b'\n') + 1 + len("pmzlibcodec")] #I suspect that this is a fixed magic string that we could store as a constant.
         # print("self._conservedHeaderBytes: " + repr(self._conservedHeaderBytes))
@@ -362,10 +361,8 @@ class AcadPentable (object):
         else:
             return self._loadFromFile(pentableFile)
 
+    #the private version of _writeToFile expects an open file handle as an argument (hopefully one that is opened in binary mode, and is writeable)
     def _writeToFile(self, pentableFile):
-        #to do: accept file-like object or a path-like object (current;y , we are only accepting a file-like object.
-
-
         # print("conservedHeaderBytes: " + conservedHeaderBytes.decode("unicode_escape"))
         # print("len(conservedHeaderBytes): " + str(len(conservedHeaderBytes)))
         # print("conservedHeaderBytes: " + repr(conservedHeaderBytes))
@@ -426,6 +423,153 @@ class AcadPentable (object):
         else:
             return self._writeToFile(pentableFile)
 
+    #the private version, expects an open, writeable  file handle as an argument
+    # the sampler is a lisp script that will prepare a dwg file to contain a bunh of sample lines assigned to each of
+    # the plotstyles.
+    # at the moment, this is fairly crude.  Ideally, we would like to spit out maybe a dwg file and a pdf.
+    # also, the lsip script is very simplistic - I have taken many shortcuts, but this suffices for the present need.
+    def _writeSamplerToFile(self, samplerFile):        
+        # some utility functions that I will need:
+        import decimal # I hope that python will only do the import the first time it encounters this statement.
+        def drange(x, y, jump):
+            while x < y:
+                yield float(x)
+                x = decimal.Decimal(x) + decimal.Decimal(jump)
+
+        #returns an autolisp expression that will evaluate to the specified string
+        def escapeStringForAutolisp(x: str) -> str:
+            # using conversion via list of character codes -- crude and inefficient, but effective and reliable.
+            return "(vl-list->string '(" + " ".join(map(str,x.encode())) + "))"
+
+        def toAutolispExpression(x) -> str:
+            if isinstance(x, str): return escapeStringForAutolisp(x)
+            elif isinstance(x, tuple): return "'(" + " ".join(map(toAutolispExpression, x)) + ")"
+            elif isinstance(x, PentableColor): return toAutolispExpression(x.sysvarString)
+            else: return str(x)
+
+        brightGreen  = PentableColor(red=0   ,  green=250   ,  blue=0     , colorMethod=ColorMethod.BY_COLOR      ) 
+        darkRed      = PentableColor(red=195 ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR      )
+        brightOrange = PentableColor(red=245 ,  green=145   ,  blue=50    , colorMethod=ColorMethod.BY_COLOR      )
+        white        = PentableColor(red=255 ,  green=255   ,  blue=255   , colorMethod=ColorMethod.BY_COLOR      ) 
+        black        = PentableColor(red=0   ,  green=0     ,  blue=0     , colorMethod=ColorMethod.BY_COLOR      ) 
+
+        thePentable = self
+
+        # this is the color that we will assign to each line.  
+        # this color will appear in the final plot if the plot style does not override the color.
+        # lineColor serves as a stand-in for the objects' "own" colors (the colors they would have in the absence of the plot style)        
+        lineColor = brightOrange 
+        textColor = black
+        nominalTextWidth = 1.5
+        lineLength = 0.5
+        textHeight = 0.04
+        textAngle = 0
+        textAlignment = "ML" #"MR" # the sttring to be passed as the "Justify" option to the "Text" command.  must be one of Left Center Right Align Middle Fit TL TC TR ML MC MR BL BC BR 
+        # note some of these keywords (e.g. "Align") launch into more point selection and changes the subsequent syntax of the Text command.
+        # We probably want to stick to the keywords that are a simple choice of behavior, not requiring special inputs.
+        
+        # positions relative to the station point, which will be different for each subsequent sample.
+        anchors = {}
+
+        anchors['lineStartPoint'] =   (0, 0, 0)
+        anchors['lineEndPoint']   =   tuple(map(operator.add, anchors['lineStartPoint'] ,  (lineLength     ,0,0)  ))
+        anchors['textPosition']   =   tuple(map(operator.add, anchors['lineEndPoint'] ,    (textHeight*1   ,0,0)  ))
+        
+        stationIntervalX = anchors['textPosition'][0] + nominalTextWidth - anchors['lineStartPoint'][0] + 0.15
+        stationIntervalY = 0.1
+        xRange = (1,7.5)
+        yRange = (1,10)
+        # we are assuming an 8.5 x 11 inch sheet
+        xValues = drange( xRange[0], xRange[1] + stationIntervalX, stationIntervalX )
+        yValues = drange( yRange[0], yRange[1] + stationIntervalY, stationIntervalY )
+        yValues = reversed(list(yValues))
+        stations = tuple(itertools.product(xValues, yValues))
+
+        defaultDesiredSysvarState = {
+            'CLAYER'         :'0',
+            'CELTYPE'        :'Continuous',
+            'CETRANSPARENCY' : 0,
+            'CELTSCALE'      : 1,
+            'TEXTSTYLE'      : 'Standard',
+        }
+
+        desiredSysvarStateForInsertingTheText = {
+            'CECOLOR'       : textColor,
+            'CPLOTSTYLE'    : "Normal",
+            'CELWEIGHT'     : -3, # lineweight: 'Default'
+        }
+
+        # first, erase all existing entities.
+        samplerFile.write('(command "._erase" (ssget "A") "")' + "\n") 
+
+        stationIndex =  0
+        # some variables to keep track whether we have run out of stations (in which case we re-use stations, which results in overlapping samples)
+        stationsRolloverCount = 0
+        lastEncounteredRolloverCount = 0
+        for plotStyle in thePentable.plot_style.values():
+            lastEncounteredRolloverCount = stationsRolloverCount
+
+            #add commands to the samplerScript to draw the sample of this plotSTyle.
+            #the sample will consist of a text object containing the name of the plot style,
+            # then a line with the line's plotstyleName set to the name of the plotstyle.
+            #the script is intended to be run in a dwg file that is configured to use the 
+            # pen table file corresponding to thePentable
+            thisStation = stations[stationIndex]
+            # print("thisStation: " + str(thisStation))
+
+            localAnchors = {key: tuple(map(operator.add, stations[stationIndex], value)) for (key,value) in anchors.items()}
+
+            annotationTextForThisSample = plotStyle.name
+
+            
+            desiredSysvarStateForInsertingTheLine = {
+                'CECOLOR'       : lineColor,
+                'CPLOTSTYLE'    : plotStyle.name,
+                'CELWEIGHT'     : -3, # lineweight: 'Default'
+            }
+
+
+            # The CPLOTSTYLE variable is not case sensitive, which is really a problem because plot style names are, in gneral, case sensitive.
+
+            samplerFile.write(
+                ""
+
+                + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in defaultDesiredSysvarState.items() ) 
+
+                + " ".join( '(setvar ' + toAutolispExpression(sysvarName) + " "   + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheLine.items() ) 
+                + "(command " 
+                +   '"._line"' + " " 
+                +   toAutolispExpression(localAnchors['lineStartPoint']) + " "
+                +   toAutolispExpression(localAnchors['lineEndPoint']) + " "
+                +   '""' 
+                + ")"  
+
+
+                + " ".join( '(setvar ' + toAutolispExpression(sysvarName)    + toAutolispExpression(sysvarValue)   + ')' for (sysvarName, sysvarValue) in desiredSysvarStateForInsertingTheText.items() ) 
+                + "(command " 
+                +   '"text"'  
+                +   toAutolispExpression('Justify') 
+                +   toAutolispExpression(textAlignment)
+                +   toAutolispExpression(localAnchors['textPosition']) + " "
+                +   toAutolispExpression(textHeight) + " "
+                +   toAutolispExpression(textAngle) + " "
+                +   toAutolispExpression(annotationTextForThisSample) + " "
+                + ")" + "\n"
+            )
+            
+            #increment the stationIndex before looping:
+            stationIndex = (stationIndex + 1) % len(stations)
+            if stationIndex == 0: stationsRolloverCount += 1
+        # print(samplerScript)
+        if lastEncounteredRolloverCount > 0:
+            print("warning: re-used stations up to " + str(lastEncounteredRolloverCount) + "times.")
+
+    def writeSamplerToFile(self, samplerFile: FileSpec):
+        if isinstance(samplerFile, (str, bytes, pathlib.Path)):
+            with open(samplerFile, 'w') as f:
+                return self._writeSamplerToFile(f)
+        else:
+            return self._writeSamplerToFile(samplerFile)
 
     def toRawDictionary(self) -> dict:
         return {
