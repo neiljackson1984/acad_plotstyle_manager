@@ -31,7 +31,8 @@ json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_fil
 
 # lineweightConceptReport()
 
-thePentable = AcadPentable()
+# thePentable = AcadPentable()
+thePentable = myPentable
 
 if False:
     thisPlotStyle = thePentable.addAPlotstyle(name="tester1")
@@ -463,7 +464,8 @@ if False:
         f.write(samplerScript)
 
 
-thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
+# thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
+thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name))
 json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
 json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
 
