@@ -13,6 +13,17 @@ import enum
 import collections
 from typing import IO, Any, AnyStr, Union
 
+def set_bit(v, index, x):
+  """Set the index:th bit of v to 1 if x is truthy, else to 0, and return the new value."""
+  mask = 1 << index   # Compute mask, an integer with just bit 'index' set.
+  returnValue = v & ~mask          # Clear the bit indicated by the mask (if x is False)
+  if x: returnValue |= mask         # If x was True, set the bit indicated by the mask.
+  return returnValue            # Return the result, we're done.
+
+def get_bit(v, index):
+    mask = 1 << index
+    return (1 if (v & mask) else 0)
+
 # to do: figure out how to escape double quotes and newlines in the string values in the pentable payload (would mainly be used in the description field).
 
 # color_policy bitmask values:
@@ -42,7 +53,7 @@ class ColorMethod(enum.IntEnum):
     NONE            = 200 # 0xc8
 
 class EndStyle(enum.IntEnum):
-        BUTT                 = 0 
+        BUTT                 = 0  
         SQUARE               = 1 
         ROUND                = 2 
         DIAMOND              = 3 
@@ -650,6 +661,9 @@ class PentableColor (object):
         self.green       = int( green  * 255 if isinstance(green , float) else green  )
         self.blue        = int( blue   * 255 if isinstance(blue  , float) else blue   )
     
+    def getRgbTuple(self):
+        return (self.red, self.green, self.blue)
+
     @property
     def humanReadableString(self) -> str:
         # return "red: {:3d}, green: {:3d}, blue: {:3d}, colorMethod: {:s} (acadRgbqColorInt: {:d})".format(self.red, self.green, self.blue, repr(self.colorMethod), self.acadRgbqColorInt)
@@ -675,6 +689,13 @@ class PentableColor (object):
         # Note: this is not yet fully implemented to be fully faithful to the CECOLOR variable's description in the documentation; I am blindly emitting the rgb form 
         # of the string rather than properly emitting the colr index or color books pecification as applicable.
         return "RGB:{:d},{:d},{:d}".format(self.red, self.green, self.blue)        
+
+class NullableColor(object):
+    def __init__(red: int, green: int, blue: int, isNull: bool = False):
+        self.red    = red
+        self.green  = green
+        self.blue   = blue
+        self.isNull = isNull
 
 class AcadPlotstyle (object):
     def __init__(self, owner: AcadPentable,
@@ -714,6 +735,11 @@ class AcadPlotstyle (object):
         self.end_style             = EndStyle(end_style)
         self.join_style            = JoinStyle(join_style)
 
+        self._explicitColor = NullableColor( *((self.color if self.mode_color == None else self.mode_color).getRgbTuple()), isNull=self.colorOverride ) 
+
+
+    )
+
 
         # the 'color' property is an signed 32-bit integer, which we interpret by converting it into a list of byte values (assuming little-endian and 2's complement)
         # the bytes are of the form [b, g, r, 195], where r, g, b are integers in the range [0,255] representing the usual rgb components.
@@ -744,6 +770,56 @@ class AcadPlotstyle (object):
             end_style             = rawDictionary['end_style'            ],
             join_style            = rawDictionary['join_style'           ]
         )
+
+    # for dealing with the PlotStyle.control_policy property and whether or not we make mode_color white,
+    # we have to take pains, because the mapping from these four controllable 1-bit levers
+    # to the observable behaviors which those bits control is non-intuitive, to say the least,
+    # and there are even some (easily) conceivable behaviors that are (infuriatingly) unacheivable.
+
+    # a control state is a 4-bit number encoding the four bits that we can control directly, namely:
+    # (modeColorIsWhite, EXPLICIT_OVERRIDE bit of color_policy (a.k.a. the eBit) , CONVERT_TO_GRAYSCALE bit of color_policy (aka gBit), ENABLE_DITHERING bit of color_policy (aka dBit))
+    # the bits of the ColorPolicy enum values are only very loosely related to the behaviors for which they are named 
+    # -- hence the need for this elaborate mapping system.
+    # We assign unique integer index i to each member of the control state space, constructed 
+    # thus: i = modeColorIsWhite*8 + eBit*4 + gBit*2 + dBit*1
+    # (note: each of these dimensions has 2 possible values, which we encode as 0 or 1, in the usual way)
+
+    # a behavior state is a member of the cartesian product between three dimensions:
+    #   colorOverride: this has three possible (imaginable) values: 
+    #       0: don't override
+    #       1: override to some color other than white
+    #       2: override to white
+    #   grayscale:
+    #       0: no
+    #       1: yes
+    #   dither:
+    #       0:no
+    #       1:yes
+    #
+    # We assign a unique integer index i to each member of the behavior state space, constructed 
+    # thus: i = colorOverride*4 + grayscale*2 + dither*1
+
+    # here is a map between controlStates and behaviorStates, worked out empirically.
+    # this is intended to be const
+    # notice that behavior states 8, 9, 10, and 11 (which correspond to colorOverride == 2), are unreachable (AutoCAD won't let you override to white)
+    colorControlStatesToColorBehaviorStates = {
+        0  : 4 ,
+        1  : 1 ,
+        2  : 6 ,
+        3  : 7 ,
+        4  : 4 ,
+        5  : 5 ,
+        6  : 1 ,
+        7  : 1 ,
+        8  : 0 ,
+        9  : 1 ,
+        10 : 2 ,
+        11 : 3 ,
+        12 : 0 ,
+        13 : 1 ,
+        14 : 1 ,
+        15 : 1 
+    } 
 
     def toRawDictionary(self) -> dict:
         return {
@@ -793,6 +869,191 @@ class AcadPlotstyle (object):
                 'join_style'            : repr(self.join_style)         
             }
         }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @property
+    def colorControlState(self) -> int:
+        # returnValue = 0
+        # returnValue = set_bit(returnValue, 3, self.modeColorIsWhite                                )
+        # returnValue = set_bit(returnValue, 2, self.color_policy & ColorPolicy.EXPLICIT_COLOR       )
+        # returnValue = set_bit(returnValue, 1, self.color_policy & ColorPolicy.CONVERT_TO_GRAYSCALE )
+        # returnValue = set_bit(returnValue, 0, self.color_policy & ColorPolicy.ENABLE_DITHERING     )
+        # return returnValue
+
+        #or, equivalently:
+        return (
+               ( 8 if self.modeColorIsWhite                                 else 0 )
+            +  ( 4 if self.color_policy & ColorPolicy.EXPLICIT_COLOR        else 0 )
+            +  ( 2 if self.color_policy & ColorPolicy.CONVERT_TO_GRAYSCALE  else 0 )
+            +  ( 1 if self.color_policy & ColorPolicy.ENABLE_DITHERING      else 0 )
+        )
+
+
+    @colorControlState.setter
+    def colorControlState(self, x):
+        
+        self.color_policy = (
+              (ColorPolicy.EXPLICIT_COLOR        if get_bit(x,2) else ColorPolicy(0))
+            | (ColorPolicy.CONVERT_TO_GRAYSCALE  if get_bit(x,1) else ColorPolicy(0))
+            | (ColorPolicy.ENABLE_DITHERING      if get_bit(x,0) else ColorPolicy(0))
+        )
+
+        if bool(self.modeColorIsWhite) != bool(get_bit(x, 3)):
+            print("warning: in order to achieve the requested colorControl
+
+        
+
+
+
+
+
+
+
+
+
+
+    @property
+    def modeColorIsWhite(self) -> bool:
+        return (
+            (self.mode_color.red == 255) 
+            and (self.mode_color.green == 255) 
+            and (self.mode_color.blue == 255 )
+        )
+
+    def setModeColorToWhite(self):
+        self.mode_color.setRgb(255,255,255)
+
+    def setModeColorRgb(self, *args):
+        self.mode_color.setRgb(*args)
+
+    
+
+    @property 
+    def explicitlyOverrideTheColor(self) -> bool:
+        
+
+    @explicitlyOverrideTheColor.setter
+    def explicitlyOverrideTheColor(self, x: bool):
+
+
+
+
+
+    @property 
+    def grayscale(self) -> bool:
+        # a lookup table for all possible values of self.color_policy, 
+        # which seems to be the only part of a plotStyle that has any bearing on whether AutoCAD performs the "convert to grayscale" behavior.
+        # return (
+        #     {
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): True,
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): False
+        #     }
+        # )[self.color_policy]
+        return ( 
+            {
+                (False , False , False): False ,
+                (False , False , True ): False ,
+                (False , True  , False): True  ,
+                (False , True  , True ): True  ,
+                (True  , False , False): False ,
+                (True  , False , True ): False ,
+                (True  , True  , False): False ,
+                (True  , True  , True ): False
+
+            }[(
+                bool(self.color_policy & ColorPolicy.EXPLICIT_COLOR         ),
+                bool(self.color_policy & ColorPolicy.CONVERT_TO_GRAYSCALE   ),
+                bool(self.color_policy & ColorPolicy.ENABLE_DITHERING       )
+            )]
+        )
+
+    @grayscale.setter
+    def grayscale(self, x: bool) -> bool:
+
+        return self.grayscale
+
+
+    @property 
+    def dither(self) -> bool:
+        # a lookup table for all possible values of self.color_policy, 
+        # which seems to be the only part of a plotStyle that has any bearing on whether the AutoCAD does the "dither" behavior.
+        # My only observable for deciding whether "AutoCAD does the "dither" behavior" is the On/Off readout in the pen table editor ui.
+        # In my tests, niether the ENABLE_DITHERING bit nor the value of the On/Off "Dither" readout in the pentable ui
+        # had any coprrespondence with anything in autoCAD on the screen or in the pdf plot.
+        # therefore, I have designed this function to return the "Dither" status that the pentable editor ui would show the user,
+        # which (if the other prperties are any guide) might not be quite the same thing as the "dither" behavior that AutoCAD would do while plotting
+        # (which, I imagine, only happens with certain special plotter configurations and plotter drivers, but does not happen with the default AutoCAD pdf printer drivers.)
+        #
+        # return (
+        #     {
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 0 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 0 ): False,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 0 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 0 ): True,
+        #        (ColorPolicy.EXPLICIT_COLOR & 1 )|(ColorPolicy.CONVERT_TO_GRAYSCALE & 1 )|(ColorPolicy.ENABLE_DITHERING & 1 ): True
+        #     }
+
+        # )[self.color_policy]
+        return ( 
+            {
+                (False , False , False): False ,
+                (False , False , True ): True  ,
+                (False , True  , False): False ,
+                (False , True  , True ): True  ,
+                (True  , False , False): False ,
+                (True  , False , True ): True  ,
+                (True  , True  , False): True  ,
+                (True  , True  , True ): True
+
+            }[(
+                bool(self.color_policy & ColorPolicy.EXPLICIT_COLOR         ),
+                bool(self.color_policy & ColorPolicy.CONVERT_TO_GRAYSCALE   ),
+                bool(self.color_policy & ColorPolicy.ENABLE_DITHERING       )
+            )]
+        )
+    
+    @dither.setter
+    def dither(self, x: bool) -> bool:
+        if x != self.dither:
+            
+
+        return self.dither
+
 
 
 
@@ -869,41 +1130,41 @@ class AcadPlotstyle (object):
 #                              ||                                       || and gray of any intensity                              |
 #                              ||                                       || corrsponding to                                        |
 #                              ||                                       || "convert to grayscale:on"                              |
-#   |===========|==============||========|===========|==================||========|===========|==================||===============|
-#   | rgb color | color_policy || Dither | Grayscale | Color            || Dither | Grayscale | color was over-  || subjectively  |               
-#   |           |              ||        |           |                  ||        |           | ridden by the    || appreciated   |               
-#   |           |              ||        |           |                  ||        |           | plot style       || color         |        
-#   |-----------|--------------||--------|-----------|------------------||--------|-----------|------------------||---------------|
-#   | 00FA00    | egd          || Off    | Off       | Use object color || ???    | Off       | overridden       || bright green  |                
-#   | 00FA00    | egD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
-#   | 00FA00    | eGd          || Off    | On        | 0,250,0          || ???    | On        | overridden       || light gray    |              
-#   | 00FA00    | eGD          || On     | On        | 0,250,0          || ???    | On        | overridden       || light gray    |                                                          
-#   | 00FA00    | Egd          || Off    | Off       | 0,250,0          || ???    | Off       | overridden       || bright green  |                                       
-#   | 00FA00    | EgD          || On     | Off       | 0,250,0          || ???    | Off       | overridden       || bright green  |                              
-#   | 00FA00    | EGd          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                                                        
-#   | 00FA00    | EGD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
-#   |-----------|--------------||--------|-----------|------------------||--------|-----------|------------------||---------------|  
-#   | FFFFFF    | egd          || Off    | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
-#   | FFFFFF    | egD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                   
-#   | FFFFFF    | eGd          || Off    | On        | Use object color || ???    | On        | use object color || dark gray     |                   
-#   | FFFFFF    | eGD          || On     | On        | Use object color || ???    | On        | use object color || dark gray     |                                                   
-#   | FFFFFF    | Egd          || Off    | Off       | Use object color || ???    | Off       | use object color || dark red      |                                     
-#   | FFFFFF    | EgD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                      
-#   | FFFFFF    | EGd          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                                         
-#   | FFFFFF    | EGD          || On     | Off       | Use object color || ???    | Off       | use object color || dark red      |                                                
-#   |===========|==============||========|===========|==================||========|===========|==================||===============|   
+#   |===========|==============||==================|========|===========||==================|========|===========||===============|
+#   | rgb color | color_policy || Color            | Dither | Grayscale || color was over-  | Dither | Grayscale || subjectively  |               
+#   |           |              ||                  |        |           || ridden by the    |        |           || appreciated   |               
+#   |           |              ||                  |        |           || plot style       |        |           || color         |        
+#   |-----------|--------------||------------------|--------|-----------||------------------|--------|-----------||---------------|
+#   | 00FA00    | egd          || Use object color | Off    | Off       || overridden       | ???    | Off       || bright green  |                
+#   | 00FA00    | egD          || Use object color | On     | Off       || use object color | ???    | Off       || dark red      |                   
+#   | 00FA00    | eGd          || 0,250,0          | Off    | On        || overridden       | ???    | On        || light gray    |              
+#   | 00FA00    | eGD          || 0,250,0          | On     | On        || overridden       | ???    | On        || light gray    |                                                          
+#   | 00FA00    | Egd          || 0,250,0          | Off    | Off       || overridden       | ???    | Off       || bright green  |                                       
+#   | 00FA00    | EgD          || 0,250,0          | On     | Off       || overridden       | ???    | Off       || bright green  |                              
+#   | 00FA00    | EGd          || Use object color | On     | Off       || use object color | ???    | Off       || dark red      |                                                                        
+#   | 00FA00    | EGD          || Use object color | On     | Off       || use object color | ???    | Off       || dark red      |                   
+#   |-----------|--------------||------------------|--------|-----------||------------------|--------|-----------||---------------|  
+#   | FFFFFF    | egd          || Use object color | Off    | Off       || use object color | ???    | Off       || dark red      |                   
+#   | FFFFFF    | egD          || Use object color | On     | Off       || use object color | ???    | Off       || dark red      |                   
+#   | FFFFFF    | eGd          || Use object color | Off    | On        || use object color | ???    | On        || dark gray     |                   
+#   | FFFFFF    | eGD          || Use object color | On     | On        || use object color | ???    | On        || dark gray     |                                                   
+#   | FFFFFF    | Egd          || Use object color | Off    | Off       || use object color | ???    | Off       || dark red      |                                     
+#   | FFFFFF    | EgD          || Use object color | On     | Off       || use object color | ???    | Off       || dark red      |                                      
+#   | FFFFFF    | EGd          || Use object color | On     | Off       || use object color | ???    | Off       || dark red      |                                                         
+#   | FFFFFF    | EGD          || Use object color | On     | Off       || use object color | ???    | Off       || dark red      |                                                
+#   |===========|==============||==================|========|===========||==================|========|===========||===============|   
 #
 #
-#   | unachievable  :                                                   ||                                          
-#   |===========|==============||========|===========|==================||  
-#   | 00FA00    |              || Off    | On        | Use object color ||
-#   | 00FA00    |              || On     | On        | Use object color ||
-#   |-----------|              ||--------|-----------|------------------||
-#   | FFFFFF    |              || Off    | Off       | 255,255,255      ||                                    
-#   | FFFFFF    |              || Off    | On        | 255,255,255      ||                                                                                    
-#   | FFFFFF    |              || On     | Off       | 255,255,255      ||                                  
-#   | FFFFFF    |              || On     | On        | 255,255,255      || 
-#   |-----------|--------------||--------|-----------|------------------||
+#   | unachievable  :                              |                     |                                          
+#   |===========|==============||==================|========|===========||  
+#   | 00FA00    |              || Use object color | Off    | On        ||
+#   | 00FA00    |              || Use object color | On     | On        ||
+#   |-----------|              ||------------------|--------|-----------||
+#   | FFFFFF    |              || 255,255,255      | Off    | Off       ||                                    
+#   | FFFFFF    |              || 255,255,255      | Off    | On        ||                                                                                    
+#   | FFFFFF    |              || 255,255,255      | On     | Off       ||                                  
+#   | FFFFFF    |              || 255,255,255      | On     | On        || 
+#   |-----------|--------------||------------------|--------|-----------||
 #
 # the user interface states marked "unachievable" above cannot be acheived
 # by programmatically manipulating the plotStyle.color_policy value

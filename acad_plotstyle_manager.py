@@ -23,7 +23,7 @@ print("input_acad_pen_table_file_path is " + str(input_acad_pen_table_file_path)
 print("output_human_readable_pen_table_file_path is " + str(output_human_readable_pen_table_file_path))
 
 
-
+ 
 myPentable = AcadPentable(input_acad_pen_table_file_path)
 json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen_table_file_path, "w"), indent=4)
 json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name).with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json")  , "w"), indent=4)
@@ -152,7 +152,11 @@ for (color, colorPolicy) in itertools.product((colorExplicitlyDefinedInThePentab
         + " " + predictedValueOfTheDitheringFieldInTheUserInterface 
         + " " + predictedValueOfTheConvertToGrayscaleFieldInTheUserInterface
         # + "\t\t" + thisPlotstyle.mode_color.htmlCode 
-        + "\t"*6
+        + "\t"*6 
+        + "thisPlotstyle.explicitlyOverrideTheColor: " + str(thisPlotstyle.explicitlyOverrideTheColor) + "  "
+        + "thisPlotstyle.grayscale: " + str(thisPlotstyle.grayscale) + "  "
+        + "thisPlotstyle.dither: " + str(thisPlotstyle.dither) + "  "
+
         + str(colorPolicy)
     )
 
