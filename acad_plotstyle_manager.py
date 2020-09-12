@@ -671,37 +671,51 @@ modelSpace = doc.modelspace()
 inch = 1.0
 millimeter = inch/25.4
 
-gridInterval = 5 * millimeter
+gridInterval = 0.1 * inch
 
-def drawSquareIcon(modelSpace, center):
-    size = gridInterval*0.7
-    vertices =[            
+def drawIcon(modelSpace, center, iconType="square"):
+    size = gridInterval*0.5
+    numberOfNestedCopies = 1
+    nonSquareSizeAdjustmentFactor = 0.65
+
+    squareVertices =[            
         (-1/2, -1/2),
         (1/2, -1/2),
         (1/2, 1/2),
         (-1/2,1/2)
     ]
-    
+
     #close it:
-    vertices.append(vertices[0])
+    squareVertices.append(squareVertices[0])
+    
+    for i in range(numberOfNestedCopies):
+        scaledSize = size*(1 - i/numberOfNestedCopies)
 
-    #scale by size and move to center
-    vertices = tuple(
-        tuple(map(operator.add, center,
-            (
-                coordinate*size
-                for coordinate in vertex
+        if iconType=="square":
+            #scale by size and move to center
+            scaledVertices = tuple(
+                tuple(map(operator.add, center,
+                    (
+                        coordinate*scaledSize
+                        for coordinate in vertex
+                    )
+                ))
+                for vertex in squareVertices
             )
-        ))
-        for vertex in vertices
-    )
+            # for i in range(len(scaledVertices) - 1):
+            #     modelSpace.add_line(scaledVertices[i], scaledVertices[i+1])
 
-    for i in range(len(vertices) - 1):
-        modelSpace.add_line(vertices[i], vertices[i+1])
+            hatch = modelSpace.add_hatch()
+            hatch.paths.add_polyline_path(scaledVertices)
+        else:
+            scaledSize *= nonSquareSizeAdjustmentFactor
+            # modelSpace.add_circle(center=center, radius=scaledSize/2)
+            hatch = modelSpace.add_hatch()
+            hatch.paths.add_polyline_path([
+                (scaledSize/2 + center[0],0+center[1],1),(-scaledSize/2+center[0],0+center[1],1),(scaledSize/2+center[0],0+center[1])
+            ])
+        
 
-def drawCircleIcon(modelSpace, center):
-    size = gridInterval*0.6
-    modelSpace.add_circle(center=center, radius=size/2)
 
 
 rowIndex = 0
@@ -711,12 +725,16 @@ rowIndex = 0
 # every possible permutation in the acad color set means that the (3)-pattern combinations appear once, the (1,2)-pattern combinations appear 3 times,
 # and the (1,1,1)-pattern combinations appear 6 times.
 
+magnitudes = range(len(standardMagnitudes))
+# magnitudes = standardMagnitudes
+
+
 for (frequency, combinations) in indexifiedMagnitudeCombinationsCollectedByFrequency:
         if frequency == 1:
             #in this case, we are dealing with combinations of the form (a,a,a)
             for combination in combinations:
                 rowY = -gridInterval * rowIndex
-                drawSquareIcon(modelSpace, ( combination[0]*gridInterval , rowY))
+                drawIcon(modelSpace, ( magnitudes[combination[0]]*gridInterval , rowY))
                 rowIndex += 1
         elif frequency == 3:
             #in this case, we are dealing with a combination of the form (a, b, b) (order irrrelevant)
@@ -731,10 +749,10 @@ for (frequency, combinations) in indexifiedMagnitudeCombinationsCollectedByFrequ
                 key=sorted
             ):
                 rowY = -gridInterval * rowIndex
-                squareIconPosition = (doubleElement * gridInterval, rowY)
-                circleIconPosition = (singleElement * gridInterval, rowY)
-                drawSquareIcon(modelSpace, squareIconPosition)
-                drawCircleIcon(modelSpace, circleIconPosition)
+                squareIconPosition = (magnitudes[doubleElement] * gridInterval, rowY)
+                circleIconPosition = (magnitudes[singleElement] * gridInterval, rowY)
+                drawIcon(modelSpace, squareIconPosition)
+                drawIcon(modelSpace, circleIconPosition, "circle")
                 modelSpace.add_line(start=squareIconPosition, end=circleIconPosition)
                 rowIndex += 1            
   
@@ -761,12 +779,12 @@ for (frequency, combinations) in indexifiedMagnitudeCombinationsCollectedByFrequ
                 )
             ):
                 rowY = -gridInterval * rowIndex
-                leftSquarePosition  = (smallestElement*gridInterval , rowY)
-                rightSquarePosition = (largestElement*gridInterval , rowY)
-                drawSquareIcon(modelSpace, leftSquarePosition)
-                drawSquareIcon(modelSpace, rightSquarePosition)
+                leftSquarePosition  = (magnitudes[smallestElement]*gridInterval , rowY)
+                rightSquarePosition = (magnitudes[largestElement]*gridInterval , rowY)
+                drawIcon(modelSpace, leftSquarePosition)
+                drawIcon(modelSpace, rightSquarePosition)
                 for middleElement in middleElements:
-                    drawCircleIcon(modelSpace, (middleElement*gridInterval , rowY))
+                    drawIcon(modelSpace, (magnitudes[middleElement]*gridInterval , rowY), "circle")
                 modelSpace.add_line(start=leftSquarePosition, end=rightSquarePosition)
                 rowIndex += 1
 
