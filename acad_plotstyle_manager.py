@@ -672,7 +672,7 @@ inch = 1.0
 millimeter = inch/25.4
 
 gridInterval = 0.1 * inch
-xStationScaleFactor = 2.4
+xStationScaleFactor = 1 #2.4
 
 def drawIcon(modelSpace, center, iconType="square", color=None) -> list:
     newlyCreatedEntities = []
@@ -856,6 +856,92 @@ for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
 
 doc.set_modelspace_vport(height=20, center=(10, -10))
 
-doc.saveas(output_human_readable_pen_table_file_path.parent.joinpath('colorspace.dxf'))
+pathOfColorspaceDiagramDxfFile = output_human_readable_pen_table_file_path.parent.joinpath(str(uuid.uuid4()) + ".dxf")
+pathOfColorspaceDiagramDwgFile = pathOfColorspaceDiagramDxfFile.with_name(str(uuid.uuid4()) + ".dwg")
+doc.saveas(pathOfColorspaceDiagramDxfFile)
+
+import pythoncom
+import win32com.client
 
 
+acad = win32com.client.gencache.EnsureDispatch("AutoCAD.Application")
+mainDocument = acad.ActiveDocument
+
+# print("acad.ActiveDocument.ModelSpace.Name: " + acad.ActiveDocument.ModelSpace.Name )
+# acad.ActiveDocument.Blocks.Item("*Model_Space")
+for entity in mainDocument.ModelSpace:
+    entity.Delete()
+
+# insertionPoint = VARIANT(VT_VARIANT, [0.0,0.0,0.0])
+# acad.ActiveDocument.Utility.CreateTypedArray(insertionPoint, 5, 0.0,0.0,0.0)
+# insertionPoint = acad.ActiveDocument.ActiveUCS.Origin
+# insertionPoint = acad.ActiveDocument.ActiveViewport.Target
+
+
+
+insertionPoint = win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, (0,0,0))
+print("insertionPoint: " + str(insertionPoint))
+# blockReference = acad.ActiveDocument.ModelSpace.InsertBlock((0.0,0.0,0.0), str(pathOfColorspaceDiagramDxfFile.resolve()), 0.0, 0.0, 0.0, 0.0)
+# blockReference = acad.ActiveDocument.ModelSpace.InsertBlock(
+#     insertionPoint,
+#     str(pathOfColorspaceDiagramDxfFile),
+#     1.0,
+#     1.0,
+#     1.0, 
+#     0.0
+# )
+# throws pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, 'AutoCAD.Application', 'Invalid drawing file header', 'C:\\Program Files\\Autodesk\\AutoCAD 2021\\HELP\\OLE_ERR.CHM', -2145386307, -2145386307), None)
+
+ 
+# blockReference = acad.ActiveDocument.Import(
+#     str(pathOfColorspaceDiagramDxfFile),
+#     insertionPoint, 
+#     1.0
+# ) # this works, but inserts (exploded) into the active space
+# #doesn't work
+
+# print("pathOfColorspaceDiagramDxfFile.stem: " + pathOfColorspaceDiagramDxfFile.stem)
+# uniqueName = str(uuid.uuid4())
+
+# try:
+#     acad.ActiveDocument.Blocks.Item(pathOfColorspaceDiagramDxfFile.stem).Name = uniqueName
+# except Exception as e:
+#     pass    
+
+
+
+# acad.ActiveDocument.SendCommand(".-insert \"" + str(pathOfColorspaceDiagramDxfFile.resolve()) + "\"\n0,0,0 1 1 0\n")
+# print("inserted")
+# acad.ActiveDocument.Blocks.Item(pathOfColorspaceDiagramDxfFile.stem).Name = uniqueName
+# acad.ActiveDocument.Update()
+# for blockDefinition in acad.ActiveDocument.Blocks:
+#     for entity in blockDefinition:
+#         try:
+#             if(entity.ObjectName == "AcDbBlockReference"  and entity.EffectiveName.upper == uniqueName.upper):
+#                 print( "found and deleted a reference whose name is: ")
+#                 print(entity.EffectiveName)
+#                 entity.Delete()
+                
+#         except Exception as e:
+#             pass
+
+dxfDocument = acad.Documents.Open(str(pathOfColorspaceDiagramDxfFile.resolve()), True)
+dxfDocument.SaveAs(str(pathOfColorspaceDiagramDwgFile), 64)
+dxfDocument.Close(False)
+blockReference = mainDocument.ModelSpace.InsertBlock(
+    insertionPoint,
+    str(pathOfColorspaceDiagramDwgFile),
+    1.0,
+    1.0,
+    1.0, 
+    0.0
+)
+
+os.remove(pathOfColorspaceDiagramDxfFile)
+os.remove(pathOfColorspaceDiagramDwgFile)
+
+# newlyCreatedBlockDefinition=blockReference.Document.Blocks.Item(blockReference.Name)
+
+# newlyCreatedBlockDefinition.Name = str(uuid.uuid4())
+
+ 
