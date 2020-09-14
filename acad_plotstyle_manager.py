@@ -672,7 +672,8 @@ inch = 1.0
 millimeter = inch/25.4
 
 gridInterval = 0.1 * inch
-xStationScaleFactor = 1 #2.4
+xStationScaleFactor = 1.3 #2.4
+textHeight = 0.1*gridInterval
 
 def drawIcon(modelSpace, center, iconType="square", color=None) -> list:
     newlyCreatedEntities = []
@@ -731,7 +732,7 @@ accumulatedDedendum = 0
 # and the (1,1,1)-pattern combinations appear 6 times.
 
 magnitudes = range(len(standardMagnitudes))
-# magnitudes = standardMagnitudes
+#magnitudes = standardMagnitudes
 
 if False:
     for (frequency, combinations) in indexifiedMagnitudeCombinationsCollectedByFrequency:
@@ -800,7 +801,7 @@ for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
         sorted(
             deOrderedIndexifiedRgbValues,
             # key = lambda x: (not min(x) == max(x), min(x), max(x)) 
-            key = lambda x: (not min(x) == max(x), max(x), min(x)) 
+            key = lambda x: (not min(x) == max(x), -max(x), min(x)) 
         ),
         key=lambda x: (not min(x) == max(x), min(x), max(x))
     )
@@ -813,6 +814,22 @@ for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
 
     for middlePoint in middlePoints:
         drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor , rowY), "circle")
+        
+        # middlePointLabelText = "{:d}".format(standardMagnitudes[middlePoint])
+        
+        leftField   = "({:d})".format(standardMagnitudes[lowEnd])
+        middleField = "{:d}".format(standardMagnitudes[middlePoint])
+        rightField  = "({:d})".format(standardMagnitudes[highEnd])
+        leftPadding = " " * max(len(rightField) - len(leftField), 0)
+        rightPadding = " " * max(len(leftField) - len(rightField), 0)
+        middlePointLabelText = leftPadding + leftField + " " + middleField + " " + rightField + rightPadding
+        
+        
+        
+        modelSpace.add_text(middlePointLabelText,dxfattribs={'height':textHeight} ).set_pos(
+                (magnitudes[middlePoint]*gridInterval*xStationScaleFactor, rowY - 0.4*gridInterval),
+                align='MIDDLE_CENTER'
+            )
 
     for extremePoint in set((lowEnd, highEnd)):
         drawIcon(modelSpace, (magnitudes[extremePoint]*gridInterval*xStationScaleFactor , rowY))
@@ -823,7 +840,7 @@ for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
     maximumDedendum = 0
     
     for middlePoint in middlePoints:
-        dedendum = 0
+        dedendum = 0.3
         for colorIndex, rgb in filter(
             lambda item : sorted(
                 map(
@@ -833,6 +850,14 @@ for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
             ) == sorted((lowEnd, middlePoint, highEnd)),
             aciToRgb.items() 
         ):
+            lmhMap = {}
+            lmhMap[highEnd]     = 'C' # 'H'
+            lmhMap[middlePoint] = 'B' # 'M'
+            lmhMap[lowEnd]      = 'A' # 'L'
+            lmhSignature = "".join(map(lambda x: lmhMap[standardMagnitudes.index(x)], rgb))
+            # colorSampleLabelText = "{:3d}: {:3d}, {:3d}, {:3d} {:s}".format(colorIndex, *rgb, lmhSignature)
+            colorSampleLabelText = "{:3d}:{:s}".format(colorIndex, lmhSignature)
+            
             dedendum += 0.5
             dedendedRowY = rowY - gridInterval*dedendum
 
@@ -840,7 +865,11 @@ for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
             for entity in drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.06*gridInterval , dedendedRowY), "circle"):
                 entity.dxf.color = colorIndex
 
-            modelSpace.add_text("{:3d}: {:3d}, {:3d}, {:3d}".format(colorIndex, *rgb),dxfattribs={'height':0.1*gridInterval} ).set_pos(
+            # modelSpace.add_text("{:3d}: {:3d}, {:3d}, {:3d}".format(colorIndex, *rgb),dxfattribs={'height':textHeight} ).set_pos(
+            #     (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.3 * gridInterval, dedendedRowY),
+            #     align='MIDDLE_LEFT'
+            # )
+            modelSpace.add_text(colorSampleLabelText,dxfattribs={'height':textHeight} ).set_pos(
                 (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.3 * gridInterval, dedendedRowY),
                 align='MIDDLE_LEFT'
             )
@@ -849,7 +878,7 @@ for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
         
 
 
-    accumulatedDedendum += maximumDedendum + 1
+    accumulatedDedendum = math.ceil(accumulatedDedendum + maximumDedendum + 1)
     rowIndex += 1
 
 
