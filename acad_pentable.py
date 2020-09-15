@@ -1126,7 +1126,7 @@ class PentableColor (object):
         inch = 1.0
         millimeter = inch/25.4
         gridInterval = 0.1 * inch
-        xStationScaleFactor = 2 #1.3 #2.4
+        xStationScaleFactor = 2.1 #1.3 #2.4
         textHeight = 0.25*gridInterval
 
         def drawIcon(modelSpace, center, iconType="square", color=None) -> list:
@@ -1214,12 +1214,13 @@ class PentableColor (object):
                 rightField  = "({:d})".format(standardMagnitudes[highEnd])
                 leftPadding = " " * max(len(rightField) - len(leftField), 0)
                 rightPadding = " " * max(len(leftField) - len(rightField), 0)
-                middlePointLabelText = leftPadding + leftField + " " + middleField + " " + rightField + rightPadding
+                # middlePointLabelText = leftPadding + leftField + " " + middleField + " " + rightField + rightPadding
+                middlePointLabelText = middleField 
                 
                 
                 
                 modelSpace.add_text(middlePointLabelText,dxfattribs={'height':textHeight} ).set_pos(
-                        (magnitudes[middlePoint]*gridInterval*xStationScaleFactor, rowY - 0.4*gridInterval),
+                        (magnitudes[middlePoint]*gridInterval*xStationScaleFactor, rowY - 0.5*gridInterval),
                         align='MIDDLE_CENTER'
                     )
 
@@ -1232,7 +1233,7 @@ class PentableColor (object):
             maximumDedendum = 0
             
             for middlePoint in middlePoints:
-                dedendum = 0.3
+                dedendum = 0.5
                 for colorIndex, rgb in filter(
                     lambda item : sorted(
                         map(
@@ -1243,8 +1244,8 @@ class PentableColor (object):
                     aciToRgb.items() 
                 ):
                     lmhMap = {}
-                    lmhMap[highEnd]     = 'C' # 'H'
                     lmhMap[middlePoint] = 'B' # 'M'
+                    lmhMap[highEnd]     = 'C' # 'H'
                     lmhMap[lowEnd]      = 'A' # 'L'
                     lmhSignature = "".join(map(lambda x: lmhMap[standardMagnitudes.index(x)], rgb))
                     # colorSampleLabelText = "{:3d}: {:3d}, {:3d}, {:3d} {:s}".format(colorIndex, *rgb, lmhSignature)
