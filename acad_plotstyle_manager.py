@@ -470,446 +470,438 @@ json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_
 json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
 
 thePentable.writeSamplerToFile(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"))
-import tabulate
-import pprint
-collectedRgbValues = (
-    tuple(
-        map(
-            lambda i: sorted(set(x[i] for x in aciToRgb.values())),
-            range(len(tuple(aciToRgb.values())[0]))
-        )
-    )
-)
-
-print("Here is the complete list of red, green and blue values (respectively) among all the aci colors: " + "\n"
-    + tabulate.tabulate(collectedRgbValues)
-)
-
-
-
-
-prettyPrinter = pprint.PrettyPrinter(indent=4, depth = 4, width=24)
-
-# prettyPrinter.pprint(
-#     tuple(
-#         (
-#             redValue, 
-#             sorted(
-#                 tuple(
-#                     (greenValue, blueValue)
-#                     for (r, greenValue, blueValue) in aciToRgb.values()
-#                     if r == redValue
-#                 )
-#             )
-#         ) 
-#         for redValue in collectedRgbValues[0] 
-#     )
-# )
-
-
-#each member of each rgb value is replaced with the index at which that member appears in the list of standard values
-standardMagnitudes=sorted(collectedRgbValues[0])
-indexifiedRgbValues = tuple(map(
-    lambda x:
-        tuple(map(
-            lambda y: standardMagnitudes.index(y),
-            x
-        )),
-    aciToRgb.values()
-))
-uniqueIndexifiedRgbValues = set(indexifiedRgbValues)
-
-deOrderedIndexifiedRgbValues = tuple(
-    sorted(
-        set(
-            tuple(
-                map(tuple, map(sorted, 
-                    indexifiedRgbValues
-                ))
-            )
-        )
-    )
-)
-
-
-print("indexifiedRgbValues: ")
-print(tabulate.tabulate(
-    map(
-        lambda a,b: (str(a)+":", *b),
-        *((lambda x: (range(len(x)), x))(indexifiedRgbValues))
-    )
-))
-
-print("sorted(indexifiedRgbValues): ")
-print(tabulate.tabulate(
-    map(
-        lambda a,b: (str(a)+":", *b),
-        *((lambda x: (range(len(x)), x))(sorted(indexifiedRgbValues) ))
-    )
-))
-
-print("sorted(set(indexifiedRgbValues)) with frequencies, sorted by frequency: ")
-print(tabulate.tabulate(
-    map(
-        lambda a,b: (str(a)+":", *b),
-        *((lambda x: (range(len(x)), x))(
-            tuple(sorted(
-                map(
-                    lambda x: ( 
-                        len(
-                            tuple(
-                                0 for y in indexifiedRgbValues
-                                if y==x 
-                            )
-                        ),
-                        *x
-                    ),
-                    sorted(set(indexifiedRgbValues)) 
-                )
-            ))
-        ))
-    )
-))
-
-print("deOrderedIndexifiedRgbValues: ")
-print(tabulate.tabulate(
-    map(
-        lambda a,b: (str(a)+":", *b),
-        *((lambda x: (range(len(x)), x))(deOrderedIndexifiedRgbValues))
-    )
-))
-
-deOrderedIndexifiedRgbValuesWithCounts = tuple(map(
-    lambda x:
-        (
-            len(tuple(
-                0 for y in set(indexifiedRgbValues)
-                if sorted(y) == sorted(x)
-            )),
-            *x
-        ),
-    deOrderedIndexifiedRgbValues
-))
-
-
-print("lengths of colledctedRgbValues: " + str(tuple(map(len, collectedRgbValues))))
-
-indexifiedMagnitudeCombinationsCollectedByFrequency = tuple(
-    (
-        frequency,
-        tuple(x[1:] 
-            for x in deOrderedIndexifiedRgbValuesWithCounts
-            if x[0] == frequency
-        )    
-    ) 
-    for frequency in set(
-        tuple(map(
-            lambda x: x[0],
-            deOrderedIndexifiedRgbValuesWithCounts
-        ))
-    )
-)
-
-print("indexifiedMagnitudeCombinationsCollectedByFrequency: ")
-print(
-    "\n".join(
-        map(
-            lambda x:
-                "magnitude combinations that appear " + str(x[0]) + " times: " + "\n"
-                + "\t" +  "There are " + str(len(x[1])) + " such magnitude combinations:" + "\n" 
-                + "\t" + "and they use " + str(len(set(itertools.chain(*x[1])))) + " of the magnitudes, namely " 
-                + str(
-                    sorted(
-                        set(itertools.chain(*x[1]))
-                    )
-                ) +  "\n"
-                + "\t" + "\n\t".join(
-                    map(str, x[1])
-                ),
-            indexifiedMagnitudeCombinationsCollectedByFrequency
-        )
-    )
-)
-
-
-print("indexifiedMagnitudeCombinationsCollectedByFrequency, with different inner sorting: ")
-print(
-    "\n".join(
-        map(
-            lambda x:
-                "magnitude combinations that appear " + str(x[0]) + " times: " + "\n"
-                + "\t" +  "There are " + str(len(x[1])) + " such magnitude combinations:" + "\n" 
-                + "\t" + "and they use " + str(len(set(itertools.chain(*x[1])))) + " of the magnitudes, namely " 
-                + str(
-                    sorted(
-                        set(itertools.chain(*x[1]))
-                    )
-                ) +  "\n"
-                + "\t" 
-                # + "\n\t".join(map(str, 
-                #     sorted(
-                #         x[1],
-                #         key= lambda x: (x[0], x[2], x[1])
-                #     )
-                # ))
-                + tabulate.tabulate(
-                    sorted(
-                        x[1],
-                        key= lambda x: (x[0], x[2], x[1])
-                    )
-                )
-                ,
-            indexifiedMagnitudeCombinationsCollectedByFrequency
-        )
-    )
-)
-
-import ezdxf;
-doc = ezdxf.new(dxfversion="R2010")
-modelSpace = doc.modelspace()
-
-inch = 1.0
-millimeter = inch/25.4
-
-gridInterval = 0.1 * inch
-xStationScaleFactor = 1.3 #2.4
-textHeight = 0.1*gridInterval
-
-def drawIcon(modelSpace, center, iconType="square", color=None) -> list:
-    newlyCreatedEntities = []
-    size = gridInterval*0.5
-    numberOfNestedCopies = 1
-    nonSquareSizeAdjustmentFactor = 0.65
-
-    squareVertices =[            
-        (-1/2, -1/2),
-        (1/2, -1/2),
-        (1/2, 1/2),
-        (-1/2,1/2)
-    ]
-
-    #close it:
-    squareVertices.append(squareVertices[0])
-    
-    for i in range(numberOfNestedCopies):
-        scaledSize = size*(1 - i/numberOfNestedCopies)
-
-        if iconType=="square":
-            #scale by size and move to center
-            scaledVertices = tuple(
-                tuple(map(operator.add, center,
-                    (
-                        coordinate*scaledSize
-                        for coordinate in vertex
-                    )
-                ))
-                for vertex in squareVertices
-            )
-            for i in range(len(scaledVertices) - 1):
-                line = modelSpace.add_line(scaledVertices[i], scaledVertices[i+1])
-                newlyCreatedEntities.append(line)
-            # modelSpace.add_hatch().paths.add_polyline_path(scaledVertices)
-        else:
-            scaledSize *= nonSquareSizeAdjustmentFactor
-            # modelSpace.add_circle(center=center, radius=scaledSize/2)
-            hatch = modelSpace.add_hatch()
-            hatch.paths.add_polyline_path([
-                (scaledSize/2 + center[0],0+center[1],1),(-scaledSize/2+center[0],0+center[1],1),(scaledSize/2+center[0],0+center[1])
-            ])
-            newlyCreatedEntities.append(hatch)
-            
-    if color != None: 
-        for entity in newlyCreatedEntities: 
-            entity.rgb = color   
-    return newlyCreatedEntities
-
-
-rowIndex = 0
-accumulatedDedendum = 0
-
-# partitionsOfThree = ((1,1,1), (1,2), (3))  <-- this is really hoaw we are categrozing the combinations.  the fact the each combination appears in
-# every possible permutation in the acad color set means that the (3)-pattern combinations appear once, the (1,2)-pattern combinations appear 3 times,
-# and the (1,1,1)-pattern combinations appear 6 times.
-
-magnitudes = range(len(standardMagnitudes))
-#magnitudes = standardMagnitudes
 
 if False:
-    for (frequency, combinations) in indexifiedMagnitudeCombinationsCollectedByFrequency:
-            if frequency == 1:
-                #in this case, we are dealing with combinations of the form (a,a,a)
-                for combination in combinations:
-                    rowY = -gridInterval * rowIndex
-                    drawIcon(modelSpace, ( magnitudes[combination[0]]*gridInterval , rowY))
-                    rowIndex += 1
-            elif frequency == 3:
-                #in this case, we are dealing with a combination of the form (a, b, b) (order irrrelevant)
-                for (singleElement, doubleElement) in sorted(
-                    (
-                        tuple(sorted(
-                        set(combination),
-                        key=lambda x: combination.count(x)                    
-                        ))
-                        for combination in combinations
-                    ), 
-                    key=sorted
-                ):
-                    rowY = -gridInterval * rowIndex
-                    squareIconPosition = (magnitudes[doubleElement] * gridInterval, rowY)
-                    circleIconPosition = (magnitudes[singleElement] * gridInterval, rowY)
-                    drawIcon(modelSpace, squareIconPosition)
-                    drawIcon(modelSpace, circleIconPosition, "circle")
-                    modelSpace.add_line(start=squareIconPosition, end=circleIconPosition)
-                    rowIndex += 1            
-    
-            elif frequency == 6:
-                #in this case, we are dealing with a combination of the form (a, b, c)
-
-                # group the combinations by (smallestElement, largestElement)
-                for (smallestElement, largestElement), middleElements in (
-                    (
-                        (smallestElement, largestElement), 
-                        #middle elements:
-                        tuple(map(
-                            lambda x: sorted(x)[1],
-                            group
-                        ))
-                    )
-                    for (smallestElement, largestElement), group in
-                    itertools.groupby(
-                        sorted(
-                            combinations,
-                            key=lambda x: (min(x), max(x))
-                        ),
-                        key=lambda x: (min(x), max(x))
-                    )
-                ):
-                    rowY = -gridInterval * rowIndex
-                    leftSquarePosition  = (magnitudes[smallestElement]*gridInterval , rowY)
-                    rightSquarePosition = (magnitudes[largestElement]*gridInterval , rowY)
-                    drawIcon(modelSpace, leftSquarePosition)
-                    drawIcon(modelSpace, rightSquarePosition)
-                    for middleElement in middleElements:
-                        drawIcon(modelSpace, (magnitudes[middleElement]*gridInterval , rowY), "circle")
-                    modelSpace.add_line(start=leftSquarePosition, end=rightSquarePosition)
-                    rowIndex += 1
-
-print("len(deOrderedIndexifiedRgbValues): " + str(len(deOrderedIndexifiedRgbValues)))
-
-for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
-    itertools.groupby(
-        sorted(
-            deOrderedIndexifiedRgbValues,
-            # key = lambda x: (not min(x) == max(x), min(x), max(x)) 
-            key = lambda x: (not min(x) == max(x), -max(x), min(x)) 
-        ),
-        key=lambda x: (not min(x) == max(x), min(x), max(x))
+    import tabulate
+    import pprint
+    collectedRgbValues = (
+        tuple(
+            map(
+                lambda i: sorted(set(x[i] for x in aciToRgb.values())),
+                range(len(tuple(aciToRgb.values())[0]))
+            )
+        )
     )
-):
-    rowY = -gridInterval * (rowIndex + accumulatedDedendum)
-    middlePoints = set(map(
-        lambda x: sorted(x)[1],
-        combinations
+
+    print("Here is the complete list of red, green and blue values (respectively) among all the aci colors: " + "\n"
+        + tabulate.tabulate(collectedRgbValues)
+    )
+
+
+
+
+    prettyPrinter = pprint.PrettyPrinter(indent=4, depth = 4, width=24)
+
+    # prettyPrinter.pprint(
+    #     tuple(
+    #         (
+    #             redValue, 
+    #             sorted(
+    #                 tuple(
+    #                     (greenValue, blueValue)
+    #                     for (r, greenValue, blueValue) in aciToRgb.values()
+    #                     if r == redValue
+    #                 )
+    #             )
+    #         ) 
+    #         for redValue in collectedRgbValues[0] 
+    #     )
+    # )
+
+
+    #each member of each rgb value is replaced with the index at which that member appears in the list of standard values
+    standardMagnitudes=sorted(collectedRgbValues[0])
+    indexifiedRgbValues = tuple(map(
+        lambda x:
+            tuple(map(
+                lambda y: standardMagnitudes.index(y),
+                x
+            )),
+        aciToRgb.values()
+    ))
+    uniqueIndexifiedRgbValues = set(indexifiedRgbValues)
+
+    deOrderedIndexifiedRgbValues = tuple(
+        sorted(
+            set(
+                tuple(
+                    map(tuple, map(sorted, 
+                        indexifiedRgbValues
+                    ))
+                )
+            )
+        )
+    )
+
+
+    print("indexifiedRgbValues: ")
+    print(tabulate.tabulate(
+        map(
+            lambda a,b: (str(a)+":", *b),
+            *((lambda x: (range(len(x)), x))(indexifiedRgbValues))
+        )
     ))
 
-    for middlePoint in middlePoints:
-        drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor , rowY), "circle")
-        
-        # middlePointLabelText = "{:d}".format(standardMagnitudes[middlePoint])
-        
-        leftField   = "({:d})".format(standardMagnitudes[lowEnd])
-        middleField = "{:d}".format(standardMagnitudes[middlePoint])
-        rightField  = "({:d})".format(standardMagnitudes[highEnd])
-        leftPadding = " " * max(len(rightField) - len(leftField), 0)
-        rightPadding = " " * max(len(leftField) - len(rightField), 0)
-        middlePointLabelText = leftPadding + leftField + " " + middleField + " " + rightField + rightPadding
-        
-        
-        
-        modelSpace.add_text(middlePointLabelText,dxfattribs={'height':textHeight} ).set_pos(
-                (magnitudes[middlePoint]*gridInterval*xStationScaleFactor, rowY - 0.4*gridInterval),
-                align='MIDDLE_CENTER'
+    print("sorted(indexifiedRgbValues): ")
+    print(tabulate.tabulate(
+        map(
+            lambda a,b: (str(a)+":", *b),
+            *((lambda x: (range(len(x)), x))(sorted(indexifiedRgbValues) ))
+        )
+    ))
+
+    print("sorted(set(indexifiedRgbValues)) with frequencies, sorted by frequency: ")
+    print(tabulate.tabulate(
+        map(
+            lambda a,b: (str(a)+":", *b),
+            *((lambda x: (range(len(x)), x))(
+                tuple(sorted(
+                    map(
+                        lambda x: ( 
+                            len(
+                                tuple(
+                                    0 for y in indexifiedRgbValues
+                                    if y==x 
+                                )
+                            ),
+                            *x
+                        ),
+                        sorted(set(indexifiedRgbValues)) 
+                    )
+                ))
+            ))
+        )
+    ))
+
+    print("deOrderedIndexifiedRgbValues: ")
+    print(tabulate.tabulate(
+        map(
+            lambda a,b: (str(a)+":", *b),
+            *((lambda x: (range(len(x)), x))(deOrderedIndexifiedRgbValues))
+        )
+    ))
+
+    deOrderedIndexifiedRgbValuesWithCounts = tuple(map(
+        lambda x:
+            (
+                len(tuple(
+                    0 for y in set(indexifiedRgbValues)
+                    if sorted(y) == sorted(x)
+                )),
+                *x
+            ),
+        deOrderedIndexifiedRgbValues
+    ))
+
+
+    print("lengths of colledctedRgbValues: " + str(tuple(map(len, collectedRgbValues))))
+
+    indexifiedMagnitudeCombinationsCollectedByFrequency = tuple(
+        (
+            frequency,
+            tuple(x[1:] 
+                for x in deOrderedIndexifiedRgbValuesWithCounts
+                if x[0] == frequency
+            )    
+        ) 
+        for frequency in set(
+            tuple(map(
+                lambda x: x[0],
+                deOrderedIndexifiedRgbValuesWithCounts
+            ))
+        )
+    )
+
+    print("indexifiedMagnitudeCombinationsCollectedByFrequency: ")
+    print(
+        "\n".join(
+            map(
+                lambda x:
+                    "magnitude combinations that appear " + str(x[0]) + " times: " + "\n"
+                    + "\t" +  "There are " + str(len(x[1])) + " such magnitude combinations:" + "\n" 
+                    + "\t" + "and they use " + str(len(set(itertools.chain(*x[1])))) + " of the magnitudes, namely " 
+                    + str(
+                        sorted(
+                            set(itertools.chain(*x[1]))
+                        )
+                    ) +  "\n"
+                    + "\t" + "\n\t".join(
+                        map(str, x[1])
+                    ),
+                indexifiedMagnitudeCombinationsCollectedByFrequency
             )
+        )
+    )
 
-    for extremePoint in set((lowEnd, highEnd)):
-        drawIcon(modelSpace, (magnitudes[extremePoint]*gridInterval*xStationScaleFactor , rowY))
+
+    print("indexifiedMagnitudeCombinationsCollectedByFrequency, with different inner sorting: ")
+    print(
+        "\n".join(
+            map(
+                lambda x:
+                    "magnitude combinations that appear " + str(x[0]) + " times: " + "\n"
+                    + "\t" +  "There are " + str(len(x[1])) + " such magnitude combinations:" + "\n" 
+                    + "\t" + "and they use " + str(len(set(itertools.chain(*x[1])))) + " of the magnitudes, namely " 
+                    + str(
+                        sorted(
+                            set(itertools.chain(*x[1]))
+                        )
+                    ) +  "\n"
+                    + "\t" 
+                    # + "\n\t".join(map(str, 
+                    #     sorted(
+                    #         x[1],
+                    #         key= lambda x: (x[0], x[2], x[1])
+                    #     )
+                    # ))
+                    + tabulate.tabulate(
+                        sorted(
+                            x[1],
+                            key= lambda x: (x[0], x[2], x[1])
+                        )
+                    )
+                    ,
+                indexifiedMagnitudeCombinationsCollectedByFrequency
+            )
+        )
+    )
+
+    import ezdxf;
+    doc = ezdxf.new(dxfversion="R2010")
+    modelSpace = doc.modelspace()
+
+    inch = 1.0
+    millimeter = inch/25.4
+
+    gridInterval = 0.1 * inch
+    xStationScaleFactor = 1.3 #2.4
+    textHeight = 0.1*gridInterval
+
+    def drawIcon(modelSpace, center, iconType="square", color=None) -> list:
+        newlyCreatedEntities = []
+        size = gridInterval*0.5
+        numberOfNestedCopies = 1
+        nonSquareSizeAdjustmentFactor = 0.65
+
+        squareVertices =[            
+            (-1/2, -1/2),
+            (1/2, -1/2),
+            (1/2, 1/2),
+            (-1/2,1/2)
+        ]
+
+        #close it:
+        squareVertices.append(squareVertices[0])
         
-    modelSpace.add_line(start=(magnitudes[lowEnd]*gridInterval*xStationScaleFactor , rowY), end=(magnitudes[highEnd]*gridInterval*xStationScaleFactor , rowY))
+        for i in range(numberOfNestedCopies):
+            scaledSize = size*(1 - i/numberOfNestedCopies)
 
-    dedendum = 0
-    maximumDedendum = 0
-    
-    for middlePoint in middlePoints:
-        dedendum = 0.3
-        for colorIndex, rgb in filter(
-            lambda item : sorted(
-                map(
-                    standardMagnitudes.index,
-                    item[1]
+            if iconType=="square":
+                #scale by size and move to center
+                scaledVertices = tuple(
+                    tuple(map(operator.add, center,
+                        (
+                            coordinate*scaledSize
+                            for coordinate in vertex
+                        )
+                    ))
+                    for vertex in squareVertices
                 )
-            ) == sorted((lowEnd, middlePoint, highEnd)),
-            aciToRgb.items() 
-        ):
-            lmhMap = {}
-            lmhMap[highEnd]     = 'C' # 'H'
-            lmhMap[middlePoint] = 'B' # 'M'
-            lmhMap[lowEnd]      = 'A' # 'L'
-            lmhSignature = "".join(map(lambda x: lmhMap[standardMagnitudes.index(x)], rgb))
-            # colorSampleLabelText = "{:3d}: {:3d}, {:3d}, {:3d} {:s}".format(colorIndex, *rgb, lmhSignature)
-            colorSampleLabelText = "{:3d}:{:s}".format(colorIndex, lmhSignature)
-            
-            dedendum += 0.5
-            dedendedRowY = rowY - gridInterval*dedendum
+                for i in range(len(scaledVertices) - 1):
+                    line = modelSpace.add_line(scaledVertices[i], scaledVertices[i+1])
+                    newlyCreatedEntities.append(line)
+                # modelSpace.add_hatch().paths.add_polyline_path(scaledVertices)
+            else:
+                scaledSize *= nonSquareSizeAdjustmentFactor
+                # modelSpace.add_circle(center=center, radius=scaledSize/2)
+                hatch = modelSpace.add_hatch()
+                hatch.paths.add_polyline_path([
+                    (scaledSize/2 + center[0],0+center[1],1),(-scaledSize/2+center[0],0+center[1],1),(scaledSize/2+center[0],0+center[1])
+                ])
+                newlyCreatedEntities.append(hatch)
+                
+        if color != None: 
+            for entity in newlyCreatedEntities: 
+                entity.rgb = color   
+        return newlyCreatedEntities
 
-            drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor , dedendedRowY), "circle", color=rgb)
-            for entity in drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.06*gridInterval , dedendedRowY), "circle"):
-                entity.dxf.color = colorIndex
 
-            # modelSpace.add_text("{:3d}: {:3d}, {:3d}, {:3d}".format(colorIndex, *rgb),dxfattribs={'height':textHeight} ).set_pos(
-            #     (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.3 * gridInterval, dedendedRowY),
-            #     align='MIDDLE_LEFT'
-            # )
-            modelSpace.add_text(colorSampleLabelText,dxfattribs={'height':textHeight} ).set_pos(
-                (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.3 * gridInterval, dedendedRowY),
-                align='MIDDLE_LEFT'
-            )
+    rowIndex = 0
+    accumulatedDedendum = 0
 
-        maximumDedendum = max(maximumDedendum, dedendum)
+    # partitionsOfThree = ((1,1,1), (1,2), (3))  <-- this is really hoaw we are categrozing the combinations.  the fact the each combination appears in
+    # every possible permutation in the acad color set means that the (3)-pattern combinations appear once, the (1,2)-pattern combinations appear 3 times,
+    # and the (1,1,1)-pattern combinations appear 6 times.
+
+    magnitudes = range(len(standardMagnitudes))
+    #magnitudes = standardMagnitudes
+
+    if False:
+        for (frequency, combinations) in indexifiedMagnitudeCombinationsCollectedByFrequency:
+                if frequency == 1:
+                    #in this case, we are dealing with combinations of the form (a,a,a)
+                    for combination in combinations:
+                        rowY = -gridInterval * rowIndex
+                        drawIcon(modelSpace, ( magnitudes[combination[0]]*gridInterval , rowY))
+                        rowIndex += 1
+                elif frequency == 3:
+                    #in this case, we are dealing with a combination of the form (a, b, b) (order irrrelevant)
+                    for (singleElement, doubleElement) in sorted(
+                        (
+                            tuple(sorted(
+                            set(combination),
+                            key=lambda x: combination.count(x)                    
+                            ))
+                            for combination in combinations
+                        ), 
+                        key=sorted
+                    ):
+                        rowY = -gridInterval * rowIndex
+                        squareIconPosition = (magnitudes[doubleElement] * gridInterval, rowY)
+                        circleIconPosition = (magnitudes[singleElement] * gridInterval, rowY)
+                        drawIcon(modelSpace, squareIconPosition)
+                        drawIcon(modelSpace, circleIconPosition, "circle")
+                        modelSpace.add_line(start=squareIconPosition, end=circleIconPosition)
+                        rowIndex += 1            
         
+                elif frequency == 6:
+                    #in this case, we are dealing with a combination of the form (a, b, c)
+
+                    # group the combinations by (smallestElement, largestElement)
+                    for (smallestElement, largestElement), middleElements in (
+                        (
+                            (smallestElement, largestElement), 
+                            #middle elements:
+                            tuple(map(
+                                lambda x: sorted(x)[1],
+                                group
+                            ))
+                        )
+                        for (smallestElement, largestElement), group in
+                        itertools.groupby(
+                            sorted(
+                                combinations,
+                                key=lambda x: (min(x), max(x))
+                            ),
+                            key=lambda x: (min(x), max(x))
+                        )
+                    ):
+                        rowY = -gridInterval * rowIndex
+                        leftSquarePosition  = (magnitudes[smallestElement]*gridInterval , rowY)
+                        rightSquarePosition = (magnitudes[largestElement]*gridInterval , rowY)
+                        drawIcon(modelSpace, leftSquarePosition)
+                        drawIcon(modelSpace, rightSquarePosition)
+                        for middleElement in middleElements:
+                            drawIcon(modelSpace, (magnitudes[middleElement]*gridInterval , rowY), "circle")
+                        modelSpace.add_line(start=leftSquarePosition, end=rightSquarePosition)
+                        rowIndex += 1
+
+    print("len(deOrderedIndexifiedRgbValues): " + str(len(deOrderedIndexifiedRgbValues)))
+
+    for (lowEndIsDifferentFromHighEnd, lowEnd, highEnd), combinations in (
+        itertools.groupby(
+            sorted(
+                deOrderedIndexifiedRgbValues,
+                # key = lambda x: (not min(x) == max(x), min(x), max(x)) 
+                key = lambda x: (not min(x) == max(x), -max(x), min(x)) 
+            ),
+            key=lambda x: (not min(x) == max(x), min(x), max(x))
+        )
+    ):
+        rowY = -gridInterval * (rowIndex + accumulatedDedendum)
+        middlePoints = set(map(
+            lambda x: sorted(x)[1],
+            combinations
+        ))
+
+        for middlePoint in middlePoints:
+            drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor , rowY), "circle")
+            
+            # middlePointLabelText = "{:d}".format(standardMagnitudes[middlePoint])
+            
+            leftField   = "({:d})".format(standardMagnitudes[lowEnd])
+            middleField = "{:d}".format(standardMagnitudes[middlePoint])
+            rightField  = "({:d})".format(standardMagnitudes[highEnd])
+            leftPadding = " " * max(len(rightField) - len(leftField), 0)
+            rightPadding = " " * max(len(leftField) - len(rightField), 0)
+            middlePointLabelText = leftPadding + leftField + " " + middleField + " " + rightField + rightPadding
+            
+            
+            
+            modelSpace.add_text(middlePointLabelText,dxfattribs={'height':textHeight} ).set_pos(
+                    (magnitudes[middlePoint]*gridInterval*xStationScaleFactor, rowY - 0.4*gridInterval),
+                    align='MIDDLE_CENTER'
+                )
+
+        for extremePoint in set((lowEnd, highEnd)):
+            drawIcon(modelSpace, (magnitudes[extremePoint]*gridInterval*xStationScaleFactor , rowY))
+            
+        modelSpace.add_line(start=(magnitudes[lowEnd]*gridInterval*xStationScaleFactor , rowY), end=(magnitudes[highEnd]*gridInterval*xStationScaleFactor , rowY))
+
+        dedendum = 0
+        maximumDedendum = 0
+        
+        for middlePoint in middlePoints:
+            dedendum = 0.3
+            for colorIndex, rgb in filter(
+                lambda item : sorted(
+                    map(
+                        standardMagnitudes.index,
+                        item[1]
+                    )
+                ) == sorted((lowEnd, middlePoint, highEnd)),
+                aciToRgb.items() 
+            ):
+                lmhMap = {}
+                lmhMap[highEnd]     = 'C' # 'H'
+                lmhMap[middlePoint] = 'B' # 'M'
+                lmhMap[lowEnd]      = 'A' # 'L'
+                lmhSignature = "".join(map(lambda x: lmhMap[standardMagnitudes.index(x)], rgb))
+                # colorSampleLabelText = "{:3d}: {:3d}, {:3d}, {:3d} {:s}".format(colorIndex, *rgb, lmhSignature)
+                colorSampleLabelText = "{:3d}:{:s}".format(colorIndex, lmhSignature)
+                
+                dedendum += 0.5
+                dedendedRowY = rowY - gridInterval*dedendum
+
+                drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor , dedendedRowY), "circle", color=rgb)
+                for entity in drawIcon(modelSpace, (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.06*gridInterval , dedendedRowY), "circle"):
+                    entity.dxf.color = colorIndex
+
+                # modelSpace.add_text("{:3d}: {:3d}, {:3d}, {:3d}".format(colorIndex, *rgb),dxfattribs={'height':textHeight} ).set_pos(
+                #     (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.3 * gridInterval, dedendedRowY),
+                #     align='MIDDLE_LEFT'
+                # )
+                modelSpace.add_text(colorSampleLabelText,dxfattribs={'height':textHeight} ).set_pos(
+                    (magnitudes[middlePoint]*gridInterval*xStationScaleFactor + 0.3 * gridInterval, dedendedRowY),
+                    align='MIDDLE_LEFT'
+                )
+
+            maximumDedendum = max(maximumDedendum, dedendum)
+            
 
 
-    accumulatedDedendum = math.ceil(accumulatedDedendum + maximumDedendum + 1)
-    rowIndex += 1
+        accumulatedDedendum = math.ceil(accumulatedDedendum + maximumDedendum + 1)
+        rowIndex += 1
 
 
 
-doc.set_modelspace_vport(height=20, center=(10, -10))
+    doc.set_modelspace_vport(height=20, center=(10, -10))
 
 pathOfColorspaceDiagramDxfFile = output_human_readable_pen_table_file_path.parent.joinpath(str(uuid.uuid4()) + ".dxf")
 pathOfColorspaceDiagramDwgFile = pathOfColorspaceDiagramDxfFile.with_name(str(uuid.uuid4()) + ".dwg")
-doc.saveas(pathOfColorspaceDiagramDxfFile)
+PentableColor.writeColorspaceGraphToFile(pathOfColorspaceDiagramDxfFile)
 
 import pythoncom
 import win32com.client
 
-
 acad = win32com.client.gencache.EnsureDispatch("AutoCAD.Application")
 mainDocument = acad.ActiveDocument
 
-# print("acad.ActiveDocument.ModelSpace.Name: " + acad.ActiveDocument.ModelSpace.Name )
-# acad.ActiveDocument.Blocks.Item("*Model_Space")
 for entity in mainDocument.ModelSpace:
     entity.Delete()
 
-# insertionPoint = VARIANT(VT_VARIANT, [0.0,0.0,0.0])
-# acad.ActiveDocument.Utility.CreateTypedArray(insertionPoint, 5, 0.0,0.0,0.0)
-# insertionPoint = acad.ActiveDocument.ActiveUCS.Origin
-# insertionPoint = acad.ActiveDocument.ActiveViewport.Target
-
-
-
 insertionPoint = win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, (0,0,0))
-print("insertionPoint: " + str(insertionPoint))
+
 # blockReference = acad.ActiveDocument.ModelSpace.InsertBlock((0.0,0.0,0.0), str(pathOfColorspaceDiagramDxfFile.resolve()), 0.0, 0.0, 0.0, 0.0)
 # blockReference = acad.ActiveDocument.ModelSpace.InsertBlock(
 #     insertionPoint,
@@ -958,19 +950,15 @@ dxfDocument = acad.Documents.Open(str(pathOfColorspaceDiagramDxfFile.resolve()),
 dxfDocument.SaveAs(str(pathOfColorspaceDiagramDwgFile), 64)
 dxfDocument.Close(False)
 blockReference = mainDocument.ModelSpace.InsertBlock(
-    insertionPoint,
+    win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, (0,0,0)),
     str(pathOfColorspaceDiagramDwgFile),
     1.0,
     1.0,
     1.0, 
     0.0
 )
-
 os.remove(pathOfColorspaceDiagramDxfFile)
 os.remove(pathOfColorspaceDiagramDwgFile)
 
-# newlyCreatedBlockDefinition=blockReference.Document.Blocks.Item(blockReference.Name)
-
-# newlyCreatedBlockDefinition.Name = str(uuid.uuid4())
 
  
