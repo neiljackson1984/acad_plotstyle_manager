@@ -29,10 +29,8 @@ json.dump(myPentable.toHumanReadableDictionary(), open(output_human_readable_pen
 json.dump(myPentable.toRawDictionary(), open(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name).with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json")  , "w"), indent=4)
 
 
-# lineweightConceptReport()
-
-# thePentable = AcadPentable()
-thePentable = myPentable
+thePentable = AcadPentable()
+# thePentable = myPentable
 
 if False:
     thisPlotStyle = thePentable.addAPlotstyle(name="tester1")
@@ -125,10 +123,11 @@ if True:
 
     preferredColors = {
         'black': PentableColor(0, 0,   0),
-        'blue':  PentableColor(0, 0, 255)
+        'blue':  PentableColor(0, 0, 255),
+        'red':  PentableColor(127, 0, 0)
     }
 
-    # we want to consturct a pen table having a nicely-named plot style for each member of the cartesian prodcut of our 
+    # we want to consturct a pen table having a nicely-named plot style for each member of the cartesian product of our 
     # series of preferred property values (along with an "unspecified") value added to each series of preferred property values
     # so that, for any combination of properties that we choose to enforce and preferred values for those properties, we can find a corresponding
     # plot style.  I am tempted not to have an "unspecified" value for the line thicknesses, because I want to strictly adhere to the
@@ -464,12 +463,12 @@ if False:
         f.write(samplerScript)
 
 
-# thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath("good.stb"))
 thePentable.writeToFile(output_human_readable_pen_table_file_path.parent.joinpath(input_acad_pen_table_file_path.name))
 json.dump(thePentable.toHumanReadableDictionary(),   open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".json"), "w"), indent=4)
 json.dump(thePentable.toRawDictionary(),             open(output_human_readable_pen_table_file_path.parent.joinpath("good.stb").with_suffix(input_acad_pen_table_file_path.suffix + ".raw.json"), "w"), indent=4)
 
-thePentable.writeSamplerToFile(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"))
+if False:
+    thePentable.writeSamplerToFile(output_human_readable_pen_table_file_path.parent.joinpath("sampler.lsp"))
 
 if False:
     import tabulate
@@ -887,78 +886,36 @@ if False:
 
     doc.set_modelspace_vport(height=20, center=(10, -10))
 
-pathOfColorspaceDiagramDxfFile = output_human_readable_pen_table_file_path.parent.joinpath(str(uuid.uuid4()) + ".dxf")
-pathOfColorspaceDiagramDwgFile = pathOfColorspaceDiagramDxfFile.with_name(str(uuid.uuid4()) + ".dwg")
-PentableColor.writeColorspaceGraphToFile(pathOfColorspaceDiagramDxfFile)
 
-import pythoncom
-import win32com.client
+if False:
+    pathOfColorspaceDiagramDxfFile = output_human_readable_pen_table_file_path.parent.joinpath(str(uuid.uuid4()) + ".dxf")
+    pathOfColorspaceDiagramDwgFile = pathOfColorspaceDiagramDxfFile.with_name(str(uuid.uuid4()) + ".dwg")
+    PentableColor.writeColorspaceGraphToFile(pathOfColorspaceDiagramDxfFile)
 
-acad = win32com.client.gencache.EnsureDispatch("AutoCAD.Application")
-mainDocument = acad.ActiveDocument
+    import pythoncom
+    import win32com.client
 
-for entity in mainDocument.ModelSpace:
-    entity.Delete()
+    acad = win32com.client.gencache.EnsureDispatch("AutoCAD.Application")
+    mainDocument = acad.ActiveDocument
 
-insertionPoint = win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, (0,0,0))
-
-# blockReference = acad.ActiveDocument.ModelSpace.InsertBlock((0.0,0.0,0.0), str(pathOfColorspaceDiagramDxfFile.resolve()), 0.0, 0.0, 0.0, 0.0)
-# blockReference = acad.ActiveDocument.ModelSpace.InsertBlock(
-#     insertionPoint,
-#     str(pathOfColorspaceDiagramDxfFile),
-#     1.0,
-#     1.0,
-#     1.0, 
-#     0.0
-# )
-# throws pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, 'AutoCAD.Application', 'Invalid drawing file header', 'C:\\Program Files\\Autodesk\\AutoCAD 2021\\HELP\\OLE_ERR.CHM', -2145386307, -2145386307), None)
-
- 
-# blockReference = acad.ActiveDocument.Import(
-#     str(pathOfColorspaceDiagramDxfFile),
-#     insertionPoint, 
-#     1.0
-# ) # this works, but inserts (exploded) into the active space
-# #doesn't work
-
-# print("pathOfColorspaceDiagramDxfFile.stem: " + pathOfColorspaceDiagramDxfFile.stem)
-# uniqueName = str(uuid.uuid4())
-
-# try:
-#     acad.ActiveDocument.Blocks.Item(pathOfColorspaceDiagramDxfFile.stem).Name = uniqueName
-# except Exception as e:
-#     pass    
+    for entity in mainDocument.ModelSpace:
+        entity.Delete()
 
 
 
-# acad.ActiveDocument.SendCommand(".-insert \"" + str(pathOfColorspaceDiagramDxfFile.resolve()) + "\"\n0,0,0 1 1 0\n")
-# print("inserted")
-# acad.ActiveDocument.Blocks.Item(pathOfColorspaceDiagramDxfFile.stem).Name = uniqueName
-# acad.ActiveDocument.Update()
-# for blockDefinition in acad.ActiveDocument.Blocks:
-#     for entity in blockDefinition:
-#         try:
-#             if(entity.ObjectName == "AcDbBlockReference"  and entity.EffectiveName.upper == uniqueName.upper):
-#                 print( "found and deleted a reference whose name is: ")
-#                 print(entity.EffectiveName)
-#                 entity.Delete()
-                
-#         except Exception as e:
-#             pass
-
-dxfDocument = acad.Documents.Open(str(pathOfColorspaceDiagramDxfFile.resolve()), True)
-dxfDocument.SaveAs(str(pathOfColorspaceDiagramDwgFile), 64)
-dxfDocument.Close(False)
-blockReference = mainDocument.ModelSpace.InsertBlock(
-    win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, (0,0,0)),
-    str(pathOfColorspaceDiagramDwgFile),
-    1.0,
-    1.0,
-    1.0, 
-    0.0
-)
-os.remove(pathOfColorspaceDiagramDxfFile)
-os.remove(pathOfColorspaceDiagramDwgFile)
+    dxfDocument = acad.Documents.Open(str(pathOfColorspaceDiagramDxfFile.resolve()), True)
+    dxfDocument.SaveAs(str(pathOfColorspaceDiagramDwgFile), 64)
+    dxfDocument.Close(False)
+    blockReference = mainDocument.ModelSpace.InsertBlock(
+        win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, (0,0,0)),
+        str(pathOfColorspaceDiagramDwgFile),
+        1.0,
+        1.0,
+        1.0, 
+        0.0
+    )
+    os.remove(pathOfColorspaceDiagramDxfFile)
+    os.remove(pathOfColorspaceDiagramDwgFile)
 
 
- 
+    
